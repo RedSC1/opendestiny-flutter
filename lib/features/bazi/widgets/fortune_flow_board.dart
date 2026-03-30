@@ -57,14 +57,20 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
           itemBuilder: (context, i) {
             final d = widget.table.decades[i];
             final bool isCurrentDecade = now.isAfter(d.startTime) && now.isBefore(d.endTime);
+            final isXiaoYun = d.index == 0;
+            
+            // 小运的干支取1岁的流年代入兜底显示，因为每年都会变
+            final displayGz = isXiaoYun ? widget.table.fortune.getXiaoYunByAge(1) : d.ganZhi;
+
             return FortuneCard(
-              shiShen: Relationship.getShiShen(widget.dayMaster, d.ganZhi.gan).display,
-              gz: d.ganZhi,
+              shiShen: isXiaoYun ? '' : Relationship.getShiShen(widget.dayMaster, displayGz.gan).display,
+              gz: displayGz,
               top: '${d.startTime.year}',
-              bottom: '${d.startAge}${'虚岁'.tr}',
+              bottom: isXiaoYun ? '1~${d.endAge}${'岁'.tr}' : '${d.startAge}${'虚岁'.tr}',
               isSel: selD == i,
               isCur: isCurrentDecade,
               activeCol: Colors.deepPurple,
+              isXiaoYunBlock: isXiaoYun,
               onTap: () {
                 ref.read(selDecadeIdxProvider.notifier).state = i;
                 _resetFrom(1);
@@ -77,16 +83,22 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
         if (selD != null)
           _FortuneHList(
             controller: _controllers[1],
-            label: '流年'.tr,
+            label: '流年小运'.tr,
             itemCount: widget.table.decades[selD].years.length,
             itemBuilder: (context, i) {
               final y = widget.table.decades[selD].years[i];
               final bool isCurrentYear = y.year == currentBaziYear;
+              
+              // 无论是否是大运，每年都计算并显示小运干支
+              final int age = y.year - widget.table.fortune.birthday.year + 1;
+              final GanZhi xiaoYunGz = widget.table.fortune.getXiaoYunByAge(age);
+              final String bottomText = xiaoYunGz.toString();
+
               return FortuneCard(
                 shiShen: Relationship.getShiShen(widget.dayMaster, y.ganZhi.gan).display,
                 gz: y.ganZhi,
                 top: '${y.year}',
-                bottom: '流年'.tr,
+                bottom: bottomText,
                 isSel: selY == i,
                 isCur: isCurrentYear,
                 activeCol: Colors.orange,
@@ -205,10 +217,10 @@ class _FortuneHList extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          child: Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500)),
         ),
         Container(
-          height: 130,
+          height: 156,
           padding: const EdgeInsets.only(bottom: 4),
           child: Scrollbar(
             controller: controller,

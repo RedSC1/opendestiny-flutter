@@ -10,24 +10,27 @@ class BaziTabSwitcher extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentTab = ref.watch(baziBottomTabProvider);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SegmentedButton<BaziBottomTab>(
-        segments: [
-          ButtonSegment(
-            value: BaziBottomTab.fortune,
-            label: Text('大运流年'.tr),
-            icon: const Icon(Icons.trending_up),
-          ),
-          ButtonSegment(
-            value: BaziBottomTab.taiMingShen,
-            label: Text('胎命身'.tr),
-            icon: const Icon(Icons.hub),
-          ),
-        ],
-        selected: {currentTab},
-        onSelectionChanged: (val) => ref.read(baziBottomTabProvider.notifier).state = val.first,
+    return SegmentedButton<BaziBottomTab>(
+      // 💡 紧凑设计：缩小边距和点击区域
+      style: SegmentedButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: EdgeInsets.zero,
       ),
+      segments: [
+        ButtonSegment(
+          value: BaziBottomTab.fortune,
+          label: Text('运'.tr, style: const TextStyle(fontSize: 12)), // 缩短文字
+          icon: const Icon(Icons.trending_up, size: 16),
+        ),
+        ButtonSegment(
+          value: BaziBottomTab.taiMingShen,
+          label: Text('胎'.tr, style: const TextStyle(fontSize: 12)), // 缩短文字
+          icon: const Icon(Icons.hub, size: 16),
+        ),
+      ],
+      selected: {currentTab},
+      onSelectionChanged: (val) => ref.read(baziBottomTabProvider.notifier).state = val.first,
     );
   }
 }

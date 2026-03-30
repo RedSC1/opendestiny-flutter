@@ -5,7 +5,7 @@ import 'features/bazi/bazi_view.dart';
 import 'features/settings/settings_view.dart';
 import 'providers/input_provider.dart'; // ✅ 补上
 import 'core/l10n.dart';
- // ✅ 补上
+// ✅ 补上
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -38,7 +38,7 @@ class MainEntryPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationIndexProvider);
     // 🚀 重点：监听 profile 变化（包含语言切换），强制触发 UI 刷新
-    ref.watch(inputNotifierProvider); 
+    ref.watch(inputNotifierProvider);
 
     final List<Widget> pages = [
       const ProfileView(),
@@ -57,7 +57,8 @@ class MainEntryPage extends ConsumerWidget {
       body: pages[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
-        onTap: (index) => ref.read(navigationIndexProvider.notifier).state = index,
+        onTap: (index) =>
+            ref.read(navigationIndexProvider.notifier).state = index,
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.person),
@@ -73,7 +74,6 @@ class MainEntryPage extends ConsumerWidget {
           ),
         ],
       ),
-
     );
   }
 }

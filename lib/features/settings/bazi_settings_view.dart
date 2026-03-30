@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bazi_core/bazi_core.dart';
-import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../../providers/input_provider.dart';
 import '../../models/destiny_profile.dart';
-import '../../core/l10n.dart'; // ✅ 补上翻译引用
+import '../../core/l10n.dart';
 
 class BaziSettingsView extends ConsumerWidget {
   const BaziSettingsView({super.key});

@@ -13,6 +13,7 @@ class FortuneCard extends StatelessWidget {
   final VoidCallback onTap;
   final Color activeCol;
   final double width;
+  final bool isXiaoYunBlock;
 
   const FortuneCard({
     super.key,
@@ -24,7 +25,8 @@ class FortuneCard extends StatelessWidget {
     this.isCur = false,
     required this.onTap,
     this.activeCol = Colors.deepPurple,
-    this.width = 60,
+    this.width = 68,
+    this.isXiaoYunBlock = false,
   });
 
   @override
@@ -36,7 +38,7 @@ class FortuneCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: finalWidth,
-        margin: const EdgeInsets.only(right: 8, bottom: 12),
+        margin: const EdgeInsets.only(right: 8, bottom: 8),
         decoration: BoxDecoration(
           color: isSel ? activeCol.withOpacity(0.05) : (isCur ? Colors.amber.withOpacity(0.1) : Colors.white),
           borderRadius: BorderRadius.circular(6),
@@ -58,15 +60,15 @@ class FortuneCard extends StatelessWidget {
                     const SizedBox(width: 2),
                   ],
                   SizedBox(
-                    height: 14, // 略微放大
+                    height: 18,
                     child: FittedBox(
                       fit: BoxFit.scaleDown, 
                       child: Text(
-                        shiShen, 
+                        isXiaoYunBlock ? top : shiShen, 
                         style: TextStyle(
                           color: isSel ? activeCol : Colors.blueGrey, 
                           fontWeight: FontWeight.bold,
-                          fontSize: 11
+                          fontSize: 14
                         )
                       )
                     )
@@ -74,26 +76,34 @@ class FortuneCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              gz.gan.display, 
-              style: TextStyle(
-                fontSize: 20, // 18 -> 20
-                fontWeight: FontWeight.bold, 
-                color: BaziUIUtils.getWuXingColor(BaziTable.getWuXingOfGan(gz.gan))
-              )
-            ),
-            Text(
-              gz.zhi.display, 
-              style: TextStyle(
-                fontSize: 20, // 18 -> 20
-                fontWeight: FontWeight.bold, 
-                color: BaziUIUtils.getWuXingColor(BaziTable.getWuXingOfZhi(gz.zhi))
-              )
-            ),
-            const SizedBox(height: 4),
-            Text(top, style: const TextStyle(fontSize: 10, color: Colors.black54, fontWeight: FontWeight.w500)),
-            Text(bottom, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w400)),
+            if (isXiaoYunBlock) ...[
+              Text(bottom, style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold)),
+              const Spacer(),
+              const Text('小', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+              const Text('运', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+              const Spacer(),
+            ] else ...[
+              const SizedBox(height: 4),
+              Text(
+                gz.gan.display, 
+                style: TextStyle(
+                  fontSize: 24, 
+                  fontWeight: FontWeight.bold, 
+                  color: BaziUIUtils.getWuXingColor(BaziTable.getWuXingOfGan(gz.gan))
+                )
+              ),
+              Text(
+                gz.zhi.display, 
+                style: TextStyle(
+                  fontSize: 24, 
+                  fontWeight: FontWeight.bold, 
+                  color: BaziUIUtils.getWuXingColor(BaziTable.getWuXingOfZhi(gz.zhi))
+                )
+              ),
+              const SizedBox(height: 6),
+              Text(top, style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold)),
+              Text(bottom, style: const TextStyle(fontSize: 11, color: Colors.black54, fontWeight: FontWeight.w600)),
+            ]
           ],
         ),
       ),
