@@ -77,10 +77,17 @@ class FortuneCard extends StatelessWidget {
               ),
             ),
             if (isXiaoYunBlock) ...[
-              Text(bottom, style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold)),
               const Spacer(),
-              const Text('小', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
-              const Text('运', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '小运'.tr, 
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)
+                  ),
+                ),
+              ),
               const Spacer(),
             ] else ...[
               const SizedBox(height: 4),

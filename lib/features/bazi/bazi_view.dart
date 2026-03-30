@@ -6,6 +6,7 @@ import 'widgets/bazi_chart_board.dart';
 import 'widgets/bazi_tab_switcher.dart';
 import 'widgets/fortune_flow_board.dart';
 import 'widgets/tai_ming_shen_board.dart';
+import '../../core/l10n.dart';
 
 // 1. 状态管理
 enum BaziBottomTab { taiMingShen, fortune }
@@ -85,6 +86,21 @@ class BaziView extends ConsumerWidget {
                 ],
               ),
             ),
+            if (ref.watch(showProfessionalProvider))
+              Padding(
+                padding: const EdgeInsets.only(left: 16, top: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '注：神煞功能暂未进行精确人工校对，结果仅供参考。'.tr,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.red.shade300,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
             const SizedBox(height: 16), // 缩小间距
             BaziChartBoard(
               chart: baziChart,
@@ -96,7 +112,11 @@ class BaziView extends ConsumerWidget {
             if (currentTab == BaziBottomTab.taiMingShen)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TaiMingShenBoard(chart: baziChart, dayGan: dayGan),
+                child: TaiMingShenBoard(
+                  chart: baziChart, 
+                  dayGan: dayGan,
+                  showProfessional: ref.watch(showProfessionalProvider),
+                ),
               )
             else
               FortuneFlowBoard(table: fortuneTable, dayMaster: dayGan),

@@ -70,17 +70,17 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     );
     final curve = math.cos(normalized * (math.pi / 2)); // 1.0 -> 0.0 的平滑曲线
 
-    // 1. 柱子宽度弹性收缩：从 47px 到 44px (缩小极值差距)
-    final double pWidth = isEn ? 70.0 : (44.0 + (47.0 - 44.0) * curve);
+    // 1. 柱子宽度弹性收缩：从 47px 到 41px (极限压缩)
+    final double pWidth = isEn ? 70.0 : (41.0 + (47.0 - 41.0) * curve);
 
-    // 2. 柱间距弹性收缩：从 8px 到 6px (保持稳定感)
-    final double gap = 6.0 + (8.0 - 6.0) * curve;
+    // 2. 柱间距弹性收缩：从 8px 到 4px (给左侧图例和右侧边缘留空间)
+    final double gap = 4.0 + (8.0 - 4.0) * curve;
 
-    // 3. 侧边距弹性收缩：从 28px 到 6px
-    final double elasticMargin = 6.0 + (28.0 - 6.0) * curve;
+    // 3. 侧边距弹性收缩：从 28px 到 4px
+    final double elasticMargin = 4.0 + (28.0 - 4.0) * curve;
 
-    // 4. 专业模式下的额外避让 (左侧图例35px固定)
-    final double leftBasePadding = _showProfessional ? 35.0 : 0.0;
+    // 4. 专业模式下的额外避让 (左侧图例调窄到 32px)
+    final double leftBasePadding = _showProfessional ? 32.0 : 0.0;
 
     final leftPillars = <Widget>[];
     if (widget.currentTab == BaziBottomTab.taiMingShen) {
@@ -91,6 +91,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
           dayMaster: dayMaster,
           width: pWidth,
           showProfessional: _showProfessional,
+          shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, widget.chart.shenGong, PillarType.shenGong) : const [],
         ),
         BaziPillarWidget(
           label: '命宫',
@@ -98,6 +99,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
           dayMaster: dayMaster,
           width: pWidth,
           showProfessional: _showProfessional,
+          shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, widget.chart.mingGong, PillarType.mingGong) : const [],
         ),
         BaziPillarWidget(
           label: '胎息',
@@ -105,6 +107,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
           dayMaster: dayMaster,
           width: pWidth,
           showProfessional: _showProfessional,
+          shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, widget.chart.taiXi, PillarType.taiXi) : const [],
         ),
         BaziPillarWidget(
           label: '胎元',
@@ -112,6 +115,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
           dayMaster: dayMaster,
           width: pWidth,
           showProfessional: _showProfessional,
+          shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, widget.chart.taiYuan, PillarType.taiYuan) : const [],
         ),
       ]);
     } else {
@@ -135,6 +139,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
             dayMaster: dayMaster,
             width: pWidth,
             showProfessional: _showProfessional,
+            shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, gz, PillarType.flowHour) : const [],
           ),
         );
       }
@@ -153,6 +158,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
             dayMaster: dayMaster,
             width: pWidth,
             showProfessional: _showProfessional,
+            shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, gz, PillarType.flowDay) : const [],
           ),
         );
       }
@@ -165,6 +171,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
             dayMaster: dayMaster,
             width: pWidth,
             showProfessional: _showProfessional,
+            shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, gz, PillarType.flowMonth) : const [],
           ),
         );
       }
@@ -177,6 +184,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
             dayMaster: dayMaster,
             width: pWidth,
             showProfessional: _showProfessional,
+            shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, gz, PillarType.flowYear) : const [],
           ),
         );
       }
@@ -201,6 +209,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
             dayMaster: dayMaster,
             width: pWidth,
             showProfessional: _showProfessional,
+            shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, displayGz, PillarType.decade) : const [],
           ),
         );
       }
@@ -213,6 +222,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
         dayMaster: dayMaster,
         width: pWidth,
         showProfessional: _showProfessional,
+        shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, widget.chart.bazi.year, PillarType.year) : const [],
       ),
       BaziPillarWidget(
         label: '月柱',
@@ -220,14 +230,16 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
         dayMaster: dayMaster,
         width: pWidth,
         showProfessional: _showProfessional,
+        shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, widget.chart.bazi.month, PillarType.month) : const [],
       ),
       BaziPillarWidget(
-        label: '日元'.tr, // 改为更专业的“日元”或“日主”
+        label: '日元'.tr,
         gz: widget.chart.bazi.day,
         dayMaster: dayMaster,
         width: pWidth,
         isDayMaster: true,
         showProfessional: _showProfessional,
+        shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, widget.chart.bazi.day, PillarType.day) : const [],
       ),
       BaziPillarWidget(
         label: '时柱',
@@ -235,6 +247,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
         dayMaster: dayMaster,
         width: pWidth,
         showProfessional: _showProfessional,
+        shenShas: _showProfessional ? ShenShaHelper.getShenSha(widget.chart, widget.chart.bazi.time, PillarType.hour) : const [],
       ),
     ];
 
@@ -285,15 +298,15 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
           if (_showProfessional)
             Positioned(
               left: 0,
-              top: 113, // 柱名20 + 十神20 +干支大字65 + 间距8 = 113
+              top: 221, // 柱名20 + 十神20 + 干支大字75 + 间距10 + 藏干96 = 221
               child: Container(
                 padding: const EdgeInsets.only(left: 4),
-                width: 35,
+                width: 32,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
                       const Color(0xFFFBFBFB),
-                      const Color(0xFFFBFBFB).withOpacity(0.9),
+                      const Color(0xFFFBFBFB).withOpacity(0.4), // 调高透明度，解决遮挡感
                       const Color(0xFFFBFBFB).withOpacity(0.0),
                     ],
                     begin: Alignment.centerLeft,
@@ -306,53 +319,57 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      height: 18,
+                      height: 20,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           '星运'.tr,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
-                            color: Colors.grey.shade400,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ),
                     SizedBox(
-                      height: 18,
+                      height: 20,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           '自坐'.tr,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
-                            color: Colors.grey.shade400,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ),
                     SizedBox(
-                      height: 18,
+                      height: 20,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           '空亡'.tr,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
-                            color: Colors.grey.shade400,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ),
                     SizedBox(
-                      height: 18,
+                      height: 20,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           '纳音'.tr,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
-                            color: Colors.grey.shade400,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),

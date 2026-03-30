@@ -14,9 +14,7 @@ class BaziSettingsView extends ConsumerWidget {
     final options = profile.baziOptions;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('八字流派与算法设置'.tr),
-      ),
+      appBar: AppBar(title: Text('八字流派与算法设置'.tr)),
       body: ListView(
         children: [
           _buildSectionTitle('起运算法'.tr),
@@ -26,7 +24,8 @@ class BaziSettingsView extends ConsumerWidget {
             value: DaYunAlgorithm.precise120,
             groupValue: options.daYunAlgorithm,
             onChanged: (val) {
-              if (val != null) _updateOptions(ref, options.copyWith(daYunAlgorithm: val));
+              if (val != null)
+                _updateOptions(ref, options.copyWith(daYunAlgorithm: val));
             },
           ),
 
@@ -37,7 +36,8 @@ class BaziSettingsView extends ConsumerWidget {
             value: SiLingVersion.sanMingTongHui,
             groupValue: options.siLingVersion,
             onChanged: (val) {
-              if (val != null) _updateOptions(ref, options.copyWith(siLingVersion: val));
+              if (val != null)
+                _updateOptions(ref, options.copyWith(siLingVersion: val));
             },
           ),
           RadioListTile<SiLingVersion>(
@@ -45,7 +45,8 @@ class BaziSettingsView extends ConsumerWidget {
             value: SiLingVersion.common,
             groupValue: options.siLingVersion,
             onChanged: (val) {
-              if (val != null) _updateOptions(ref, options.copyWith(siLingVersion: val));
+              if (val != null)
+                _updateOptions(ref, options.copyWith(siLingVersion: val));
             },
           ),
 
@@ -57,7 +58,11 @@ class BaziSettingsView extends ConsumerWidget {
             value: EarthPalaceAlgorithm.fireEarth,
             groupValue: options.earthPalaceAlgorithm,
             onChanged: (val) {
-              if (val != null) _updateOptions(ref, options.copyWith(earthPalaceAlgorithm: val));
+              if (val != null)
+                _updateOptions(
+                  ref,
+                  options.copyWith(earthPalaceAlgorithm: val),
+                );
             },
           ),
           RadioListTile<EarthPalaceAlgorithm>(
@@ -66,7 +71,11 @@ class BaziSettingsView extends ConsumerWidget {
             value: EarthPalaceAlgorithm.waterEarth,
             groupValue: options.earthPalaceAlgorithm,
             onChanged: (val) {
-              if (val != null) _updateOptions(ref, options.copyWith(earthPalaceAlgorithm: val));
+              if (val != null)
+                _updateOptions(
+                  ref,
+                  options.copyWith(earthPalaceAlgorithm: val),
+                );
             },
           ),
         ],
@@ -83,7 +92,11 @@ class BaziSettingsView extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Colors.deepPurple,
+        ),
       ),
     );
   }
