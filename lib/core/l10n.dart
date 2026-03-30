@@ -207,6 +207,7 @@ extension StringL10n on String {
     '八字': {AppLanguage.en: 'Bazi', AppLanguage.zhTW: '八字'},
     '个人资料': {AppLanguage.en: 'Profile', AppLanguage.zhTW: '個人資料'},
     '八字排盘': {AppLanguage.en: 'Bazi Chart', AppLanguage.zhTW: '八字排盤'},
+    '连线图': {AppLanguage.en: 'Diagram', AppLanguage.zhTW: '連線圖'},
     '设置': {AppLanguage.en: 'Settings', AppLanguage.zhTW: '設置'},
     '乾造': {AppLanguage.en: 'Male', AppLanguage.zhTW: '乾造'},
     '坤造': {AppLanguage.en: 'Female', AppLanguage.zhTW: '坤造'},

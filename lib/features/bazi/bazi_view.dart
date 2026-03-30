@@ -5,7 +5,6 @@ import 'widgets/bazi_header.dart';
 import 'widgets/bazi_chart_board.dart';
 import 'widgets/bazi_tab_switcher.dart';
 import 'widgets/fortune_flow_board.dart';
-import 'widgets/tai_ming_shen_board.dart';
 import '../../core/l10n.dart';
 
 // 1. 状态管理
@@ -18,6 +17,7 @@ final selMonthIdxProvider = StateProvider<int?>((ref) => null);
 final selDayIdxProvider = StateProvider<int?>((ref) => null);
 final selHourIdxProvider = StateProvider<int?>((ref) => null);
 final showProfessionalProvider = StateProvider<bool>((ref) => false);
+final showInteractionProvider = StateProvider<bool>((ref) => false);
 
 class BaziView extends ConsumerWidget {
   const BaziView({super.key});
@@ -28,6 +28,7 @@ class BaziView extends ConsumerWidget {
     final fortuneTable = ref.watch(fortuneTableProvider);
     final currentTab = ref.watch(baziBottomTabProvider);
     final dayGan = baziChart.bazi.day.gan;
+    final showInteractions = ref.watch(showInteractionProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -48,38 +49,79 @@ class BaziView extends ConsumerWidget {
                     children: [
                       const BaziTabSwitcher(),
                       const SizedBox(height: 8),
-                      InkWell(
-                        onTap: () {
-                          ref.read(showProfessionalProvider.notifier).state =
-                              !ref.read(showProfessionalProvider);
-                        },
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                      // 顶部开关 Row (专业模式 & 交互图)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 1. 交互图开关
+                          InkWell(
+                            onTap: () {
+                              ref.read(showInteractionProvider.notifier).state = !showInteractions;
+                            },
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey.shade300),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('专业模式', 
-                                style: TextStyle(
-                                  fontSize: 12, 
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade800
-                                )
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: showInteractions ? Colors.indigo.shade50 : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: showInteractions ? Colors.indigo.shade200 : Colors.grey.shade300),
                               ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                ref.watch(showProfessionalProvider) ? Icons.unfold_less : Icons.unfold_more, 
-                                size: 16, 
-                                color: Colors.grey.shade700
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('连线图'.tr, 
+                                    style: TextStyle(
+                                      fontSize: 12, 
+                                      fontWeight: FontWeight.w500,
+                                      color: showInteractions ? Colors.indigo.shade800 : Colors.grey.shade800
+                                    )
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.hub_outlined, 
+                                    size: 16, 
+                                    color: showInteractions ? Colors.indigo.shade700 : Colors.grey.shade700
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          // 2. 专业模式开关
+                          InkWell(
+                            onTap: () {
+                              ref.read(showProfessionalProvider.notifier).state =
+                                  !ref.read(showProfessionalProvider);
+                            },
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('专业模式'.tr, 
+                                    style: TextStyle(
+                                      fontSize: 12, 
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey.shade800
+                                    )
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    ref.watch(showProfessionalProvider) ? Icons.unfold_less : Icons.unfold_more, 
+                                    size: 16, 
+                                    color: Colors.grey.shade700
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -108,18 +150,8 @@ class BaziView extends ConsumerWidget {
               currentTab: currentTab,
             ),
             const SizedBox(height: 16),
-            // 💡 下方的 TabSwitcher 已经移到顶部，这里直接根据状态显示内容
-            if (currentTab == BaziBottomTab.taiMingShen)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TaiMingShenBoard(
-                  chart: baziChart, 
-                  dayGan: dayGan,
-                  showProfessional: ref.watch(showProfessionalProvider),
-                ),
-              )
-            else
-              FortuneFlowBoard(table: fortuneTable, dayMaster: dayGan),
+            // 💡 主盘下方统一直观地显示流年大运板块
+            FortuneFlowBoard(table: fortuneTable, dayMaster: dayGan),
             const SizedBox(height: 40),
           ],
         ),

@@ -12,6 +12,7 @@ class BaziPillarWidget extends StatelessWidget {
   final bool isDayMaster;
   final bool showCangGan;
   final bool showProfessional;
+  final bool showInteraction;
   final List<String> shenShas;
 
   const BaziPillarWidget({
@@ -23,6 +24,7 @@ class BaziPillarWidget extends StatelessWidget {
     this.isDayMaster = false,
     this.showCangGan = true,
     this.showProfessional = false,
+    this.showInteraction = false,
     this.shenShas = const [],
   });
 
@@ -45,7 +47,7 @@ class BaziPillarWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 1. 顶部标签 (如：年柱) - 固定行高 20
+          // 1. 顶部标签 (如：年柱) - 移到最顶部
           SizedBox(
             height: 20,
             child: Align(
@@ -61,7 +63,7 @@ class BaziPillarWidget extends StatelessWidget {
             ),
           ),
 
-          // 2. 主十神 - 固定行高 20
+          // 2. 主十神
           SizedBox(
             height: 20,
             child: Align(
@@ -81,6 +83,9 @@ class BaziPillarWidget extends StatelessWidget {
               ),
             ),
           ),
+
+          // 3. 交互图顶部留白 (60px) - 【核心修改：挪到标题下方】
+          if (showInteraction) const SizedBox(height: 60),
 
           // 3. 干支大字行 - 增加行高到 75
           SizedBox(
@@ -119,7 +124,10 @@ class BaziPillarWidget extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          // 4. 藏干区域 (固定 3 个高度为 32 的槽位 = 96px，确保下方绝对对齐)
+          // 4. 交互图中部留白 (80px)
+          if (showInteraction) const SizedBox(height: 80),
+
+          // 5. 藏干区域 (固定 3 个高度为 32 的槽位 = 96px，确保下方绝对对齐)
           if (showCangGan) ...[
             SizedBox(
               height: 96,
