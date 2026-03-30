@@ -21,8 +21,9 @@ BaziChart baziChart(BaziChartRef ref) {
     clockTime: solarTime,
     location: Location(profile.longitude, profile.latitude),
     useTrueSolarTime: profile.useTrueSolarTime,
-    ratHourMode: profile.ratHourMode, // ✅ 传入新的枚举模式
+    ratHourMode: profile.ratHourMode,
     gender: profile.gender,
+    siLingVersion: profile.baziOptions.siLingVersion,
   );
 }
 

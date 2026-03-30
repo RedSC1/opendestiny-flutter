@@ -1,0 +1,2 @@
+Flutter assets will be downloaded from https://storage.flutter-io.cn. Make sure you trust this source!
+You provided the path 'j:\ziwei_core_v2\opendestiny-flutter\lib\features\bazi\widgets\lib\features\bazi\widgets\bazi_chart_board.dart', however it does not exist on disk

@@ -6,6 +6,7 @@ import '../bazi_view.dart';
 import 'bazi_pillar_widget.dart';
 import 'bazi_interaction_painter.dart';
 import '../../../core/l10n.dart';
+import '../../../providers/input_provider.dart';
 
 final selectedPillarIdxProvider = StateProvider<int?>((ref) => null);
 
@@ -48,6 +49,8 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     final _showProfessional = ref.watch(showProfessionalProvider);
     final _showInteraction = ref.watch(showInteractionProvider);
 
+    final earthAlgo = ref.watch(inputNotifierProvider).baziOptions.earthPalaceAlgorithm;
+
     // --- 准备数据定义 ---
     final leftDefinitions = <({String label, GanZhi gz, PillarType type})>[];
     if (widget.currentTab == BaziBottomTab.taiMingShen) {
@@ -58,12 +61,29 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
         (label: '胎元', gz: widget.chart.taiYuan, type: PillarType.taiYuan),
       ]);
     } else {
-      if (selH != null && selDay != null && selM != null && selY != null && selD != null) {
-        final gz = widget.table.decades[selD].years[selY].months[selM].days[selDay].hours[selH].ganZhi;
+      if (selH != null &&
+          selDay != null &&
+          selM != null &&
+          selY != null &&
+          selD != null) {
+        final gz = widget
+            .table
+            .decades[selD]
+            .years[selY]
+            .months[selM]
+            .days[selDay]
+            .hours[selH]
+            .ganZhi;
         leftDefinitions.add((label: '流时', gz: gz, type: PillarType.flowHour));
       }
       if (selDay != null && selM != null && selY != null && selD != null) {
-        final gz = widget.table.decades[selD].years[selY].months[selM].days[selDay].ganZhi;
+        final gz = widget
+            .table
+            .decades[selD]
+            .years[selY]
+            .months[selM]
+            .days[selDay]
+            .ganZhi;
         leftDefinitions.add((label: '流日', gz: gz, type: PillarType.flowDay));
       }
       if (selM != null && selY != null && selD != null) {
@@ -86,7 +106,11 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
           }
           displayGz = widget.table.fortune.getXiaoYunByAge(age);
         }
-        leftDefinitions.add((label: isXiaoYun ? '小运'.tr : '大运'.tr, gz: displayGz, type: PillarType.decade));
+        leftDefinitions.add((
+          label: isXiaoYun ? '小运'.tr : '大运'.tr,
+          gz: displayGz,
+          type: PillarType.decade,
+        ));
       }
     }
 
@@ -100,7 +124,10 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     final leftCount = leftDefinitions.length;
     final totalPillarsCount = leftCount + 4;
 
-    final normalized = math.max(0.0, math.min(1.0, (totalPillarsCount - 4) / 5.0));
+    final normalized = math.max(
+      0.0,
+      math.min(1.0, (totalPillarsCount - 4) / 5.0),
+    );
     final curve = math.cos(normalized * (math.pi / 2));
     final double pWidth = isEn ? 70.0 : (41.0 + (47.0 - 41.0) * curve);
     final double gap = 4.0 + (8.0 - 4.0) * curve;
@@ -108,9 +135,14 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
 
     final List<({PillarType type, GanZhi gz})> allPillarData = [];
 
-    Widget _buildPillar(int globalIdx, String label, GanZhi gz, PillarType type) {
+    Widget _buildPillar(
+      int globalIdx,
+      String label,
+      GanZhi gz,
+      PillarType type,
+    ) {
       allPillarData.add((type: type, gz: gz));
-      
+
       final pillar = BaziPillarWidget(
         label: label,
         gz: gz,
@@ -119,6 +151,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
         showProfessional: _showProfessional,
         showInteraction: _showInteraction,
         isDayMaster: type == PillarType.day,
+        earthPalaceAlgorithm: earthAlgo,
         shenShas: _showProfessional
             ? ShenShaHelper.getShenSha(widget.chart, gz, type)
             : const [],
@@ -131,7 +164,9 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          ref.read(selectedPillarIdxProvider.notifier).state = isSelected ? null : globalIdx;
+          ref.read(selectedPillarIdxProvider.notifier).state = isSelected
+              ? null
+              : globalIdx;
         },
         child: Opacity(
           opacity: (selectedPillarIdx == null || isSelected) ? 1.0 : 0.3,
@@ -140,8 +175,25 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
       );
     }
 
-    final leftPillarsWidgets = leftDefinitions.asMap().entries.map((e) => _buildPillar(e.key, e.value.label, e.value.gz, e.value.type)).toList();
-    final originalPillarsWidgets = originalDefinitions.asMap().entries.map((e) => _buildPillar(leftCount + e.key, e.value.label, e.value.gz, e.value.type)).toList();
+    final leftPillarsWidgets = leftDefinitions
+        .asMap()
+        .entries
+        .map(
+          (e) => _buildPillar(e.key, e.value.label, e.value.gz, e.value.type),
+        )
+        .toList();
+    final originalPillarsWidgets = originalDefinitions
+        .asMap()
+        .entries
+        .map(
+          (e) => _buildPillar(
+            leftCount + e.key,
+            e.value.label,
+            e.value.gz,
+            e.value.type,
+          ),
+        )
+        .toList();
 
     // --- 计算交互数据 ---
     List<InteractionUIResult> stemInteractions = [];
@@ -149,23 +201,39 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     List<double> pillarCenters = [];
 
     if (_showInteraction) {
-      final stems = allPillarData.map((p) => InteractionNode(p.type, p.gz.gan)).toList();
-      final branches = allPillarData.map((p) => InteractionNode(p.type, p.gz.zhi)).toList();
-      final rawStems = BaziInteractionCalculator.calculateStemInteractions(stems);
-      final rawBranches = BaziInteractionCalculator.calculateBranchInteractions(branches);
+      final stems = allPillarData
+          .map((p) => InteractionNode(p.type, p.gz.gan))
+          .toList();
+      final branches = allPillarData
+          .map((p) => InteractionNode(p.type, p.gz.zhi))
+          .toList();
+      final rawStems = BaziInteractionCalculator.calculateStemInteractions(
+        stems,
+      );
+      final rawBranches = BaziInteractionCalculator.calculateBranchInteractions(
+        branches,
+      );
 
-      List<InteractionUIResult> _mapToUI(List<InteractionResult> raw, List<InteractionNode> originalNodes) {
+      List<InteractionUIResult> _mapToUI(
+        List<InteractionResult> raw,
+        List<InteractionNode> originalNodes,
+      ) {
         return raw.map((res) {
           final indices = <int>[];
           for (var node in res.nodes) {
             for (int i = 0; i < originalNodes.length; i++) {
-              if (originalNodes[i].pillar == node.pillar && originalNodes[i].value == node.value) {
+              if (originalNodes[i].pillar == node.pillar &&
+                  originalNodes[i].value == node.value) {
                 indices.add(i);
                 break;
               }
             }
           }
-          return InteractionUIResult(type: res.type, pillarIndices: indices, combinedWuXing: res.combinedWuXing);
+          return InteractionUIResult(
+            type: res.type,
+            pillarIndices: indices,
+            combinedWuXing: res.combinedWuXing,
+          );
         }).toList();
       }
 
@@ -206,22 +274,35 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_showProfessional) _buildProfessionalLegend(_showInteraction),
+                      if (_showProfessional)
+                        _buildProfessionalLegend(_showInteraction),
                       SizedBox(width: elasticMargin),
                       ..._buildPillarListWithSpacing(leftPillarsWidgets, gap),
                       if (leftPillarsWidgets.isNotEmpty) ...[
                         SizedBox(width: gap),
-                        Container(width: 1, height: 160 + (_showInteraction ? 140 : 0), color: Colors.grey.shade300),
+                        Container(
+                          width: 1,
+                          height: 160 + (_showInteraction ? 140 : 0),
+                          color: Colors.grey.shade300,
+                        ),
                         SizedBox(width: gap),
                       ],
-                      ..._buildPillarListWithSpacing(originalPillarsWidgets, gap),
+                      ..._buildPillarListWithSpacing(
+                        originalPillarsWidgets,
+                        gap,
+                      ),
                       SizedBox(width: elasticMargin + 4),
                     ],
                   ),
                   if (_showInteraction)
                     IgnorePointer(
                       child: CustomPaint(
-                        size: Size(pillarCenters.isNotEmpty ? pillarCenters.last + pWidth : 0, 500),
+                        size: Size(
+                          pillarCenters.isNotEmpty
+                              ? pillarCenters.last + pWidth
+                              : 0,
+                          500,
+                        ),
                         painter: BaziInteractionPainter(
                           stemInteractions: stemInteractions,
                           branchInteractions: branchInteractions,
@@ -249,7 +330,16 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 计算偏移逻辑：标签(20)+十神(20)+交互留白(60)+天干地支(75)+间距(10)+中间连线层(80)+藏干高度(96)
-          SizedBox(height: 20 + 20 + (showInteraction ? 60 : 0) + 75 + 10 + (showInteraction ? 80 : 0) + 96),
+          SizedBox(
+            height:
+                20 +
+                20 +
+                (showInteraction ? 60 : 0) +
+                75 +
+                10 +
+                (showInteraction ? 80 : 0) +
+                96,
+          ),
           for (var label in ['星运', '自坐', '空亡', '纳音'])
             SizedBox(
               height: 20,
@@ -270,7 +360,10 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     );
   }
 
-  List<Widget> _buildPillarListWithSpacing(List<Widget> pillars, double spacing) {
+  List<Widget> _buildPillarListWithSpacing(
+    List<Widget> pillars,
+    double spacing,
+  ) {
     if (pillars.isEmpty) return [];
     final List<Widget> results = [];
     for (int i = 0; i < pillars.length; i++) {

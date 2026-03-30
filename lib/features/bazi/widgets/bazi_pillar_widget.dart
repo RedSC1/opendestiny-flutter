@@ -13,6 +13,7 @@ class BaziPillarWidget extends StatelessWidget {
   final bool showCangGan;
   final bool showProfessional;
   final bool showInteraction;
+  final EarthPalaceAlgorithm earthPalaceAlgorithm;
   final List<String> shenShas;
 
   const BaziPillarWidget({
@@ -25,6 +26,7 @@ class BaziPillarWidget extends StatelessWidget {
     this.showCangGan = true,
     this.showProfessional = false,
     this.showInteraction = false,
+    this.earthPalaceAlgorithm = EarthPalaceAlgorithm.fireEarth,
     this.shenShas = const [],
   });
 
@@ -34,9 +36,9 @@ class BaziPillarWidget extends StatelessWidget {
     final branchWx = BaziTable.getWuXingOfZhi(gz.zhi);
 
     // 星运: 日干在当前地支十二长生
-    final xingYun = BaziTable.getLifeStage(dayMaster, gz.zhi);
+    final xingYun = BaziTable.getLifeStage(dayMaster, gz.zhi, algo: earthPalaceAlgorithm);
     // 自坐: 本柱天干在本柱地支十二长生
-    final ziZuo = BaziTable.getLifeStage(gz.gan, gz.zhi);
+    final ziZuo = BaziTable.getLifeStage(gz.gan, gz.zhi, algo: earthPalaceAlgorithm);
     // 纳音
     final nayin = gz.naYin;
     // 空亡 (本柱所在旬查空亡)

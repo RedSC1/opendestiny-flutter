@@ -143,7 +143,21 @@ class BaziView extends ConsumerWidget {
                   ),
                 ),
               ),
-            const SizedBox(height: 16), // 缩小间距
+            const SizedBox(height: 8),
+            // 起运 & 司令信息
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 4,
+                children: [
+                  _buildInfoChip('起运'.tr, fortuneTable.fortune.qiYunDt.toString()),
+                  if (baziChart.siLing != null)
+                    _buildInfoChip('司令'.tr, baziChart.siLing!.gan.display),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
             BaziChartBoard(
               chart: baziChart,
               table: fortuneTable,
@@ -156,6 +170,26 @@ class BaziView extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoChip(String label, String value) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '$label: ',
+          style: const TextStyle(fontSize: 11, color: Colors.grey),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: Colors.blueGrey,
+          ),
+        ),
+      ],
     );
   }
 }
