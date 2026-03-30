@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../providers/input_provider.dart';
 import 'package:bazi_core/bazi_core.dart';
+import '../../core/l10n.dart'; // ✅ 补上
 
 class ProfileView extends ConsumerWidget {
   const ProfileView({super.key});
@@ -16,18 +17,18 @@ class ProfileView extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            '出生信息录入',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          Text(
+            '出生信息录入'.tr,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
           
           Card(
             child: ListTile(
               leading: const Icon(Icons.calendar_today),
-              title: const Text('出生日期与时间'),
+              title: Text('出生日期与时间'.tr),
               subtitle: Text(
-                DateFormat('yyyy年MM月dd日 HH:mm').format(birthData.birthTime),
+                DateFormat('日期格式'.tr).format(birthData.birthTime),
                 style: const TextStyle(fontSize: 18, color: Colors.deepPurple),
               ),
               onTap: () async {
@@ -62,26 +63,24 @@ class ProfileView extends ConsumerWidget {
                 children: [
                   const Icon(Icons.person_outline),
                   const SizedBox(width: 16),
-                  const Text('性别', style: TextStyle(fontSize: 16)),
+                  Text('性别'.tr, style: const TextStyle(fontSize: 16)),
                   const Spacer(),
-                  ChoiceChip(
-                    label: const Text('乾 (男)'),
-                    selected: birthData.gender == Gender.male,
-                    onSelected: (selected) {
-                      if (selected) {
-                        ref.read(inputNotifierProvider.notifier).updateGender(Gender.male);
-                      }
+                  ToggleButtons(
+                    isSelected: [
+                      birthData.gender == Gender.male,
+                      birthData.gender == Gender.female,
+                    ],
+                    onPressed: (index) {
+                      ref.read(inputNotifierProvider.notifier).updateGender(
+                        index == 0 ? Gender.male : Gender.female,
+                      );
                     },
-                  ),
-                  const SizedBox(width: 8),
-                  ChoiceChip(
-                    label: const Text('坤 (女)'),
-                    selected: birthData.gender == Gender.female,
-                    onSelected: (selected) {
-                      if (selected) {
-                        ref.read(inputNotifierProvider.notifier).updateGender(Gender.female);
-                      }
-                    },
+                    borderRadius: BorderRadius.circular(20),
+                    constraints: const BoxConstraints(minWidth: 64, minHeight: 36),
+                    children: [
+                      Text('乾 (男)'.tr),
+                      Text('坤 (女)'.tr),
+                    ],
                   ),
                 ],
               ),
@@ -93,8 +92,8 @@ class ProfileView extends ConsumerWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.location_on_outlined),
-              title: const Text('出生地点'),
-              subtitle: Text('${birthData.locationName} (经度: ${birthData.longitude})'),
+              title: Text('出生地点'.tr),
+              subtitle: Text('${birthData.locationName.tr} (${'经度'.tr}: ${birthData.longitude})'),
               onTap: () {
                 // TODO: 弹出经纬度编辑对话框
               },

@@ -4,6 +4,7 @@ import 'package:bazi_core/bazi_core.dart';
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../../providers/input_provider.dart';
 import '../../models/destiny_profile.dart';
+import '../../core/l10n.dart'; // ✅ 补上翻译引用
 
 class BaziSettingsView extends ConsumerWidget {
   const BaziSettingsView({super.key});
@@ -15,49 +16,59 @@ class BaziSettingsView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('八字流派与算法设置'),
+        title: Text('八字流派与算法设置'.tr),
       ),
       body: ListView(
         children: [
-          _buildSectionTitle('起运算法'),
+          _buildSectionTitle('起运算法'.tr),
           RadioListTile<DaYunAlgorithm>(
-            title: const Text('精准 120 天算法'),
-            subtitle: const Text('按照一年 360 天等比推算 (推荐)'),
+            title: Text('精准 120 倍等比推算法'.tr),
+            subtitle: Text('按照“三天折一年”原则精准放大 120 倍 (推荐)'.tr),
             value: DaYunAlgorithm.precise120,
             groupValue: options.daYunAlgorithm,
-            onChanged: (val) => _updateOptions(ref, options.copyWith(daYunAlgorithm: val!)),
+            onChanged: (val) {
+              if (val != null) _updateOptions(ref, options.copyWith(daYunAlgorithm: val));
+            },
           ),
 
           const Divider(),
-          _buildSectionTitle('人元司令分野'),
+          _buildSectionTitle('人元司令分野'.tr),
           RadioListTile<SiLingVersion>(
-            title: const Text('三命通会 (原著版)'),
+            title: Text('三命通会 (原著版)'.tr),
             value: SiLingVersion.sanMingTongHui,
             groupValue: options.siLingVersion,
-            onChanged: (val) => _updateOptions(ref, options.copyWith(siLingVersion: val!)),
+            onChanged: (val) {
+              if (val != null) _updateOptions(ref, options.copyWith(siLingVersion: val));
+            },
           ),
           RadioListTile<SiLingVersion>(
-            title: const Text('商业流传版'),
+            title: Text('商业流传版'.tr),
             value: SiLingVersion.common,
             groupValue: options.siLingVersion,
-            onChanged: (val) => _updateOptions(ref, options.copyWith(siLingVersion: val!)),
+            onChanged: (val) {
+              if (val != null) _updateOptions(ref, options.copyWith(siLingVersion: val));
+            },
           ),
 
           const Divider(),
-          _buildSectionTitle('土同宫算法'),
+          _buildSectionTitle('土同宫算法'.tr),
           RadioListTile<EarthPalaceAlgorithm>(
-            title: const Text('火土同宫'),
-            subtitle: const Text('戊随丙，己随丁'),
+            title: Text('火土同宫'.tr),
+            subtitle: Text('戊随丙，己随丁'.tr),
             value: EarthPalaceAlgorithm.fireEarth,
             groupValue: options.earthPalaceAlgorithm,
-            onChanged: (val) => _updateOptions(ref, options.copyWith(earthPalaceAlgorithm: val!)),
+            onChanged: (val) {
+              if (val != null) _updateOptions(ref, options.copyWith(earthPalaceAlgorithm: val));
+            },
           ),
           RadioListTile<EarthPalaceAlgorithm>(
-            title: const Text('水土同宫'),
-            subtitle: const Text('戊随壬，己随癸'),
+            title: Text('水土同宫'.tr),
+            subtitle: Text('戊随壬，己随癸'.tr),
             value: EarthPalaceAlgorithm.waterEarth,
             groupValue: options.earthPalaceAlgorithm,
-            onChanged: (val) => _updateOptions(ref, options.copyWith(earthPalaceAlgorithm: val!)),
+            onChanged: (val) {
+              if (val != null) _updateOptions(ref, options.copyWith(earthPalaceAlgorithm: val));
+            },
           ),
         ],
       ),

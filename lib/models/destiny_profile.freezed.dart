@@ -243,8 +243,8 @@ mixin _$DestinyProfile {
   String get locationName =>
       throw _privateConstructorUsedError; // --- 全局历法开关 ---
   bool get useTrueSolarTime => throw _privateConstructorUsedError;
-  RatHourMode get ratHourMode =>
-      throw _privateConstructorUsedError; // ✅ 升级为枚举模式
+  RatHourMode get ratHourMode => throw _privateConstructorUsedError;
+  AppLanguage get language => throw _privateConstructorUsedError;
   BaziOptions get baziOptions => throw _privateConstructorUsedError;
 
   /// Serializes this DestinyProfile to a JSON map.
@@ -272,6 +272,7 @@ abstract class $DestinyProfileCopyWith<$Res> {
     String locationName,
     bool useTrueSolarTime,
     RatHourMode ratHourMode,
+    AppLanguage language,
     BaziOptions baziOptions,
   });
 
@@ -300,6 +301,7 @@ class _$DestinyProfileCopyWithImpl<$Res, $Val extends DestinyProfile>
     Object? locationName = null,
     Object? useTrueSolarTime = null,
     Object? ratHourMode = null,
+    Object? language = null,
     Object? baziOptions = null,
   }) {
     return _then(
@@ -332,6 +334,10 @@ class _$DestinyProfileCopyWithImpl<$Res, $Val extends DestinyProfile>
                 ? _value.ratHourMode
                 : ratHourMode // ignore: cast_nullable_to_non_nullable
                       as RatHourMode,
+            language: null == language
+                ? _value.language
+                : language // ignore: cast_nullable_to_non_nullable
+                      as AppLanguage,
             baziOptions: null == baziOptions
                 ? _value.baziOptions
                 : baziOptions // ignore: cast_nullable_to_non_nullable
@@ -369,6 +375,7 @@ abstract class _$$DestinyProfileImplCopyWith<$Res>
     String locationName,
     bool useTrueSolarTime,
     RatHourMode ratHourMode,
+    AppLanguage language,
     BaziOptions baziOptions,
   });
 
@@ -397,6 +404,7 @@ class __$$DestinyProfileImplCopyWithImpl<$Res>
     Object? locationName = null,
     Object? useTrueSolarTime = null,
     Object? ratHourMode = null,
+    Object? language = null,
     Object? baziOptions = null,
   }) {
     return _then(
@@ -429,6 +437,10 @@ class __$$DestinyProfileImplCopyWithImpl<$Res>
             ? _value.ratHourMode
             : ratHourMode // ignore: cast_nullable_to_non_nullable
                   as RatHourMode,
+        language: null == language
+            ? _value.language
+            : language // ignore: cast_nullable_to_non_nullable
+                  as AppLanguage,
         baziOptions: null == baziOptions
             ? _value.baziOptions
             : baziOptions // ignore: cast_nullable_to_non_nullable
@@ -449,6 +461,7 @@ class _$DestinyProfileImpl implements _DestinyProfile {
     this.locationName = '北京',
     this.useTrueSolarTime = true,
     this.ratHourMode = RatHourMode.noSplit,
+    this.language = AppLanguage.zhCN,
     this.baziOptions = const BaziOptions(),
   });
 
@@ -476,14 +489,16 @@ class _$DestinyProfileImpl implements _DestinyProfile {
   @override
   @JsonKey()
   final RatHourMode ratHourMode;
-  // ✅ 升级为枚举模式
+  @override
+  @JsonKey()
+  final AppLanguage language;
   @override
   @JsonKey()
   final BaziOptions baziOptions;
 
   @override
   String toString() {
-    return 'DestinyProfile(birthTime: $birthTime, gender: $gender, longitude: $longitude, latitude: $latitude, locationName: $locationName, useTrueSolarTime: $useTrueSolarTime, ratHourMode: $ratHourMode, baziOptions: $baziOptions)';
+    return 'DestinyProfile(birthTime: $birthTime, gender: $gender, longitude: $longitude, latitude: $latitude, locationName: $locationName, useTrueSolarTime: $useTrueSolarTime, ratHourMode: $ratHourMode, language: $language, baziOptions: $baziOptions)';
   }
 
   @override
@@ -504,6 +519,8 @@ class _$DestinyProfileImpl implements _DestinyProfile {
                 other.useTrueSolarTime == useTrueSolarTime) &&
             (identical(other.ratHourMode, ratHourMode) ||
                 other.ratHourMode == ratHourMode) &&
+            (identical(other.language, language) ||
+                other.language == language) &&
             (identical(other.baziOptions, baziOptions) ||
                 other.baziOptions == baziOptions));
   }
@@ -519,6 +536,7 @@ class _$DestinyProfileImpl implements _DestinyProfile {
     locationName,
     useTrueSolarTime,
     ratHourMode,
+    language,
     baziOptions,
   );
 
@@ -548,6 +566,7 @@ abstract class _DestinyProfile implements DestinyProfile {
     final String locationName,
     final bool useTrueSolarTime,
     final RatHourMode ratHourMode,
+    final AppLanguage language,
     final BaziOptions baziOptions,
   }) = _$DestinyProfileImpl;
 
@@ -567,7 +586,9 @@ abstract class _DestinyProfile implements DestinyProfile {
   @override
   bool get useTrueSolarTime;
   @override
-  RatHourMode get ratHourMode; // ✅ 升级为枚举模式
+  RatHourMode get ratHourMode;
+  @override
+  AppLanguage get language;
   @override
   BaziOptions get baziOptions;
 

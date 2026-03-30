@@ -1,0 +1,102 @@
+import 'package:flutter/material.dart';
+import 'package:bazi_core/bazi_core.dart';
+import '../bazi_ui_utils.dart';
+import '../../../core/l10n.dart';
+
+class FortuneCard extends StatelessWidget {
+  final String shiShen;
+  final GanZhi gz;
+  final String top;
+  final String bottom;
+  final bool isSel;
+  final bool isCur;
+  final VoidCallback onTap;
+  final Color activeCol;
+  final double width;
+
+  const FortuneCard({
+    super.key,
+    required this.shiShen,
+    required this.gz,
+    required this.top,
+    required this.bottom,
+    required this.isSel,
+    this.isCur = false,
+    required this.onTap,
+    this.activeCol = Colors.deepPurple,
+    this.width = 60,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isEn = AppL10nSettings.currentLanguage == AppLanguage.en;
+    final finalWidth = isEn ? width + 30 : width;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: finalWidth,
+        margin: const EdgeInsets.only(right: 8, bottom: 12),
+        decoration: BoxDecoration(
+          color: isSel ? activeCol.withOpacity(0.05) : (isCur ? Colors.amber.withOpacity(0.1) : Colors.white),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSel ? activeCol : (isCur ? Colors.amber.withOpacity(0.5) : Colors.grey.shade200),
+            width: isSel ? 1.5 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isCur) ...[
+                    Text('今'.tr, style: const TextStyle(fontSize: 9, color: Colors.amber, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 2),
+                  ],
+                  SizedBox(
+                    height: 14, // 略微放大
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown, 
+                      child: Text(
+                        shiShen, 
+                        style: TextStyle(
+                          color: isSel ? activeCol : Colors.blueGrey, 
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11
+                        )
+                      )
+                    )
+                  )
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              gz.gan.display, 
+              style: TextStyle(
+                fontSize: 20, // 18 -> 20
+                fontWeight: FontWeight.bold, 
+                color: BaziUIUtils.getWuXingColor(BaziTable.getWuXingOfGan(gz.gan))
+              )
+            ),
+            Text(
+              gz.zhi.display, 
+              style: TextStyle(
+                fontSize: 20, // 18 -> 20
+                fontWeight: FontWeight.bold, 
+                color: BaziUIUtils.getWuXingColor(BaziTable.getWuXingOfZhi(gz.zhi))
+              )
+            ),
+            const SizedBox(height: 4),
+            Text(top, style: const TextStyle(fontSize: 10, color: Colors.black54, fontWeight: FontWeight.w500)),
+            Text(bottom, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w400)),
+          ],
+        ),
+      ),
+    );
+  }
+}

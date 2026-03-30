@@ -57,6 +57,9 @@ _$DestinyProfileImpl _$$DestinyProfileImplFromJson(Map<String, dynamic> json) =>
       ratHourMode:
           $enumDecodeNullable(_$RatHourModeEnumMap, json['ratHourMode']) ??
           RatHourMode.noSplit,
+      language:
+          $enumDecodeNullable(_$AppLanguageEnumMap, json['language']) ??
+          AppLanguage.zhCN,
       baziOptions: json['baziOptions'] == null
           ? const BaziOptions()
           : BaziOptions.fromJson(json['baziOptions'] as Map<String, dynamic>),
@@ -72,6 +75,7 @@ Map<String, dynamic> _$$DestinyProfileImplToJson(
   'locationName': instance.locationName,
   'useTrueSolarTime': instance.useTrueSolarTime,
   'ratHourMode': _$RatHourModeEnumMap[instance.ratHourMode]!,
+  'language': _$AppLanguageEnumMap[instance.language]!,
   'baziOptions': instance.baziOptions,
 };
 
@@ -81,4 +85,10 @@ const _$RatHourModeEnumMap = {
   RatHourMode.noSplit: 'noSplit',
   RatHourMode.todayGan: 'todayGan',
   RatHourMode.tomorrowGan: 'tomorrowGan',
+};
+
+const _$AppLanguageEnumMap = {
+  AppLanguage.zhCN: 'zhCN',
+  AppLanguage.zhTW: 'zhTW',
+  AppLanguage.en: 'en',
 };

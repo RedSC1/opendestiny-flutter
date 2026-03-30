@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:bazi_core/bazi_core.dart'; 
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart'; 
+import '../core/l10n.dart'; // ✅ 补上翻译层引用
 
 part 'destiny_profile.freezed.dart';
 part 'destiny_profile.g.dart';
@@ -27,7 +28,8 @@ class DestinyProfile with _$DestinyProfile {
     
     // --- 全局历法开关 ---
     @Default(true) bool useTrueSolarTime, 
-    @Default(RatHourMode.noSplit) RatHourMode ratHourMode, // ✅ 升级为枚举模式
+    @Default(RatHourMode.noSplit) RatHourMode ratHourMode,
+    @Default(AppLanguage.zhCN) AppLanguage language, 
     
     @Default(BaziOptions()) BaziOptions baziOptions,
   }) = _DestinyProfile;

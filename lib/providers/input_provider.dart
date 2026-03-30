@@ -1,7 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/destiny_profile.dart';
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
-import 'package:bazi_core/bazi_core.dart'; // ✅ 补上
+import 'package:bazi_core/bazi_core.dart';
+import '../core/l10n.dart'; 
 
 part 'input_provider.g.dart';
 
@@ -28,9 +29,14 @@ class InputNotifier extends _$InputNotifier {
     state = state.copyWith(useTrueSolarTime: value);
   }
 
-  /// 更新子时处理模式
   void updateRatHourMode(RatHourMode mode) {
     state = state.copyWith(ratHourMode: mode);
+  }
+
+  /// 更新语言并同步翻译引擎
+  void updateLanguage(AppLanguage lang) {
+    state = state.copyWith(language: lang);
+    AppL10nSettings.currentLanguage = lang; // 同步静态变量
   }
 
   void updateBaziOptions(BaziOptions options) {

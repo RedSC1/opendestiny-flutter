@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/profile/profile_view.dart';
 import 'features/bazi/bazi_view.dart';
 import 'features/settings/settings_view.dart';
+import 'providers/input_provider.dart'; // ✅ 补上
+import 'core/l10n.dart';
+ // ✅ 补上
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -34,6 +37,8 @@ class MainEntryPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationIndexProvider);
+    // 🚀 重点：监听 profile 变化（包含语言切换），强制触发 UI 刷新
+    ref.watch(inputNotifierProvider); 
 
     final List<Widget> pages = [
       const ProfileView(),
@@ -41,7 +46,7 @@ class MainEntryPage extends ConsumerWidget {
       const SettingsView(),
     ];
 
-    final List<String> titles = ['个人资料', '八字排盘', '系统设置'];
+    final List<String> titles = ['个人资料'.tr, '八字排盘'.tr, '设置'.tr];
 
     return Scaffold(
       appBar: AppBar(
@@ -53,21 +58,22 @@ class MainEntryPage extends ConsumerWidget {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) => ref.read(navigationIndexProvider.notifier).state = index,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '资料',
+            icon: const Icon(Icons.person),
+            label: '资料'.tr,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.auto_awesome),
-            label: '八字',
+            icon: const Icon(Icons.auto_awesome),
+            label: '八字'.tr,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '设置',
+            icon: const Icon(Icons.settings),
+            label: '设置'.tr,
           ),
         ],
       ),
+
     );
   }
 }
