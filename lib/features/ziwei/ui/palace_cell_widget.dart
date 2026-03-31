@@ -5,6 +5,8 @@ import '../providers/ziwei_providers.dart';
 import 'ziwei_classic_theme.dart';
 import '../../../core/l10n.dart';
 import '../../../core/ziwei_l10n.dart';
+import '../../../models/destiny_profile.dart';
+import '../../../providers/input_provider.dart';
 
 /// 经典风格的单宫位渲染组件
 ///
@@ -29,12 +31,18 @@ class PalaceCellWidget extends ConsumerWidget {
   final Palace palace;
   final ZiWeiPlate plate;
   final ZiweiUIState state;
+  final GlobalKey chartRootKey;
+  final void Function(int palaceIndex, Rect? rect) onGanRectChanged;
+  final void Function(String starKey, Rect? rect) onFlyingTargetRectChanged;
 
   const PalaceCellWidget({
     super.key,
     required this.palace,
     required this.plate,
     required this.state,
+    required this.chartRootKey,
+    required this.onGanRectChanged,
+    required this.onFlyingTargetRectChanged,
   });
 
   @override
@@ -42,6 +50,21 @@ class PalaceCellWidget extends ConsumerWidget {
     // === 预计算 ===
     final role = plate.getRole(ZiweiScope.origin, palace.index);
     final decade = _findDecade();
+    final flowStarDisplay = ref.watch(
+      inputNotifierProvider.select((profile) => profile.ziweiOptions.flowStarDisplay),
+    );
+    final enableFlyingStarHighlightFrame = ref.watch(
+      inputNotifierProvider.select(
+        (profile) =>
+            profile.ziweiOptions.animation.enableFlyingStarHighlightFrame,
+      ),
+    );
+    final enableFlyingStarArrow = ref.watch(
+      inputNotifierProvider.select(
+        (profile) => profile.ziweiOptions.animation.enableFlyingStarArrow,
+      ),
+    );
+    final flowStars = _collectOverlayFlowStars();
 
     // 分类星曜
     final majorStars = palace.stars[StarType.major] ?? [];
@@ -56,6 +79,12 @@ class PalaceCellWidget extends ConsumerWidget {
     final boshiStars = palace.stars[StarType.boshi12] ?? [];
     final suijianStars = palace.stars[StarType.suijian12] ?? [];
     final jiangqianStars = palace.stars[StarType.jiangqian12] ?? [];
+    final shenshaLines = _buildBottomShenshaLines(
+      flowStarDisplay: flowStarDisplay,
+      boshiStars: boshiStars,
+      suijianStars: suijianStars,
+      jiangqianStars: jiangqianStars,
+    );
 
     // 获取长生名（右下角）
     final changshengName = changshengStars.isNotEmpty
@@ -97,7 +126,15 @@ class PalaceCellWidget extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               child: Column(
                 children: [
-                  Expanded(flex: 7, child: _buildStarGrid(topStars)),
+                  Expanded(
+                    flex: 7,
+                    child: _buildStarGrid(
+                      topStars,
+                      enableFlyingStarHighlightFrame:
+                          enableFlyingStarHighlightFrame,
+                      enableFlyingStarArrow: enableFlyingStarArrow,
+                    ),
+                  ),
                   // 取消原有的 Spacer，改为极小的固定间距，让上下结构更紧凑
                   const SizedBox(height: 2),
                   // ======== 底部：宫名与重要堆叠标记 (按照专业布局解耦) ======== (flex: 3)
@@ -112,9 +149,7 @@ class PalaceCellWidget extends ConsumerWidget {
                         ganLabel: ganLabel,
                         zhiLabel: zhiLabel,
                         changshengName: changshengName,
-                        boshiStars: boshiStars,
-                        suijianStars: suijianStars,
-                        jiangqianStars: jiangqianStars,
+                        shenshaLines: shenshaLines,
                       ),
                     ),
                   ),
@@ -122,11 +157,36 @@ class PalaceCellWidget extends ConsumerWidget {
               ),
             ),
 
+            if (flowStars.isNotEmpty)
+              Positioned.fill(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return IgnorePointer(
+                      child: Padding(
+                        padding: _buildFlowOverlayPadding(
+                          constraints,
+                          topStars,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: _buildFlowStarOverlay(flowStars),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
             // 4. 十二长生 + 干支 (绝对定位在右下角，高度自由向上伸展)
             Positioned(
               right: 2,
               bottom: 2,
-              child: _buildRightInfoColumn(changshengName, ganLabel, zhiLabel),
+              child: _buildRightInfoColumn(
+                changshengName,
+                ganLabel,
+                zhiLabel,
+                enableFlyingStarArrow: enableFlyingStarArrow,
+              ),
             ),
           ],
         ),
@@ -155,7 +215,12 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 渲染右下角垂直信息柱 (长生 + 干支)
-  Widget _buildRightInfoColumn(String changsheng, String gan, String zhi) {
+  Widget _buildRightInfoColumn(
+    String changsheng,
+    String gan,
+    String zhi, {
+    required bool enableFlyingStarArrow,
+  }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -173,25 +238,219 @@ class PalaceCellWidget extends ConsumerWidget {
             ),
           ),
         const SizedBox(height: 1),
-        // 2. 宫位干支 (大字，深色加粗锚点)
-        _buildVerticalText(
-          "$gan$zhi",
-          const TextStyle(
-            fontSize: 10.5,
-            fontWeight: FontWeight.w900,
-            color: ZiweiClassicTheme.ganzhiColor,
-            height: 1.05,
+        // 2. 宫位干支 (宫干单独测量，供飞星连线使用)
+        if (gan.isNotEmpty && enableFlyingStarArrow)
+          _GeometryReporter(
+            rootKey: chartRootKey,
+            onChanged: (rect) => onGanRectChanged(palace.index, rect),
+            child: _buildVerticalText(
+              gan,
+              const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w900,
+                color: Colors.black,
+                height: 1.05,
+              ),
+            ),
+          )
+        else if (gan.isNotEmpty)
+          _buildVerticalText(
+            gan,
+            const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+              height: 1.05,
+            ),
           ),
-        ),
+        if (zhi.isNotEmpty)
+          _buildVerticalText(
+            zhi,
+            const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+              height: 1.05,
+            ),
+          ),
       ],
     );
+  }
+
+  Widget _buildFlowStarOverlay(List<FlowStar> flowStars) {
+    final grouped = <ZiweiScope, List<FlowStar>>{};
+    for (final star in flowStars) {
+      grouped.putIfAbsent(star.scope, () => []).add(star);
+    }
+
+    final scopes = grouped.keys.toList()
+      ..sort((a, b) => _flowScopeOrder(a).compareTo(_flowScopeOrder(b)));
+
+    return Opacity(
+      opacity: 0.92,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerRight,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 78),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: scopes.map((scope) {
+              final text = grouped[scope]!
+                  .map(_flowStarDisplayName)
+                  .where((name) => name.isNotEmpty)
+                  .join(' ');
+
+              if (text.isEmpty) return const SizedBox.shrink();
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 1.5),
+                child: Text(
+                  text,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: ZiweiClassicTheme.getScopeColor(scope),
+                    height: 1.0,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  EdgeInsets _buildFlowOverlayPadding(
+    BoxConstraints constraints,
+    List<Star> topStars,
+  ) {
+    const baseLeft = 40.0;
+    const baseTop = 30.0;
+    const baseRight = 18.0;
+    const baseBottom = 24.0;
+    const overlayZoneWidth = 78.0;
+
+    final contentWidth =
+        (constraints.maxWidth - 8).clamp(0.0, double.infinity).toDouble();
+    final estimatedTopHeight = _estimateRightOverlayConflictHeight(
+      topStars,
+      contentWidth,
+      overlayZoneWidth,
+    );
+    final adaptiveTop = estimatedTopHeight > 0 ? estimatedTopHeight + 8 : baseTop;
+    final topInset = adaptiveTop > baseTop ? adaptiveTop : baseTop;
+
+    return const EdgeInsets.fromLTRB(baseLeft, 0, baseRight, baseBottom)
+        .copyWith(top: topInset);
+  }
+
+  double _estimateRightOverlayConflictHeight(
+    List<Star> stars,
+    double maxWidth,
+    double overlayZoneWidth,
+  ) {
+    if (stars.isEmpty || maxWidth <= 0) return 0;
+
+    const baseFontSize = 11.5;
+    const spacing = 0.5;
+
+    final primaryStars = stars
+        .where(
+          (s) =>
+              s.type == StarType.major ||
+              s.type == StarType.lucky ||
+              s.type == StarType.bad,
+        )
+        .toList();
+    final secondaryStars = stars
+        .where(
+          (s) =>
+              s.type != StarType.major &&
+              s.type != StarType.lucky &&
+              s.type != StarType.bad,
+        )
+        .toList();
+
+    final primaryTotalWidth = primaryStars.length * (baseFontSize + spacing);
+    final remainingWidth = maxWidth - primaryTotalWidth;
+
+    var secondaryFontSize = baseFontSize;
+    if (secondaryStars.isNotEmpty) {
+      secondaryFontSize = (remainingWidth / secondaryStars.length) - spacing;
+      if (secondaryFontSize < 8.5) secondaryFontSize = 8.5;
+      if (secondaryFontSize > baseFontSize) secondaryFontSize = baseFontSize;
+    }
+
+    final layouts = <_StarColumnMetric>[];
+    double cursor = 0;
+
+    for (final star in primaryStars) {
+      final height = _estimateStarColumnHeight(star, baseFontSize);
+      final width = baseFontSize + spacing;
+      layouts.add(_StarColumnMetric(cursor, cursor + width, height));
+      cursor += width;
+    }
+    for (final star in secondaryStars) {
+      final height = _estimateStarColumnHeight(star, secondaryFontSize);
+      final width = secondaryFontSize + spacing;
+      layouts.add(_StarColumnMetric(cursor, cursor + width, height));
+      cursor += width;
+    }
+
+    final conflictStart = maxWidth - overlayZoneWidth;
+    if (cursor <= conflictStart) return 0;
+
+    double maxConflictHeight = 0;
+    for (final layout in layouts) {
+      if (layout.right > conflictStart && layout.height > maxConflictHeight) {
+        maxConflictHeight = layout.height;
+      }
+    }
+
+    return maxConflictHeight > 0 ? maxConflictHeight + 6 : 0;
+  }
+
+  double _estimateStarColumnHeight(Star star, double fontSize) {
+    final name = getStarDisplayName(star);
+    final isPinyin = name.contains(RegExp(r'[a-z]'));
+    final charCount = isPinyin ? 1 : name.characters.length;
+
+    final nameHeight =
+        charCount * (fontSize * 1.1) + ((charCount - 1).clamp(0, 99) * 1.5);
+
+    final brightness = getStarBrightness(
+      star,
+      palace.branch,
+      plate.ruleset.brightnessLabels,
+    );
+    final brightnessHeight = brightness.isNotEmpty ? (9 * 1.1) : 0.0;
+
+    double badgeHeight = 0;
+    if (star is StaticStar && star.siHuaBuff.isNotEmpty) {
+      badgeHeight = fontSize * 0.85;
+    }
+
+    return nameHeight + brightnessHeight + badgeHeight + 4;
   }
 
   /// 顶部星曜区：阶梯式缩放逻辑
   /// 1. 主星与吉星（辅星）字号锁定，保证全局视觉权重一致
   /// 2. 煞星与杂曜执行“自动缩放”，在空间不足时动态缩小
-  Widget _buildStarGrid(List<Star> stars) {
+  Widget _buildStarGrid(
+    List<Star> stars, {
+    required bool enableFlyingStarHighlightFrame,
+    required bool enableFlyingStarArrow,
+  }) {
     if (stars.isEmpty) return const SizedBox.shrink();
+
+    final selectedFlyingTargets =
+        (enableFlyingStarHighlightFrame || enableFlyingStarArrow)
+        ? _selectedPalaceFlyingTargets()
+        : const <String, SiHuaType>{};
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -250,6 +509,9 @@ class PalaceCellWidget extends ConsumerWidget {
                       star,
                       baseFontSize,
                       constraints.maxHeight,
+                      selectedFlyingTargets[star.key],
+                      enableFlyingStarHighlightFrame: enableFlyingStarHighlightFrame,
+                      enableFlyingStarArrow: enableFlyingStarArrow,
                     ),
                   );
                 }),
@@ -261,6 +523,9 @@ class PalaceCellWidget extends ConsumerWidget {
                       star,
                       secondaryFontSize,
                       constraints.maxHeight,
+                      selectedFlyingTargets[star.key],
+                      enableFlyingStarHighlightFrame: enableFlyingStarHighlightFrame,
+                      enableFlyingStarArrow: enableFlyingStarArrow,
                     ),
                   );
                 }),
@@ -273,7 +538,16 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 单颗星曜的竖列
-  Widget _buildStarColumn(Star star, double fontSize, double maxHeight) {
+  Widget _buildStarColumn(
+    Star star,
+    double fontSize,
+    double maxHeight,
+    SiHuaType? flyingHighlightType,
+    {
+    required bool enableFlyingStarHighlightFrame,
+    required bool enableFlyingStarArrow,
+    }
+  ) {
     final name = getStarDisplayName(star);
     final brightness = getStarBrightness(
       star,
@@ -313,11 +587,10 @@ class PalaceCellWidget extends ConsumerWidget {
         ? [name]
         : name.characters.toList();
 
-    return Column(
+    Widget nameContent = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // 星名竖排
         for (int i = 0; i < characters.length; i++) ...[
           Text(
             characters[i],
@@ -328,9 +601,38 @@ class PalaceCellWidget extends ConsumerWidget {
               height: 1.1,
             ),
           ),
-          // 字与字之间加点空隙
           if (i < characters.length - 1) const SizedBox(height: 1.5),
         ],
+      ],
+    );
+
+    if (flyingHighlightType != null && star is StaticStar) {
+      if (enableFlyingStarHighlightFrame) {
+        final frameColor = ZiweiClassicTheme.getSihuaColor(flyingHighlightType);
+        nameContent = Container(
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+          decoration: BoxDecoration(
+            color: frameColor.withOpacity(0.08),
+            border: Border.all(color: frameColor, width: 1.2),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: nameContent,
+        );
+      }
+      if (enableFlyingStarArrow) {
+        nameContent = _GeometryReporter(
+          rootKey: chartRootKey,
+          onChanged: (rect) => onFlyingTargetRectChanged(star.key, rect),
+          child: nameContent,
+        );
+      }
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        nameContent,
         // 亮度
         if (brightness.isNotEmpty)
           FittedBox(
@@ -413,6 +715,23 @@ class PalaceCellWidget extends ConsumerWidget {
     );
   }
 
+  Map<String, SiHuaType> _selectedPalaceFlyingTargets() {
+    final selectedIndex = state.selectedPalaceIndex;
+    if (selectedIndex == null || selectedIndex < 0 || selectedIndex >= 12) {
+      return const {};
+    }
+
+    final selectedStem = plate.palaces[selectedIndex].stem;
+    if (selectedStem == null) return const {};
+
+    final rule = plate.ruleset.siHuaRules[selectedStem];
+    if (rule == null || rule.isEmpty) return const {};
+
+    return {
+      for (final entry in rule.entries) entry.value: entry.key,
+    };
+  }
+
   /// 构建单个四化圆扣 (动态大小：跟随 fontSize)
   Widget _buildSihuaBadge(SiHuaType type, ZiweiScope scope, double fontSize) {
     final color = ZiweiClassicTheme.getScopeColor(scope);
@@ -453,16 +772,8 @@ class PalaceCellWidget extends ConsumerWidget {
     required String ganLabel,
     required String zhiLabel,
     required String changshengName,
-    required List<Star> boshiStars,
-    required List<Star> suijianStars,
-    required List<Star> jiangqianStars,
+    required List<_BottomShenshaLine> shenshaLines,
   }) {
-    final shenshaList = [
-      ...boshiStars.map(getStarDisplayName),
-      ...suijianStars.map(getStarDisplayName),
-      ...jiangqianStars.map(getStarDisplayName),
-    ].take(3).toList();
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -472,14 +783,18 @@ class PalaceCellWidget extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
-            children: shenshaList
+            children: shenshaLines
                 .map(
-                  (name) => Text(
-                    name,
+                  (line) => Text(
+                    line.name,
                     style: const TextStyle(
                       fontSize: 9.5, // 稍微调大点，增强可读性
-                      color: ZiweiClassicTheme.minorStarColor,
                       height: 1.1,
+                    ).copyWith(
+                      color: line.color,
+                      fontWeight: line.isFlow
+                          ? FontWeight.w700
+                          : FontWeight.w400,
                     ),
                   ),
                 )
@@ -504,7 +819,10 @@ class PalaceCellWidget extends ConsumerWidget {
                       children: [
                         _buildFixedRoleLabel(ZiweiScope.hour, '时'),
                         const SizedBox(width: 3),
-                        _buildFixedRoleLabel(ZiweiScope.decade, '大'),
+                        _buildFixedRoleLabel(
+                          ZiweiScope.decade,
+                          state.currentDecade?.decadeIndex == 0 ? '童' : '大',
+                        ),
                         const SizedBox(width: 3),
                         _buildFixedRoleLabel(ZiweiScope.month, '月'),
                       ],
@@ -613,6 +931,164 @@ class PalaceCellWidget extends ConsumerWidget {
     return null;
   }
 
+  List<FlowStar> _collectOverlayFlowStars() {
+    final stars = palace.stars[StarType.flow] ?? const [];
+    return stars
+        .whereType<FlowStar>()
+        .where((star) => !_isExcludedOverlayFlowStar(star))
+        .toList()
+      ..sort((a, b) {
+        final scopeCompare =
+            _flowScopeOrder(a.scope).compareTo(_flowScopeOrder(b.scope));
+        if (scopeCompare != 0) return scopeCompare;
+        return _flowStarDisplayName(a).compareTo(_flowStarDisplayName(b));
+      });
+  }
+
+  bool _isExcludedOverlayFlowStar(FlowStar star) {
+    if (_isBottomShenshaFlowStar(star)) {
+      return true;
+    }
+    return false;
+  }
+
+  List<_BottomShenshaLine> _buildBottomShenshaLines({
+    required ZiweiFlowStarDisplayOptions flowStarDisplay,
+    required List<Star> boshiStars,
+    required List<Star> suijianStars,
+    required List<Star> jiangqianStars,
+  }) {
+    return [
+      _resolveBottomShenshaLine(
+        originStars: boshiStars,
+        flowEnabled: flowStarDisplay.showBoshi12,
+        groupSuffix: '_boshi12',
+      ),
+      _resolveBottomShenshaLine(
+        originStars: suijianStars,
+        flowEnabled: flowStarDisplay.showSuijian12,
+        groupSuffix: '_suijian12',
+      ),
+      _resolveBottomShenshaLine(
+        originStars: jiangqianStars,
+        flowEnabled: flowStarDisplay.showJiangqian12,
+        groupSuffix: '_jiangqian12',
+      ),
+    ];
+  }
+
+  _BottomShenshaLine _resolveBottomShenshaLine({
+    required List<Star> originStars,
+    required bool flowEnabled,
+    required String groupSuffix,
+  }) {
+    if (flowEnabled) {
+      final flowStar = _findActiveBottomShenshaFlowStar(groupSuffix);
+      if (flowStar != null) {
+        return _BottomShenshaLine(
+          name: _flowBottomShenshaName(flowStar),
+          color: ZiweiClassicTheme.getScopeColor(flowStar.scope),
+          isFlow: true,
+        );
+      }
+    }
+
+    final originName = originStars.isNotEmpty
+        ? getStarDisplayName(originStars.first)
+        : '';
+    return _BottomShenshaLine(
+      name: originName,
+      color: ZiweiClassicTheme.minorStarColor,
+      isFlow: false,
+    );
+  }
+
+  FlowStar? _findActiveBottomShenshaFlowStar(String groupSuffix) {
+    final flowStars = palace.stars[StarType.flow] ?? const [];
+    final activeScopes = _bottomShenshaScopePriority();
+
+    for (final scope in activeScopes) {
+      for (final star in flowStars.whereType<FlowStar>()) {
+        if (star.scope == scope && star.key.endsWith(groupSuffix)) {
+          return star;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  List<ZiweiScope> _bottomShenshaScopePriority() {
+    if (state.currentHour != null) {
+      return const [
+        ZiweiScope.hour,
+        ZiweiScope.day,
+        ZiweiScope.month,
+        ZiweiScope.year,
+        ZiweiScope.decade,
+      ];
+    }
+    if (state.currentDay != null) {
+      return const [
+        ZiweiScope.day,
+        ZiweiScope.month,
+        ZiweiScope.year,
+        ZiweiScope.decade,
+      ];
+    }
+    if (state.currentMonth != null) {
+      return const [
+        ZiweiScope.month,
+        ZiweiScope.year,
+        ZiweiScope.decade,
+      ];
+    }
+    if (state.currentYear != null) {
+      return const [
+        ZiweiScope.year,
+        ZiweiScope.decade,
+      ];
+    }
+    if (state.currentDecade != null) {
+      return const [ZiweiScope.decade];
+    }
+    return const [];
+  }
+
+  bool _isBottomShenshaFlowStar(FlowStar star) {
+    return star.key.endsWith('_boshi12') ||
+        star.key.endsWith('_suijian12') ||
+        star.key.endsWith('_jiangqian12');
+  }
+
+  String _flowBottomShenshaName(FlowStar star) {
+    final baseKey = star.key.replaceFirst('flow_${star.scope.name}_', '');
+    return formatFlowShortName(baseKey);
+  }
+
+  int _flowScopeOrder(ZiweiScope scope) {
+    switch (scope) {
+      case ZiweiScope.hour:
+        return 0;
+      case ZiweiScope.day:
+        return 1;
+      case ZiweiScope.month:
+        return 2;
+      case ZiweiScope.smallLimit:
+        return 3;
+      case ZiweiScope.year:
+        return 4;
+      case ZiweiScope.decade:
+        return 5;
+      case ZiweiScope.origin:
+        return 6;
+    }
+  }
+
+  String _flowStarDisplayName(FlowStar star) {
+    return star.overlayDisplay;
+  }
+
   Widget _buildVerticalText(String text, TextStyle style) {
     if (text.isEmpty) return const SizedBox.shrink();
     return Column(
@@ -631,8 +1107,8 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 构建动态水印组件 (纯净版数字)
-  Widget _buildDynamicWatermark(Decade decade) {
-    final info = _getWatermarkInfo(decade);
+  Widget _buildDynamicWatermark(Decade fallbackDecade) {
+    final info = _getWatermarkInfo(fallbackDecade);
 
     return Align(
       alignment: const Alignment(0, 0.5), // 下移至视觉区
@@ -658,7 +1134,7 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 获取当前宫位应该显示的水印信息
-  _WatermarkInfo _getWatermarkInfo(Decade decade) {
+  _WatermarkInfo _getWatermarkInfo(Decade fallbackDecade) {
     // 1. 流时 (紫色)
     if (state.currentHour != null &&
         plate.getRole(ZiweiScope.hour, palace.index) == PalaceRole.life) {
@@ -706,9 +1182,15 @@ class PalaceCellWidget extends ConsumerWidget {
     // 5. 大限 (绿色)
     if (state.currentDecade != null &&
         plate.getRole(ZiweiScope.decade, palace.index) == PalaceRole.life) {
+      final currentDecade = state.currentDecade!;
+      final isChildhood = currentDecade.decadeIndex == 0;
       return _WatermarkInfo(
-        text: '${decade.startTime}~${decade.endTime}',
-        prefix: '大',
+        text: isChildhood
+            ? (state.currentYear == null
+                  ? '童限'.tr
+                  : '${currentDecade.startTime}${'岁'.tr}')
+            : '${currentDecade.startTime}~${currentDecade.endTime}',
+        prefix: isChildhood ? '童' : '大',
         color: ZiweiClassicTheme.getScopeColor(ZiweiScope.decade),
         isActive: true,
         fontSize: 28,
@@ -717,7 +1199,7 @@ class PalaceCellWidget extends ConsumerWidget {
 
     // 默认：显示大限岁数区间
     return _WatermarkInfo(
-      text: '${decade.startTime}~${decade.endTime}',
+      text: '${fallbackDecade.startTime}~${fallbackDecade.endTime}',
       prefix: '',
       color: Colors.grey,
       isActive: false,
@@ -740,4 +1222,74 @@ class _WatermarkInfo {
     required this.isActive,
     required this.fontSize,
   });
+}
+
+class _StarColumnMetric {
+  final double left;
+  final double right;
+  final double height;
+
+  const _StarColumnMetric(this.left, this.right, this.height);
+}
+
+class _BottomShenshaLine {
+  final String name;
+  final Color color;
+  final bool isFlow;
+
+  const _BottomShenshaLine({
+    required this.name,
+    required this.color,
+    required this.isFlow,
+  });
+}
+
+class _GeometryReporter extends StatefulWidget {
+  final GlobalKey rootKey;
+  final ValueChanged<Rect?> onChanged;
+  final Widget child;
+
+  const _GeometryReporter({
+    required this.rootKey,
+    required this.onChanged,
+    required this.child,
+  });
+
+  @override
+  State<_GeometryReporter> createState() => _GeometryReporterState();
+}
+
+class _GeometryReporterState extends State<_GeometryReporter> {
+  bool _scheduled = false;
+
+  @override
+  Widget build(BuildContext context) {
+    _scheduleReport();
+    return widget.child;
+  }
+
+  void _scheduleReport() {
+    if (_scheduled) return;
+    _scheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scheduled = false;
+      if (!mounted) return;
+
+      final object = context.findRenderObject();
+      final rootObject = widget.rootKey.currentContext?.findRenderObject();
+      if (object is! RenderBox || rootObject is! RenderBox) {
+        widget.onChanged(null);
+        return;
+      }
+
+      final topLeft = object.localToGlobal(Offset.zero, ancestor: rootObject);
+      widget.onChanged(topLeft & object.size);
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.onChanged(null);
+    super.dispose();
+  }
 }

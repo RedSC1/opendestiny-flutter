@@ -1,30 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ziwei_core/ziwei_core.dart';
+import '../../../providers/input_provider.dart';
 import '../providers/ziwei_providers.dart';
-import 'palace_cell_widget.dart';
 import 'center_info_widget.dart';
+import 'palace_cell_widget.dart';
+import 'ziwei_flying_star_painter.dart';
 import 'ziwei_sihua_arrow_painter.dart';
 
-class ZiweiChartWidget extends ConsumerWidget {
+class ZiweiChartWidget extends ConsumerStatefulWidget {
   const ZiweiChartWidget({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 这里我们只监听这个大盘的整体可用状态。
-    // 具体每个宫位的数据如果需要细粒度优化，可以在 PalaceCell 里再局部读取。
-    // 但为了刚起步时结构简单，我们可以先一把梭读取整个 state。
+  ConsumerState<ZiweiChartWidget> createState() => _ZiweiChartWidgetState();
+}
+
+class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
+  final GlobalKey _chartRootKey = GlobalKey();
+  final Map<int, Rect> _ganRects = {};
+  final Map<String, Rect> _flyingTargetRects = {};
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(ziweiUIManagerProvider);
+    final enableFlyingStarArrow = ref.watch(
+      inputNotifierProvider.select(
+        (profile) => profile.ziweiOptions.animation.enableFlyingStarArrow,
+      ),
+    );
+    final flyingTargets = enableFlyingStarArrow
+        ? _selectedPalaceFlyingTargets(state)
+        : const <String, SiHuaType>{};
+    final sourceRect = !enableFlyingStarArrow || state.selectedPalaceIndex == null
+        ? null
+        : _ganRects[state.selectedPalaceIndex!];
+    final arrowTargets = flyingTargets.entries
+        .map((entry) {
+          final rect = _flyingTargetRects[entry.key];
+          if (rect == null) return null;
+          return FlyingStarArrowTarget(rect: rect, sihuaType: entry.value);
+        })
+        .whereType<FlyingStarArrowTarget>()
+        .toList();
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // 让盘面绝对正方形
-        const double edgeMargin = 12.0; // 稍微调小一点，之前 20 太大了。留出 12px 够放一个“身”字标签了。
+        const double edgeMargin = 12.0;
         final width = constraints.maxWidth - (edgeMargin * 2);
         final cellWidth = width / 4;
-        final cellHeight = cellWidth * 1.05; // 压缩垂直比例，确保流年行不用往下滑
+        final cellHeight = cellWidth * 1.05;
 
-        // 计算 12 个地支宫位的相对坐标 (Row, Column)
         final positions = {
           DiZhi.si: const Offset(0, 0),
           DiZhi.wu: const Offset(1, 0),
@@ -41,12 +66,12 @@ class ZiweiChartWidget extends ConsumerWidget {
         };
 
         return SizedBox(
+          key: _chartRootKey,
           width: constraints.maxWidth,
           height: (cellHeight * 4) + (edgeMargin * 2),
           child: Stack(
-            clipBehavior: Clip.none, // 允许子组件（如身宫标记）超出宫位边界绘制
+            clipBehavior: Clip.none,
             children: [
-              // 1. 底层：十二个小宫位
               ...DiZhi.values.map((dz) {
                 final pos = positions[dz]!;
                 final palace = state.plate.palaces[dz.index];
@@ -60,11 +85,12 @@ class ZiweiChartWidget extends ConsumerWidget {
                     palace: palace,
                     plate: state.plate,
                     state: state,
+                    chartRootKey: _chartRootKey,
+                    onGanRectChanged: _updateGanRect,
+                    onFlyingTargetRectChanged: _updateFlyingTargetRect,
                   ),
                 );
               }),
-
-              // 2. 顶层：悬浮的巨大中宫 (占据 1,1 到 2,2，宽宽高高各2格)
               Positioned(
                 left: cellWidth + edgeMargin,
                 top: cellHeight + edgeMargin,
@@ -72,8 +98,6 @@ class ZiweiChartWidget extends ConsumerWidget {
                 height: cellHeight * 2,
                 child: CenterInfoWidget(state: state),
               ),
-
-              // 3. 超顶层：跨宫位的自化箭头
               Positioned.fill(
                 child: IgnorePointer(
                   child: CustomPaint(
@@ -84,10 +108,76 @@ class ZiweiChartWidget extends ConsumerWidget {
                   ),
                 ),
               ),
+              if (sourceRect != null && arrowTargets.isNotEmpty)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      painter: ZiweiFlyingStarPainter(
+                        sourceRect: sourceRect,
+                        targets: arrowTargets,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         );
       },
     );
+  }
+
+  Map<String, SiHuaType> _selectedPalaceFlyingTargets(ZiweiUIState state) {
+    final selectedIndex = state.selectedPalaceIndex;
+    if (selectedIndex == null || selectedIndex < 0 || selectedIndex >= 12) {
+      return const {};
+    }
+
+    final selectedStem = state.plate.palaces[selectedIndex].stem;
+    if (selectedStem == null) return const {};
+
+    final rule = state.plate.ruleset.siHuaRules[selectedStem];
+    if (rule == null || rule.isEmpty) return const {};
+
+    return {
+      for (final entry in rule.entries) entry.value: entry.key,
+    };
+  }
+
+  void _updateGanRect(int palaceIndex, Rect? rect) {
+    if (rect == null) {
+      if (_ganRects.remove(palaceIndex) != null && mounted) {
+        setState(() {});
+      }
+      return;
+    }
+
+    final oldRect = _ganRects[palaceIndex];
+    if (_rectEquals(oldRect, rect)) return;
+
+    _ganRects[palaceIndex] = rect;
+    if (mounted) setState(() {});
+  }
+
+  void _updateFlyingTargetRect(String starKey, Rect? rect) {
+    if (rect == null) {
+      if (_flyingTargetRects.remove(starKey) != null && mounted) {
+        setState(() {});
+      }
+      return;
+    }
+
+    final oldRect = _flyingTargetRects[starKey];
+    if (_rectEquals(oldRect, rect)) return;
+
+    _flyingTargetRects[starKey] = rect;
+    if (mounted) setState(() {});
+  }
+
+  bool _rectEquals(Rect? a, Rect? b) {
+    if (a == null || b == null) return a == b;
+    return a.left == b.left &&
+        a.top == b.top &&
+        a.width == b.width &&
+        a.height == b.height;
   }
 }

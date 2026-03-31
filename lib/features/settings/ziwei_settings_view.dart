@@ -100,6 +100,82 @@ class ZiweiSettingsView extends ConsumerWidget {
           ),
 
           const Divider(),
+          _buildSectionTitle('流曜显示'.tr),
+          SwitchListTile(
+            title: Text('显示流运博士十二神'.tr),
+            value: options.flowStarDisplay.showBoshi12,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  flowStarDisplay: options.flowStarDisplay.copyWith(
+                    showBoshi12: value,
+                  ),
+                ),
+              );
+            },
+          ),
+          SwitchListTile(
+            title: Text('显示流运岁建十二神'.tr),
+            value: options.flowStarDisplay.showSuijian12,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  flowStarDisplay: options.flowStarDisplay.copyWith(
+                    showSuijian12: value,
+                  ),
+                ),
+              );
+            },
+          ),
+          SwitchListTile(
+            title: Text('显示流运将前十二神'.tr),
+            value: options.flowStarDisplay.showJiangqian12,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  flowStarDisplay: options.flowStarDisplay.copyWith(
+                    showJiangqian12: value,
+                  ),
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
+          _buildSectionTitle('动效'.tr),
+          SwitchListTile(
+            title: Text('启用飞星四化框'.tr),
+            value: options.animation.enableFlyingStarHighlightFrame,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  animation: options.animation.copyWith(
+                    enableFlyingStarHighlightFrame: value,
+                  ),
+                ),
+              );
+            },
+          ),
+          SwitchListTile(
+            title: Text('启用飞星箭头'.tr),
+            value: options.animation.enableFlyingStarArrow,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  animation: options.animation.copyWith(
+                    enableFlyingStarArrow: value,
+                  ),
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
           _buildSectionTitle('实验性功能 (谨慎修改)'.tr),
 
           ExpansionTile(

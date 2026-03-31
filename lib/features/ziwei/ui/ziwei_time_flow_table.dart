@@ -20,27 +20,49 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
 
     // 从响应式状态中读取快照
     final manifest = state.manifest;
+    final decadeItems = <_MacroLimitItem>[
+      if (manifest.childhoods.isNotEmpty) const _MacroLimitItem.childhood(),
+      ...manifest.decades.map(_MacroLimitItem.decade),
+    ];
 
     return Container(
       color: Colors.white,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 1. 大限行 (始终显示)
-          TimeFlowRow<DecadeNode>(
+          // 1. 大限行（第一个入口可为童限）
+          TimeFlowRow<_MacroLimitItem>(
             label: '大限'.tr,
-            items: manifest.decades,
+            items: decadeItems,
             selectedItem: null,
             activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.decade),
-            itemLabelBuilder: (d) => '${d.startAge}~${d.endAge}',
-            itemSubLabelBuilder: (d) => '${d.stem.ganDisplay}${d.branch.zhiDisplay}',
-            isSelectedBuilder: (item, _) => 
-                state.currentDecade?.decadeIndex == item.index,
-            onItemSelected: (d) => manager.selectDecade(d),
+            itemLabelBuilder: (item) => item.label.tr,
+            itemSubLabelBuilder: (item) => item.subLabel.tr,
+            isSelectedBuilder: (item, _) => item.isChildhood
+                ? state.currentDecade?.decadeIndex == 0
+                : state.currentDecade?.decadeIndex == item.decade!.index,
+            onItemSelected: (item) {
+              if (item.isChildhood) {
+                manager.selectChildhoodDecade();
+              } else {
+                manager.selectDecade(item.decade!);
+              }
+            },
           ),
           
-          // 2. 流年行 (选中大限后出现)
-          if (manifest.currentDecadeYears != null)
+          // 2. 流年行（童限时展开童限年份，普通大限时展开十年流年）
+          if (state.currentDecade?.decadeIndex == 0)
+            TimeFlowRow<ChildhoodNode>(
+              label: '流年'.tr,
+              items: manifest.childhoods,
+              selectedItem: null,
+              activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.year),
+              itemLabelBuilder: (c) => '${c.age}${'岁'.tr}',
+              itemSubLabelBuilder: (c) => '${c.stem.ganDisplay}${c.branch.zhiDisplay}',
+              isSelectedBuilder: (item, _) => state.currentYear?.year == item.year,
+              onItemSelected: (c) => manager.selectChildhood(c),
+            )
+          else if (manifest.currentDecadeYears != null)
             TimeFlowRow<YearNode>(
               label: '流年'.tr,
               items: manifest.currentDecadeYears!,
@@ -61,7 +83,8 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               selectedItem: null,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.month),
               itemLabelBuilder: (m) => m.displayLabel,
-              itemSubLabelBuilder: (m) => '${m.stem.ganDisplay}${m.branch.zhiDisplay}',
+              itemSubLabelBuilder: (m) =>
+                  '${m.stem.ganDisplay}${_flowMonthBranchDisplay(m)}',
               isSelectedBuilder: (item, _) =>
                   state.currentMonth?.month == item.month &&
                   state.currentMonthIsLeap == item.isLeap,
@@ -140,4 +163,40 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _MacroLimitItem {
+  final bool isChildhood;
+  final DecadeNode? decade;
+  final String label;
+  final String subLabel;
+
+  const _MacroLimitItem._({
+    required this.isChildhood,
+    required this.decade,
+    required this.label,
+    required this.subLabel,
+  });
+
+  const _MacroLimitItem.childhood()
+    : this._(
+        isChildhood: true,
+        decade: null,
+        label: '童限',
+        subLabel: '起运前',
+      );
+
+  factory _MacroLimitItem.decade(DecadeNode decade) {
+    return _MacroLimitItem._(
+      isChildhood: false,
+      decade: decade,
+      label: '${decade.startAge}~${decade.endAge}',
+      subLabel: '${decade.stem.ganDisplay}${decade.branch.zhiDisplay}',
+    );
+  }
+}
+
+String _flowMonthBranchDisplay(MonthNode node) {
+  final branchIndex = (node.sequence + 1) % 12;
+  return DiZhi.values[branchIndex].display;
 }

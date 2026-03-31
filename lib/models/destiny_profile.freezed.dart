@@ -241,6 +241,9 @@ mixin _$ZiweiOptions {
   Boundary get siHuaBasedOn => throw _privateConstructorUsedError;
   ChildhoodRole get childhoodRule => throw _privateConstructorUsedError;
   Boundary get flowLimitBasedOn => throw _privateConstructorUsedError;
+  ZiweiFlowStarDisplayOptions get flowStarDisplay =>
+      throw _privateConstructorUsedError;
+  ZiweiAnimationOptions get animation => throw _privateConstructorUsedError;
 
   /// Serializes this ZiweiOptions to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -265,6 +268,8 @@ abstract class $ZiweiOptionsCopyWith<$Res> {
     Boundary siHuaBasedOn,
     ChildhoodRole childhoodRule,
     Boundary flowLimitBasedOn,
+    ZiweiFlowStarDisplayOptions flowStarDisplay,
+    ZiweiAnimationOptions animation,
   });
 }
 
@@ -288,6 +293,8 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
     Object? siHuaBasedOn = null,
     Object? childhoodRule = null,
     Object? flowLimitBasedOn = null,
+    Object? flowStarDisplay = null,
+    Object? animation = null,
   }) {
     return _then(
       _value.copyWith(
@@ -311,6 +318,14 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
                 ? _value.flowLimitBasedOn
                 : flowLimitBasedOn // ignore: cast_nullable_to_non_nullable
                       as Boundary,
+            flowStarDisplay: null == flowStarDisplay
+                ? _value.flowStarDisplay
+                : flowStarDisplay // ignore: cast_nullable_to_non_nullable
+                      as ZiweiFlowStarDisplayOptions,
+            animation: null == animation
+                ? _value.animation
+                : animation // ignore: cast_nullable_to_non_nullable
+                      as ZiweiAnimationOptions,
           )
           as $Val,
     );
@@ -332,6 +347,8 @@ abstract class _$$ZiweiOptionsImplCopyWith<$Res>
     Boundary siHuaBasedOn,
     ChildhoodRole childhoodRule,
     Boundary flowLimitBasedOn,
+    ZiweiFlowStarDisplayOptions flowStarDisplay,
+    ZiweiAnimationOptions animation,
   });
 }
 
@@ -354,6 +371,8 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
     Object? siHuaBasedOn = null,
     Object? childhoodRule = null,
     Object? flowLimitBasedOn = null,
+    Object? flowStarDisplay = null,
+    Object? animation = null,
   }) {
     return _then(
       _$ZiweiOptionsImpl(
@@ -377,6 +396,14 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
             ? _value.flowLimitBasedOn
             : flowLimitBasedOn // ignore: cast_nullable_to_non_nullable
                   as Boundary,
+        flowStarDisplay: null == flowStarDisplay
+            ? _value.flowStarDisplay
+            : flowStarDisplay // ignore: cast_nullable_to_non_nullable
+                  as ZiweiFlowStarDisplayOptions,
+        animation: null == animation
+            ? _value.animation
+            : animation // ignore: cast_nullable_to_non_nullable
+                  as ZiweiAnimationOptions,
       ),
     );
   }
@@ -391,6 +418,8 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     this.siHuaBasedOn = Boundary.lunar,
     this.childhoodRule = ChildhoodRole.skip,
     this.flowLimitBasedOn = Boundary.lunar,
+    this.flowStarDisplay = const ZiweiFlowStarDisplayOptions(),
+    this.animation = const ZiweiAnimationOptions(),
   });
 
   factory _$ZiweiOptionsImpl.fromJson(Map<String, dynamic> json) =>
@@ -411,10 +440,16 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
   @override
   @JsonKey()
   final Boundary flowLimitBasedOn;
+  @override
+  @JsonKey()
+  final ZiweiFlowStarDisplayOptions flowStarDisplay;
+  @override
+  @JsonKey()
+  final ZiweiAnimationOptions animation;
 
   @override
   String toString() {
-    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn)';
+    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, flowStarDisplay: $flowStarDisplay, animation: $animation)';
   }
 
   @override
@@ -431,7 +466,11 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
             (identical(other.childhoodRule, childhoodRule) ||
                 other.childhoodRule == childhoodRule) &&
             (identical(other.flowLimitBasedOn, flowLimitBasedOn) ||
-                other.flowLimitBasedOn == flowLimitBasedOn));
+                other.flowLimitBasedOn == flowLimitBasedOn) &&
+            (identical(other.flowStarDisplay, flowStarDisplay) ||
+                other.flowStarDisplay == flowStarDisplay) &&
+            (identical(other.animation, animation) ||
+                other.animation == animation));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -443,6 +482,8 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     siHuaBasedOn,
     childhoodRule,
     flowLimitBasedOn,
+    flowStarDisplay,
+    animation,
   );
 
   /// Create a copy of ZiweiOptions
@@ -466,6 +507,8 @@ abstract class _ZiweiOptions implements ZiweiOptions {
     final Boundary siHuaBasedOn,
     final ChildhoodRole childhoodRule,
     final Boundary flowLimitBasedOn,
+    final ZiweiFlowStarDisplayOptions flowStarDisplay,
+    final ZiweiAnimationOptions animation,
   }) = _$ZiweiOptionsImpl;
 
   factory _ZiweiOptions.fromJson(Map<String, dynamic> json) =
@@ -481,6 +524,10 @@ abstract class _ZiweiOptions implements ZiweiOptions {
   ChildhoodRole get childhoodRule;
   @override
   Boundary get flowLimitBasedOn;
+  @override
+  ZiweiFlowStarDisplayOptions get flowStarDisplay;
+  @override
+  ZiweiAnimationOptions get animation;
 
   /// Create a copy of ZiweiOptions
   /// with the given fields replaced by the non-null parameter values.

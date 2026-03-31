@@ -344,6 +344,7 @@ extension StringL10n on String {
     '流时': {AppLanguage.en: 'Hour', AppLanguage.zhTW: '流時'},
     '大运列表': {AppLanguage.en: 'Decades', AppLanguage.zhTW: '大運列表'},
     '大限': {AppLanguage.en: 'Decade', AppLanguage.zhTW: '大限'},
+    '童限': {AppLanguage.en: 'Childhood', AppLanguage.zhTW: '童限'},
     '小限': {AppLanguage.en: 'Small Limit', AppLanguage.zhTW: '小限'},
     '回到本命盘': {AppLanguage.en: 'Reset to Origin', AppLanguage.zhTW: '回到本命盤'},
     '流年轨迹': {AppLanguage.en: 'Annual Flow', AppLanguage.zhTW: '流年軌跡'},
@@ -858,6 +859,36 @@ extension StringL10n on String {
       AppLanguage.zhTW: '四化天干跟隨節氣',
     },
     '童限排法': {AppLanguage.en: 'Childhood Luck Rule', AppLanguage.zhTW: '童限排法'},
+    '流曜显示': {AppLanguage.en: 'Flow Star Display', AppLanguage.zhTW: '流曜顯示'},
+    '显示流运博士十二神': {
+      AppLanguage.en: 'Show Flow BoShi 12',
+      AppLanguage.zhTW: '顯示流運博士十二神',
+    },
+    '显示流运岁建十二神': {
+      AppLanguage.en: 'Show Flow SuiJian 12',
+      AppLanguage.zhTW: '顯示流運歲建十二神',
+    },
+    '显示流运将前十二神': {
+      AppLanguage.en: 'Show Flow JiangQian 12',
+      AppLanguage.zhTW: '顯示流運將前十二神',
+    },
+    '动效': {AppLanguage.en: 'Animation', AppLanguage.zhTW: '動效'},
+    '启用飞星四化框': {
+      AppLanguage.en: 'Enable Flying Star Highlight Frame',
+      AppLanguage.zhTW: '啟用飛星四化框',
+    },
+    '启用飞星箭头': {
+      AppLanguage.en: 'Enable Flying Star Arrow',
+      AppLanguage.zhTW: '啟用飛星箭頭',
+    },
+    '启用飞星连线动画': {
+      AppLanguage.en: 'Enable Flying Star Link Animation',
+      AppLanguage.zhTW: '啟用飛星連線動畫',
+    },
+    '按个人习惯决定是否显示': {
+      AppLanguage.en: 'Show or hide based on preference',
+      AppLanguage.zhTW: '按個人習慣決定是否顯示',
+    },
     '一岁一宫顺行': {
       AppLanguage.en: 'One palace per year (Forward)',
       AppLanguage.zhTW: '一歲一宮順行',

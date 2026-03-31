@@ -62,6 +62,16 @@ _$ZiweiOptionsImpl _$$ZiweiOptionsImplFromJson(Map<String, dynamic> json) =>
       flowLimitBasedOn:
           $enumDecodeNullable(_$BoundaryEnumMap, json['flowLimitBasedOn']) ??
           Boundary.lunar,
+      flowStarDisplay: json['flowStarDisplay'] == null
+          ? const ZiweiFlowStarDisplayOptions()
+          : ZiweiFlowStarDisplayOptions.fromJson(
+              json['flowStarDisplay'] as Map<String, dynamic>,
+            ),
+      animation: json['animation'] == null
+          ? const ZiweiAnimationOptions()
+          : ZiweiAnimationOptions.fromJson(
+              json['animation'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
@@ -71,6 +81,8 @@ Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
       'siHuaBasedOn': _$BoundaryEnumMap[instance.siHuaBasedOn]!,
       'childhoodRule': _$ChildhoodRoleEnumMap[instance.childhoodRule]!,
       'flowLimitBasedOn': _$BoundaryEnumMap[instance.flowLimitBasedOn]!,
+      'flowStarDisplay': instance.flowStarDisplay.toJson(),
+      'animation': instance.animation.toJson(),
     };
 
 const _$LeapMonthRuleEnumMap = {

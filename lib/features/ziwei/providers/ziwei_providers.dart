@@ -52,7 +52,7 @@ class ZiweiUIState with _$ZiweiUIState {
     required ZiweiDate date, // 基础日期
     required ZiweiRuleset ruleset, // 基础规则
     required TimelineManifest manifest, // 当前流运清单快照
-    Decade? currentDecade, // 游标：大限
+    Decade? currentDecade, // 游标：大限 / 童限
     FlowYear? currentYear, // 游标：流年
     FlowMonth? currentMonth, // 游标：流月
     bool? currentMonthIsLeap, // 游标：流月是否闰月
@@ -160,22 +160,60 @@ class ZiweiUIManager extends _$ZiweiUIManager {
 
   /// 1. 选中大限
   void selectDecade(DecadeNode node) {
+    if (state.currentDecade?.decadeIndex == node.index) {
+      resetToOrigin();
+      return;
+    }
+
     if (_cachedOriginPlate == null) return;
     final decade = Decade.fromIndex(node.index, _cachedOriginPlate!);
     _recalculate(decade: decade);
   }
 
-  /// 2. 选中流年
+  /// 1.5 选中童限入口（仅展开童限年份，不预选具体流年）
+  void selectChildhoodDecade() {
+    if (state.currentDecade?.decadeIndex == 0) {
+      resetToOrigin();
+      return;
+    }
+
+    if (_cachedOriginPlate == null || state.manifest.childhoods.isEmpty) return;
+    final childhoodYear = state.manifest.childhoods.first.year;
+    final decade = Decade.createChildhood(childhoodYear, _cachedOriginPlate!);
+    _recalculate(decade: decade);
+  }
+
+  /// 2. 选中童限中的某一年
+  void selectChildhood(ChildhoodNode node) {
+    if (state.currentDecade?.decadeIndex == 0 &&
+        state.currentYear?.year == node.year) {
+      _recalculate(decade: state.currentDecade);
+      return;
+    }
+
+    _selectYear(node.year);
+  }
+
+  /// 3. 选中流年
   void selectYear(YearNode node) {
-    if (_cachedOriginPlate == null) return;
-    final fy = FlowYear.createByYear(node.year, _cachedOriginPlate!);
-    final decade = Decade.createByYear(node.year, _cachedOriginPlate!);
-    _recalculate(decade: decade, year: fy);
+    if (state.currentYear?.year == node.year) {
+      _recalculate(decade: state.currentDecade);
+      return;
+    }
+
+    _selectYear(node.year);
   }
 
   /// 3. 选中流月
   void selectMonth(MonthNode node) {
     if (_cachedOriginPlate == null || state.currentYear == null) return;
+
+    if (state.currentMonth?.month == node.month &&
+        state.currentMonthIsLeap == node.isLeap) {
+      _recalculate(decade: state.currentDecade, year: state.currentYear);
+      return;
+    }
+
     final fm = FlowMonth.create(
       node.month,
       state.currentYear!.year,
@@ -194,6 +232,17 @@ class ZiweiUIManager extends _$ZiweiUIManager {
   /// 4. 选中流日
   void selectDay(DayNode node) {
     if (_cachedOriginPlate == null || state.currentMonth == null) return;
+
+    if (state.currentDay?.day == node.day) {
+      _recalculate(
+        decade: state.currentDecade,
+        year: state.currentYear,
+        month: state.currentMonth,
+        isLeap: state.currentMonthIsLeap,
+      );
+      return;
+    }
+
     final dayGZ = GanZhi(
       TianGan.fromName(node.stem),
       DiZhi.fromName(node.branch),
@@ -216,6 +265,18 @@ class ZiweiUIManager extends _$ZiweiUIManager {
   /// 5. 选中流时
   void selectHour(HourNode node) {
     if (_cachedOriginPlate == null || state.currentDay == null) return;
+
+    if (state.currentHour?.hourIndex == node.hourIndex) {
+      _recalculate(
+        decade: state.currentDecade,
+        year: state.currentYear,
+        month: state.currentMonth,
+        day: state.currentDay,
+        isLeap: state.currentMonthIsLeap,
+      );
+      return;
+    }
+
     final fh = FlowHour.create(
       node.hourIndex,
       state.currentDay!,
@@ -229,6 +290,21 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       hour: fh,
       isLeap: state.currentMonthIsLeap, // 保留 isLeap
     );
+  }
+
+  void _selectYear(int physicalYear) {
+    if (_cachedOriginPlate == null) return;
+    final year = FlowYear.createByYear(physicalYear, _cachedOriginPlate!);
+    final decade = Decade.createByYear(physicalYear, _cachedOriginPlate!);
+    _recalculate(decade: decade, year: year);
+  }
+
+  SmallLimit? _resolveSmallLimit(FlowYear? year) {
+    if (_cachedOriginPlate == null || year == null) return null;
+
+    final effectiveBirthYear = Decade.getEffectiveBirthYear(_cachedOriginPlate!);
+    final virtualAge = year.year - effectiveBirthYear + 1;
+    return SmallLimit.create(virtualAge, _cachedOriginPlate!);
   }
 
   /// 内部刷新重算核心枢纽
@@ -249,9 +325,12 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       return;
     }
 
+    final smallLimit = _resolveSmallLimit(year);
+
     final limitContext = LimitContext(
       plate: _cachedOriginPlate!,
       decade: decade,
+      smallLimit: smallLimit,
       year: year,
       month: month,
       day: day,

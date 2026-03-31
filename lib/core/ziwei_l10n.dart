@@ -124,48 +124,37 @@ extension StarL10n on Star {
     if (parts.length < 3) return k;
     final type = parts[parts.length - 3]; // decade, year, month...
     final target = parts[parts.length - 1]; // lucun, tiankui...
-
-    final prefixMap = {
-      'decade': {AppLanguage.zhCN: '大', AppLanguage.zhTW: '大'},
-      'year': {AppLanguage.zhCN: '年', AppLanguage.zhTW: '年'},
-      'month': {AppLanguage.zhCN: '月', AppLanguage.zhTW: '月'},
-      'day': {AppLanguage.zhCN: '日', AppLanguage.zhTW: '日'},
-      'hour': {AppLanguage.zhCN: '时', AppLanguage.zhTW: '时'},
-    };
-
-    final p =
-        prefixMap[type]?[lang] ?? prefixMap[type]?[AppLanguage.zhCN] ?? '';
-    final base =
-        _starTranslation[target]?[lang] ??
-        _starTranslation[target]?[AppLanguage.zhCN] ??
-        target;
-
-    String shortBase = base;
-    if (base.length >= 2) {
-      if (base == '天魁')
-        shortBase = '魁';
-      else if (base == '天钺')
-        shortBase = '钺';
-      else if (base == '文昌')
-        shortBase = '昌';
-      else if (base == '文曲')
-        shortBase = '曲';
-      else if (base == '禄存')
-        shortBase = '禄';
-      else if (base == '擎羊')
-        shortBase = '羊';
-      else if (base == '陀罗')
-        shortBase = '陀';
-      else if (base == '红鸾')
-        shortBase = '鸾';
-      else if (base == '天喜')
-        shortBase = '喜';
-      else if (base == '天马')
-        shortBase = '马';
-    }
-
-    return '$p$shortBase';
+    return '${formatFlowScopePrefixByName(type)}${formatFlowShortName(target)}';
   }
+}
+
+extension FlowStarOverlayL10n on FlowStar {
+  String get overlayDisplay {
+    final baseKey = key.replaceFirst('flow_${scope.name}_', '');
+    return '${formatFlowScopePrefix(scope)}${formatFlowShortName(baseKey)}';
+  }
+}
+
+String formatFlowScopePrefix(ZiweiScope scope) {
+  final scopeKey = _flowScopeNameMap[scope];
+  if (scopeKey == null) return '';
+  return formatFlowScopePrefixByName(scopeKey);
+}
+
+String formatFlowScopePrefixByName(String type) {
+  final lang = AppL10nSettings.currentLanguage;
+  return _flowScopePrefixTranslation[type]?[lang] ??
+      _flowScopePrefixTranslation[type]?[AppLanguage.zhCN] ??
+      '';
+}
+
+String formatFlowShortName(String target) {
+  final lang = AppL10nSettings.currentLanguage;
+  return _flowShortTranslation[target]?[lang] ??
+      _flowShortTranslation[target]?[AppLanguage.zhCN] ??
+      _starTranslation[target]?[lang] ??
+      _starTranslation[target]?[AppLanguage.zhCN] ??
+      target;
 }
 
 extension PalaceRoleL10n on PalaceRole {
@@ -352,4 +341,35 @@ const _brightnessTranslation = {
   'level_bu': {AppLanguage.zhCN: '不', AppLanguage.zhTW: '不'},
   'level_xian': {AppLanguage.zhCN: '陷', AppLanguage.zhTW: '陷'},
   'level_none': {AppLanguage.zhCN: '', AppLanguage.zhTW: ''},
+};
+
+const _flowScopeNameMap = {
+  ZiweiScope.decade: 'decade',
+  ZiweiScope.smallLimit: 'smallLimit',
+  ZiweiScope.year: 'year',
+  ZiweiScope.month: 'month',
+  ZiweiScope.day: 'day',
+  ZiweiScope.hour: 'hour',
+};
+
+const _flowScopePrefixTranslation = {
+  'decade': {AppLanguage.zhCN: '大', AppLanguage.zhTW: '大'},
+  'smallLimit': {AppLanguage.zhCN: '小', AppLanguage.zhTW: '小'},
+  'year': {AppLanguage.zhCN: '年', AppLanguage.zhTW: '年'},
+  'month': {AppLanguage.zhCN: '月', AppLanguage.zhTW: '月'},
+  'day': {AppLanguage.zhCN: '日', AppLanguage.zhTW: '日'},
+  'hour': {AppLanguage.zhCN: '时', AppLanguage.zhTW: '時'},
+};
+
+const _flowShortTranslation = {
+  'lucun': {AppLanguage.zhCN: '禄', AppLanguage.zhTW: '祿'},
+  'tiankui': {AppLanguage.zhCN: '魁', AppLanguage.zhTW: '魁'},
+  'tianyue': {AppLanguage.zhCN: '钺', AppLanguage.zhTW: '鉞'},
+  'wenchang': {AppLanguage.zhCN: '昌', AppLanguage.zhTW: '昌'},
+  'wenqu': {AppLanguage.zhCN: '曲', AppLanguage.zhTW: '曲'},
+  'qingyang': {AppLanguage.zhCN: '羊', AppLanguage.zhTW: '羊'},
+  'tuoluo': {AppLanguage.zhCN: '陀', AppLanguage.zhTW: '陀'},
+  'hongluan': {AppLanguage.zhCN: '鸾', AppLanguage.zhTW: '鸞'},
+  'tianxi': {AppLanguage.zhCN: '喜', AppLanguage.zhTW: '喜'},
+  'tianma': {AppLanguage.zhCN: '马', AppLanguage.zhTW: '馬'},
 };
