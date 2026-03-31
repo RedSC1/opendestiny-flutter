@@ -60,10 +60,11 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               items: manifest.currentYearMonths!,
               selectedItem: null,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.month),
-              itemLabelBuilder: (m) => '${m.month}${'月'.tr}',
+              itemLabelBuilder: (m) => m.displayLabel,
               itemSubLabelBuilder: (m) => '${m.stem.ganDisplay}${m.branch.zhiDisplay}',
-              isSelectedBuilder: (item, _) => 
-                  state.currentMonth?.month == item.month,
+              isSelectedBuilder: (item, _) =>
+                  state.currentMonth?.month == item.month &&
+                  state.currentMonthIsLeap == item.isLeap,
               onItemSelected: (m) => manager.selectMonth(m),
             ),
 

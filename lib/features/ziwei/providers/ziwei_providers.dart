@@ -55,6 +55,7 @@ class ZiweiUIState with _$ZiweiUIState {
     Decade? currentDecade, // 游标：大限
     FlowYear? currentYear, // 游标：流年
     FlowMonth? currentMonth, // 游标：流月
+    bool? currentMonthIsLeap, // 游标：流月是否闰月
     FlowDay? currentDay, // 游标：流日
     FlowHour? currentHour, // 游标：流时
     int? selectedPalaceIndex, // 当前选中的宫格索引 (0-11)
@@ -112,6 +113,7 @@ class ZiweiUIManager extends _$ZiweiUIManager {
     FlowYear? year,
     FlowMonth? month,
     FlowDay? day,
+    bool? isLeap,
   }) {
     if (_timelineProvider == null) {
       return TimelineManifest(
@@ -124,6 +126,7 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       year: year?.year,
       decadeIndex: decade?.decadeIndex,
       month: month?.month,
+      isLeap: isLeap,
       day: day?.day,
     );
   }
@@ -145,6 +148,7 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       currentDecade: null,
       currentYear: null,
       currentMonth: null,
+      currentMonthIsLeap: null,
       currentDay: null,
       currentHour: null,
       selectedPalaceIndex: _findLifePalaceIndex(
@@ -181,6 +185,7 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       decade: state.currentDecade,
       year: state.currentYear,
       month: fm,
+      isLeap: node.isLeap, // 传递 isLeap
     );
   }
 
@@ -202,6 +207,7 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       year: state.currentYear,
       month: state.currentMonth,
       day: fd,
+      isLeap: state.currentMonthIsLeap, // 保留 isLeap
     );
   }
 
@@ -219,6 +225,7 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       month: state.currentMonth,
       day: state.currentDay,
       hour: fh,
+      isLeap: state.currentMonthIsLeap, // 保留 isLeap
     );
   }
 
@@ -229,6 +236,7 @@ class ZiweiUIManager extends _$ZiweiUIManager {
     FlowMonth? month,
     FlowDay? day,
     FlowHour? hour,
+    bool? isLeap,
   }) {
     if (decade == null &&
         year == null &&
@@ -272,10 +280,12 @@ class ZiweiUIManager extends _$ZiweiUIManager {
         year: year,
         month: month,
         day: day,
+        isLeap: isLeap,
       ),
       currentDecade: decade,
       currentYear: year,
       currentMonth: month,
+      currentMonthIsLeap: isLeap,
       currentDay: day,
       currentHour: hour,
       selectedPalaceIndex: lifeIndex,

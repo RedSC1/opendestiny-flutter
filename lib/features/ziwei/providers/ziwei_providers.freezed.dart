@@ -26,6 +26,8 @@ mixin _$ZiweiUIState {
   Decade? get currentDecade => throw _privateConstructorUsedError; // 游标：大限
   FlowYear? get currentYear => throw _privateConstructorUsedError; // 游标：流年
   FlowMonth? get currentMonth => throw _privateConstructorUsedError; // 游标：流月
+  bool? get currentMonthIsLeap =>
+      throw _privateConstructorUsedError; // 游标：流月是否闰月
   FlowDay? get currentDay => throw _privateConstructorUsedError; // 游标：流日
   FlowHour? get currentHour => throw _privateConstructorUsedError; // 游标：流时
   int? get selectedPalaceIndex => throw _privateConstructorUsedError;
@@ -52,6 +54,7 @@ abstract class $ZiweiUIStateCopyWith<$Res> {
     Decade? currentDecade,
     FlowYear? currentYear,
     FlowMonth? currentMonth,
+    bool? currentMonthIsLeap,
     FlowDay? currentDay,
     FlowHour? currentHour,
     int? selectedPalaceIndex,
@@ -80,6 +83,7 @@ class _$ZiweiUIStateCopyWithImpl<$Res, $Val extends ZiweiUIState>
     Object? currentDecade = freezed,
     Object? currentYear = freezed,
     Object? currentMonth = freezed,
+    Object? currentMonthIsLeap = freezed,
     Object? currentDay = freezed,
     Object? currentHour = freezed,
     Object? selectedPalaceIndex = freezed,
@@ -114,6 +118,10 @@ class _$ZiweiUIStateCopyWithImpl<$Res, $Val extends ZiweiUIState>
                 ? _value.currentMonth
                 : currentMonth // ignore: cast_nullable_to_non_nullable
                       as FlowMonth?,
+            currentMonthIsLeap: freezed == currentMonthIsLeap
+                ? _value.currentMonthIsLeap
+                : currentMonthIsLeap // ignore: cast_nullable_to_non_nullable
+                      as bool?,
             currentDay: freezed == currentDay
                 ? _value.currentDay
                 : currentDay // ignore: cast_nullable_to_non_nullable
@@ -149,6 +157,7 @@ abstract class _$$ZiweiUIStateImplCopyWith<$Res>
     Decade? currentDecade,
     FlowYear? currentYear,
     FlowMonth? currentMonth,
+    bool? currentMonthIsLeap,
     FlowDay? currentDay,
     FlowHour? currentHour,
     int? selectedPalaceIndex,
@@ -176,6 +185,7 @@ class __$$ZiweiUIStateImplCopyWithImpl<$Res>
     Object? currentDecade = freezed,
     Object? currentYear = freezed,
     Object? currentMonth = freezed,
+    Object? currentMonthIsLeap = freezed,
     Object? currentDay = freezed,
     Object? currentHour = freezed,
     Object? selectedPalaceIndex = freezed,
@@ -210,6 +220,10 @@ class __$$ZiweiUIStateImplCopyWithImpl<$Res>
             ? _value.currentMonth
             : currentMonth // ignore: cast_nullable_to_non_nullable
                   as FlowMonth?,
+        currentMonthIsLeap: freezed == currentMonthIsLeap
+            ? _value.currentMonthIsLeap
+            : currentMonthIsLeap // ignore: cast_nullable_to_non_nullable
+                  as bool?,
         currentDay: freezed == currentDay
             ? _value.currentDay
             : currentDay // ignore: cast_nullable_to_non_nullable
@@ -238,6 +252,7 @@ class _$ZiweiUIStateImpl implements _ZiweiUIState {
     this.currentDecade,
     this.currentYear,
     this.currentMonth,
+    this.currentMonthIsLeap,
     this.currentDay,
     this.currentHour,
     this.selectedPalaceIndex,
@@ -265,6 +280,9 @@ class _$ZiweiUIStateImpl implements _ZiweiUIState {
   final FlowMonth? currentMonth;
   // 游标：流月
   @override
+  final bool? currentMonthIsLeap;
+  // 游标：流月是否闰月
+  @override
   final FlowDay? currentDay;
   // 游标：流日
   @override
@@ -275,7 +293,7 @@ class _$ZiweiUIStateImpl implements _ZiweiUIState {
 
   @override
   String toString() {
-    return 'ZiweiUIState(plate: $plate, date: $date, ruleset: $ruleset, manifest: $manifest, currentDecade: $currentDecade, currentYear: $currentYear, currentMonth: $currentMonth, currentDay: $currentDay, currentHour: $currentHour, selectedPalaceIndex: $selectedPalaceIndex)';
+    return 'ZiweiUIState(plate: $plate, date: $date, ruleset: $ruleset, manifest: $manifest, currentDecade: $currentDecade, currentYear: $currentYear, currentMonth: $currentMonth, currentMonthIsLeap: $currentMonthIsLeap, currentDay: $currentDay, currentHour: $currentHour, selectedPalaceIndex: $selectedPalaceIndex)';
   }
 
   @override
@@ -294,6 +312,8 @@ class _$ZiweiUIStateImpl implements _ZiweiUIState {
                 other.currentYear == currentYear) &&
             (identical(other.currentMonth, currentMonth) ||
                 other.currentMonth == currentMonth) &&
+            (identical(other.currentMonthIsLeap, currentMonthIsLeap) ||
+                other.currentMonthIsLeap == currentMonthIsLeap) &&
             (identical(other.currentDay, currentDay) ||
                 other.currentDay == currentDay) &&
             (identical(other.currentHour, currentHour) ||
@@ -312,6 +332,7 @@ class _$ZiweiUIStateImpl implements _ZiweiUIState {
     currentDecade,
     currentYear,
     currentMonth,
+    currentMonthIsLeap,
     currentDay,
     currentHour,
     selectedPalaceIndex,
@@ -335,6 +356,7 @@ abstract class _ZiweiUIState implements ZiweiUIState {
     final Decade? currentDecade,
     final FlowYear? currentYear,
     final FlowMonth? currentMonth,
+    final bool? currentMonthIsLeap,
     final FlowDay? currentDay,
     final FlowHour? currentHour,
     final int? selectedPalaceIndex,
@@ -354,6 +376,8 @@ abstract class _ZiweiUIState implements ZiweiUIState {
   FlowYear? get currentYear; // 游标：流年
   @override
   FlowMonth? get currentMonth; // 游标：流月
+  @override
+  bool? get currentMonthIsLeap; // 游标：流月是否闰月
   @override
   FlowDay? get currentDay; // 游标：流日
   @override

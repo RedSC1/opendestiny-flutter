@@ -44,7 +44,7 @@ final originDateProvider = AutoDisposeProvider<ZiweiDate>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef OriginDateRef = AutoDisposeProviderRef<ZiweiDate>;
-String _$ziweiUIManagerHash() => r'e44d1f50f8f8d449b27847a21c91e7eb3788757b';
+String _$ziweiUIManagerHash() => r'd35a882560c5f10b76e81805de352724a4612332';
 
 /// 4. 终极状态管家 Manager
 /// 接管底部表格的交互，控制流运变更，并将带有流动星曜的动态盘面推给 UI

@@ -708,7 +708,7 @@ packages:
       path: "../ziwei_core"
       relative: true
     source: path
-    version: "0.10.2"
+    version: "0.10.0"
 sdks:
   dart: ">=3.10.8 <4.0.0"
   flutter: ">=3.18.0-18.0.pre.54"
