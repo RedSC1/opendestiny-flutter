@@ -9,15 +9,22 @@ class ZiweiView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 4),
-          const ZiweiChartWidget(),
-          const SizedBox(height: 8),
-          // 底部流运控制台
-          const ZiweiTimeFlowTable(),
-          const SizedBox(height: 10), // 留出一点底部空隙
-        ],
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 850,
+          ), // 限制 PC 端最大宽度，防止横向拉伸
+          child: Column(
+            children: [
+              const SizedBox(height: 4),
+              const ZiweiChartWidget(),
+              const SizedBox(height: 8),
+              // 底部流运控制台
+              const ZiweiTimeFlowTable(),
+              const SizedBox(height: 10), // 留出一点底部空隙
+            ],
+          ),
+        ),
       ),
     );
   }

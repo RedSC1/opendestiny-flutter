@@ -4,6 +4,7 @@ import 'package:ziwei_core/ziwei_core.dart';
 import '../providers/ziwei_providers.dart';
 import 'palace_cell_widget.dart';
 import 'center_info_widget.dart';
+import 'ziwei_sihua_arrow_painter.dart';
 
 class ZiweiChartWidget extends ConsumerWidget {
   const ZiweiChartWidget({super.key});
@@ -18,15 +19,12 @@ class ZiweiChartWidget extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         // 让盘面绝对正方形
-        final width = constraints.maxWidth;
+        const double edgeMargin = 12.0; // 稍微调小一点，之前 20 太大了。留出 12px 够放一个“身”字标签了。
+        final width = constraints.maxWidth - (edgeMargin * 2);
         final cellWidth = width / 4;
         final cellHeight = cellWidth * 1.05; // 压缩垂直比例，确保流年行不用往下滑
 
         // 计算 12 个地支宫位的相对坐标 (Row, Column)
-        // 0: 巳 (0,0), 1: 午 (0,1), 2: 未 (0,2), 3: 申 (0,3)
-        // 4: 辰 (1,0),                        5: 酉 (1,3)
-        // 6: 卯 (2,0),                        7: 戌 (2,3)
-        // 8: 寅 (3,0), 9: 丑 (3,1), 10: 子 (3,2), 11: 亥 (3,3)
         final positions = {
           DiZhi.si: const Offset(0, 0),
           DiZhi.wu: const Offset(1, 0),
@@ -43,9 +41,10 @@ class ZiweiChartWidget extends ConsumerWidget {
         };
 
         return SizedBox(
-          width: cellWidth * 4,
-          height: cellHeight * 4,
+          width: constraints.maxWidth,
+          height: (cellHeight * 4) + (edgeMargin * 2),
           child: Stack(
+            clipBehavior: Clip.none, // 允许子组件（如身宫标记）超出宫位边界绘制
             children: [
               // 1. 底层：十二个小宫位
               ...DiZhi.values.map((dz) {
@@ -53,8 +52,8 @@ class ZiweiChartWidget extends ConsumerWidget {
                 final palace = state.plate.palaces[dz.index];
 
                 return Positioned(
-                  left: pos.dx * cellWidth,
-                  top: pos.dy * cellHeight,
+                  left: pos.dx * cellWidth + edgeMargin,
+                  top: pos.dy * cellHeight + edgeMargin,
                   width: cellWidth,
                   height: cellHeight,
                   child: PalaceCellWidget(
@@ -67,11 +66,23 @@ class ZiweiChartWidget extends ConsumerWidget {
 
               // 2. 顶层：悬浮的巨大中宫 (占据 1,1 到 2,2，宽宽高高各2格)
               Positioned(
-                left: cellWidth,
-                top: cellHeight,
+                left: cellWidth + edgeMargin,
+                top: cellHeight + edgeMargin,
                 width: cellWidth * 2,
                 height: cellHeight * 2,
                 child: CenterInfoWidget(state: state),
+              ),
+
+              // 3. 超顶层：跨宫位的自化箭头
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: ZiweiSihuaArrowPainter(
+                      plate: state.plate,
+                      edgeMargin: edgeMargin,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

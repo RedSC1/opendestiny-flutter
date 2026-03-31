@@ -70,13 +70,14 @@ class PalaceCellWidget extends ConsumerWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque, // 确保空白处也能点
-      onTap: () => ref.read(ziweiUIManagerProvider.notifier).selectPalace(palace.index),
+      onTap: () =>
+          ref.read(ziweiUIManagerProvider.notifier).selectPalace(palace.index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected 
-                ? ZiweiClassicTheme.palaceNameColor 
+            color: isSelected
+                ? ZiweiClassicTheme.palaceNameColor
                 : ZiweiClassicTheme.cellBorderColor,
             width: 1.0,
           ),
@@ -86,35 +87,46 @@ class PalaceCellWidget extends ConsumerWidget {
           alignment: Alignment.center,
           children: [
             // 1. 底层：动态水印 (跟随流运层级切换内容)
-            if (decade != null)
-              _buildDynamicWatermark(decade),
-            
-            // 2. 表层：主功能区
-            Column(
-              children: [
-                // ======== 顶部：星曜横排区 ======== 
-                Expanded(
-                  flex: 7,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 1, right: 1, top: 1),
-                    child: _buildStarGrid(topStars),
-                  ),
-                ),
+            if (decade != null) _buildDynamicWatermark(decade),
 
-                // ======== 底部：宫名 + 干支 + 长生 + 神煞 ========
-                Expanded(
-                  flex: 3,
-                  child: _buildBottomSection(
-                    role: role,
-                    ganLabel: ganLabel,
-                    zhiLabel: zhiLabel,
-                    changshengName: changshengName,
-                    boshiStars: boshiStars,
-                    suijianStars: suijianStars,
-                    jiangqianStars: jiangqianStars,
+            // 1.1 身宫暗纹大水印 (不占位置，低优先级背景)
+            if (plate.bodyPalaceIndex == palace.index) _buildBodyWatermark(),
+
+            // 2. 表层：主功能区 (核心内容 Column，内部预置呼吸感)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              child: Column(
+                children: [
+                  Expanded(flex: 7, child: _buildStarGrid(topStars)),
+                  // 取消原有的 Spacer，改为极小的固定间距，让上下结构更紧凑
+                  const SizedBox(height: 2),
+                  // ======== 底部：宫名与重要堆叠标记 (按照专业布局解耦) ======== (flex: 3)
+                  Expanded(
+                    flex: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        right: 18,
+                      ), // 缩减边距，配合右对齐让布局更紧凑
+                      child: _buildBottomSection(
+                        role: role,
+                        ganLabel: ganLabel,
+                        zhiLabel: zhiLabel,
+                        changshengName: changshengName,
+                        boshiStars: boshiStars,
+                        suijianStars: suijianStars,
+                        jiangqianStars: jiangqianStars,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+            ),
+
+            // 4. 十二长生 + 干支 (绝对定位在右下角，高度自由向上伸展)
+            Positioned(
+              right: 2,
+              bottom: 2,
+              child: _buildRightInfoColumn(changshengName, ganLabel, zhiLabel),
             ),
           ],
         ),
@@ -122,43 +134,103 @@ class PalaceCellWidget extends ConsumerWidget {
     );
   }
 
-  /// 顶部星曜区：优先保证主星和辅星（吉星）字号一致
+  /// 渲染身宫背景大水印 (沉底放置，腾出中间留白区给时间数字)
+  Widget _buildBodyWatermark() {
+    return IgnorePointer(
+      child: Container(
+        alignment: const Alignment(0, 0.8), // 进一步下沉，彻底避开上方的流运数字
+        child: Opacity(
+          opacity: 0.12,
+          child: Text(
+            '身'.tr,
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              color: ZiweiClassicTheme.sihuaJi.withOpacity(0.8), // 淡淡的红印感
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 渲染右下角垂直信息柱 (长生 + 干支)
+  Widget _buildRightInfoColumn(String changsheng, String gan, String zhi) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // 1. 十二长生 (灰色，小字辅助)
+        if (changsheng.isNotEmpty)
+          _buildVerticalText(
+            changsheng,
+            TextStyle(
+              fontSize: 8.5,
+              fontWeight: FontWeight.w400,
+              color: Colors.grey.shade500,
+              height: 1.05,
+            ),
+          ),
+        const SizedBox(height: 1),
+        // 2. 宫位干支 (大字，深色加粗锚点)
+        _buildVerticalText(
+          "$gan$zhi",
+          const TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w900,
+            color: ZiweiClassicTheme.ganzhiColor,
+            height: 1.05,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 顶部星曜区：阶梯式缩放逻辑
+  /// 1. 主星与吉星（辅星）字号锁定，保证全局视觉权重一致
+  /// 2. 煞星与杂曜执行“自动缩放”，在空间不足时动态缩小
   Widget _buildStarGrid(List<Star> stars) {
     if (stars.isEmpty) return const SizedBox.shrink();
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final double maxWidth = constraints.maxWidth;
-        const double baseFontSize = 13.5;
-        const double spacing = 1.0;
+        const double baseFontSize = 11.5;
+        const double spacing = 0.5;
 
-        // 识别"重点星曜"（主星+吉星）和"次要星曜"（煞星+杂曜）
+        // 1. 分类星曜：重点星曜 (主/吉/煞) 与 次要星曜 (杂曜)
         final primaryStars = stars
-            .where((s) => s.type == StarType.major || s.type == StarType.lucky)
+            .where(
+              (s) =>
+                  s.type == StarType.major ||
+                  s.type == StarType.lucky ||
+                  s.type == StarType.bad,
+            )
             .toList();
         final secondaryStars = stars
-            .where((s) => s.type != StarType.major && s.type != StarType.lucky)
+            .where(
+              (s) =>
+                  s.type != StarType.major &&
+                  s.type != StarType.lucky &&
+                  s.type != StarType.bad,
+            )
             .toList();
 
+        // 2. 差异化计算比例：主/吉/煞固定字号，杂曜在剩余空间内缩放
         final int primaryCount = primaryStars.length;
         final int secondaryCount = secondaryStars.length;
-
-        // 估算重点星曜占用的总宽度
         final double primaryTotalWidth =
             primaryCount * (baseFontSize + spacing);
-
-        // 计算分给次要星曜的剩余宽度
         final double remainingWidth = maxWidth - primaryTotalWidth;
 
         double secondaryFontSize = baseFontSize;
         if (secondaryCount > 0) {
-          final double secondaryNeededWidth =
-              secondaryCount * (baseFontSize + spacing);
-          if (secondaryNeededWidth > remainingWidth) {
-            // 空间不足，只压缩次要星曜
-            secondaryFontSize = (remainingWidth / secondaryCount) - spacing;
-            if (secondaryFontSize < 8.5) secondaryFontSize = 8.5;
-          }
+          // 仅对杂曜进行空间压缩逻辑
+          secondaryFontSize = (remainingWidth / secondaryCount) - spacing;
+          if (secondaryFontSize < 8.5) secondaryFontSize = 8.5;
+          if (secondaryFontSize > baseFontSize)
+            secondaryFontSize = baseFontSize;
         }
 
         return Align(
@@ -169,18 +241,30 @@ class PalaceCellWidget extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: stars.map((star) {
-                final isWeighted =
-                    star.type == StarType.major || star.type == StarType.lucky;
-                final double actualFontSize = isWeighted
-                    ? baseFontSize
-                    : secondaryFontSize;
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: spacing),
-                  child: _buildStarColumn(star, actualFontSize),
-                );
-              }).toList(),
+              children: [
+                // A. 重点星曜：始终保持 baseFontSize
+                ...primaryStars.map((star) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: spacing),
+                    child: _buildStarColumn(
+                      star,
+                      baseFontSize,
+                      constraints.maxHeight,
+                    ),
+                  );
+                }),
+                // B. 杂曜：动态计算字号，优先收缩
+                ...secondaryStars.map((star) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: spacing),
+                    child: _buildStarColumn(
+                      star,
+                      secondaryFontSize,
+                      constraints.maxHeight,
+                    ),
+                  );
+                }),
+              ],
             ),
           ),
         );
@@ -189,7 +273,7 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 单颗星曜的竖列
-  Widget _buildStarColumn(Star star, double fontSize) {
+  Widget _buildStarColumn(Star star, double fontSize, double maxHeight) {
     final name = getStarDisplayName(star);
     final brightness = getStarBrightness(
       star,
@@ -215,7 +299,7 @@ class PalaceCellWidget extends ConsumerWidget {
       for (final scope in scopeOrder) {
         final type = star.siHuaBuff[scope];
         if (type != null) {
-          sihuaBadges.add(_buildSihuaBadge(type, scope));
+          sihuaBadges.add(_buildSihuaBadge(type, scope, fontSize));
         }
       }
     }
@@ -235,16 +319,13 @@ class PalaceCellWidget extends ConsumerWidget {
       children: [
         // 星名竖排
         for (int i = 0; i < characters.length; i++) ...[
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              characters[i],
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: isMajor ? FontWeight.w700 : FontWeight.w400,
-                color: color,
-                height: 1.1,
-              ),
+          Text(
+            characters[i],
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: isMajor ? FontWeight.w700 : FontWeight.w400,
+              color: color,
+              height: 1.1,
             ),
           ),
           // 字与字之间加点空隙
@@ -264,26 +345,83 @@ class PalaceCellWidget extends ConsumerWidget {
               ),
             ),
           ),
-        // 四化角标 (实心高亮圆扣，垂直叠 buff 版)
+        // 四化角标 (实心高亮圆扣)
         if (sihuaBadges.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(top: 1), // 极紧凑顶部
-            child: Wrap(
-              direction: Axis.vertical, // 竖着叠 buff
-              alignment: WrapAlignment.center,
-              spacing: 1.0, // 极紧凑圆扣间距
-              children: sihuaBadges,
+            padding: const EdgeInsets.only(top: 1),
+            child: SizedBox(
+              width: fontSize,
+              height: fontSize,
+              child: OverflowBox(
+                minHeight: 0,
+                maxHeight: 120,
+                alignment: Alignment.topCenter,
+                child: () {
+                  // --- 碰撞检测逻辑 ---
+                  // 1. 计算星曜及亮度所占高度
+                  final double starHeight =
+                      characters.length * (fontSize * 1.1 + 1.5);
+                  final double bHeight = brightness.isNotEmpty ? (9 * 1.1) : 0;
+                  final double occupiedHeight = starHeight + bHeight + 2;
+
+                  // 2. 计算如果不叠压所需的总高度
+                  final double columnHeight =
+                      sihuaBadges.length * (fontSize + 0.5);
+
+                  // 3. 判断是否会超出宫位高度 (即“碰撞”)
+                  // 如果不叠压就会超出可用高度，则开启“叠压”模式
+                  final bool shouldStack =
+                      (occupiedHeight + columnHeight) > maxHeight;
+
+                  if (!shouldStack) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: sihuaBadges
+                          .map(
+                            (b) => Padding(
+                              padding: const EdgeInsets.only(bottom: 0.5),
+                              child: b,
+                            ),
+                          )
+                          .toList(),
+                    );
+                  } else {
+                    // 开启“叠压”模式
+                    return SizedBox(
+                      height:
+                          fontSize +
+                          (sihuaBadges.length - 1) * (fontSize * 0.55),
+                      width: fontSize,
+                      child: Stack(
+                        children: List.generate(sihuaBadges.length, (i) {
+                          final double offset = i * (fontSize * 0.55);
+                          return Positioned(
+                            top: offset,
+                            left: 0,
+                            right: 0,
+                            child: sihuaBadges[i],
+                          );
+                        }),
+                      ),
+                    );
+                  }
+                }(),
+              ),
             ),
           ),
       ],
     );
   }
 
-  /// 构建单个四化圆扣 (紧凑印章版)
-  Widget _buildSihuaBadge(SiHuaType type, ZiweiScope scope) {
+  /// 构建单个四化圆扣 (动态大小：跟随 fontSize)
+  Widget _buildSihuaBadge(SiHuaType type, ZiweiScope scope, double fontSize) {
     final color = ZiweiClassicTheme.getScopeColor(scope);
+    final double badgeSize = fontSize; // 强制与字号一致
+
     return Container(
-      padding: const EdgeInsets.all(1.2), // 极小内边距，像印章一样紧凑
+      width: badgeSize,
+      height: badgeSize,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
@@ -291,24 +429,25 @@ class PalaceCellWidget extends ConsumerWidget {
           BoxShadow(
             color: color.withOpacity(0.3),
             blurRadius: 1,
-            offset: const Offset(0, 0.5),
+            offset: const Offset(0, 0.1),
           ),
         ],
       ),
-      child: Text(
-        type.display,
-        style: const TextStyle(
-          fontSize: 8.5, // 进一步微调，确保由于垂直高度有限不触发缩放
-          fontWeight: FontWeight.w900,
-          color: Colors.white,
-          height: 1.0,
+      child: Center(
+        child: Text(
+          type.display,
+          style: TextStyle(
+            fontSize: badgeSize * 0.72, // 动态缩放内部字体
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+            height: 1.0,
+          ),
         ),
       ),
     );
   }
 
-
-  /// 底部信息区 (文墨天机对齐版：三列网格叠位)
+  /// 底部核心重构：固定两侧宽度，确保中间的宫位名绝对不被挤小。
   Widget _buildBottomSection({
     required PalaceRole role,
     required String ganLabel,
@@ -318,134 +457,149 @@ class PalaceCellWidget extends ConsumerWidget {
     required List<Star> suijianStars,
     required List<Star> jiangqianStars,
   }) {
-    final shensha = [
+    final shenshaList = [
       ...boshiStars.map(getStarDisplayName),
       ...suijianStars.map(getStarDisplayName),
       ...jiangqianStars.map(getStarDisplayName),
-    ];
+    ].take(3).toList();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // 1. 左下角：神煞竖列 (flex: 2)
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: shensha
-                  .take(3)
-                  .map(
-                    (name) => FittedBox(
-                      alignment: Alignment.bottomLeft,
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: 9,
-                          color: ZiweiClassicTheme.minorStarColor,
-                          height: 1.1,
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-
-          // 2. 中间：宫位叠位网格 (flex: 5 - 给足面子)
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // Col 1: 日 / 月
-                  _buildTemporalGridCol([
-                    _getRoleInfo(ZiweiScope.day, '日'),
-                    _getRoleInfo(ZiweiScope.month, '月'),
-                  ]),
-                  // Col 2: 大 / 本命
-                  _buildTemporalGridCol([
-                    _getRoleInfo(ZiweiScope.decade, '大'),
-                    _getRoleInfo(ZiweiScope.origin, '', customRole: role),
-                  ]),
-                  // Col 3: 小 / 年
-                  _buildTemporalGridCol([
-                    _getRoleInfo(ZiweiScope.smallLimit, '小'),
-                    _getRoleInfo(ZiweiScope.year, '年'),
-                  ]),
-                ],
-              ),
-            ),
-          ),
-
-          // 3. 右下角：长生 + 干支 (全竖排堆叠，极省横向空间)
-          Expanded(
-            flex: 1,
-            child: FittedBox(
-              alignment: Alignment.bottomRight,
-              fit: BoxFit.scaleDown,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (changshengName.isNotEmpty)
-                    _buildVerticalText(
-                      changshengName,
-                      const TextStyle(
-                        fontSize: 9,
-                        color: ZiweiClassicTheme.changshengColor,
-                        height: 1.0,
-                      ),
-                    ),
-                  const SizedBox(height: 1),
-                  _buildVerticalText(
-                    '$ganLabel$zhiLabel',
-                    const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: ZiweiClassicTheme.ganzhiColor,
-                      height: 1.0,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // 1. 左侧神煞：固定宽度 20px
+        SizedBox(
+          width: 20,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: shenshaList
+                .map(
+                  (name) => Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 9.5, // 稍微调大点，增强可读性
+                      color: ZiweiClassicTheme.minorStarColor,
+                      height: 1.1,
                     ),
                   ),
-                ],
-              ),
-            ),
+                )
+                .toList(),
           ),
-        ],
+        ),
+
+        // 2. 中间：流运五星阵 (增加 FittedBox 防爆处理)
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.bottomRight,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 第一行：全体向右集结
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        _buildFixedRoleLabel(ZiweiScope.hour, '时'),
+                        const SizedBox(width: 3),
+                        _buildFixedRoleLabel(ZiweiScope.decade, '大'),
+                        const SizedBox(width: 3),
+                        _buildFixedRoleLabel(ZiweiScope.month, '月'),
+                      ],
+                    ),
+                    // 第二行：全体向右集结 (原局与流位拉齐)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        _buildFixedRoleLabel(ZiweiScope.day, '日'),
+                        const SizedBox(width: 3),
+                        Text(
+                          role.display,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w900,
+                            color: role == PalaceRole.life
+                                ? ZiweiClassicTheme.sihuaJi
+                                : ZiweiClassicTheme.palaceNameColor,
+                            height: 1.0,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        _buildFixedRoleLabel(ZiweiScope.year, '年'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // 3. 右侧原本的位置现在为空，改由外部 Positioned 渲染
+      ],
+    );
+  }
+
+  /// 构建固定位置的角色标签
+  Widget _buildFixedRoleLabel(ZiweiScope scope, String prefix) {
+    bool active = false;
+    switch (scope) {
+      case ZiweiScope.decade:
+        active = state.currentDecade != null;
+        break;
+      case ZiweiScope.year:
+        active = state.currentYear != null;
+        break;
+      case ZiweiScope.month:
+        active = state.currentMonth != null;
+        break;
+      case ZiweiScope.day:
+        active = state.currentDay != null;
+        break;
+      case ZiweiScope.hour:
+        active = state.currentHour != null;
+        break;
+      default:
+        break;
+    }
+
+    // 关键点：即使不激活也返回 SizedBox，占住坑位
+    if (!active) return const SizedBox(width: 22);
+
+    final r = plate.getRole(scope, palace.index);
+    final shortName = r.display.isNotEmpty
+        ? (r == PalaceRole.friends ? '友' : r.display.substring(0, 1))
+        : '';
+
+    // 确定对齐方式
+    Alignment align;
+    if (scope == ZiweiScope.decade ||
+        scope == ZiweiScope.hour ||
+        (prefix == '')) {
+      align = Alignment.center;
+    } else if (scope == ZiweiScope.year || scope == ZiweiScope.month) {
+      align = Alignment.centerRight;
+    } else {
+      align = Alignment.centerLeft;
+    }
+
+    return Container(
+      alignment: align,
+      child: Text(
+        "$prefix$shortName",
+        style: TextStyle(
+          fontSize: 10.5,
+          fontWeight: FontWeight.bold,
+          color: ZiweiClassicTheme.getScopeColor(scope),
+          height: 1.0, // 极致紧凑
+        ),
       ),
     );
   }
-
-  /// 这里的 roleInfo 是一个内部辅助类，下面会定义
-  Widget _buildTemporalGridCol(List<_RoleDisplayInfo> infos) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: infos.map((info) {
-        if (!info.isActive) return const SizedBox(height: 12); // 留出占位，保持对齐
-        return FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            info.text,
-            style: TextStyle(
-              fontSize: 11, // 全员统一字号
-              fontWeight: info.isOrigin ? FontWeight.w900 : FontWeight.bold,
-              color: info.color,
-              height: 1.1,
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  // === 内部辅助 ===
 
   Decade? _findDecade() {
     for (int i = 1; i <= 12; i++) {
@@ -464,56 +618,7 @@ class PalaceCellWidget extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
-      children: text.characters
-          .map((c) => Text(
-                c,
-                style: style,
-              ))
-          .toList(),
-    );
-  }
-
-  _RoleDisplayInfo _getRoleInfo(ZiweiScope scope, String prefix,
-      {PalaceRole? customRole}) {
-    if (scope == ZiweiScope.origin) {
-      String name = customRole?.display ?? '';
-      // 本命宫位也去掉“宫”字，且主命宫也保持在双字内
-      if (name.endsWith('宫')) name = name.substring(0, name.length - 1);
-      
-      return _RoleDisplayInfo(
-        text: name,
-        color: customRole == PalaceRole.life
-            ? ZiweiClassicTheme.sihuaJi
-            : ZiweiClassicTheme.palaceNameColor,
-        isActive: true,
-        isOrigin: true,
-      );
-    }
-
-    // 检查对应层级是否激活
-    bool active = false;
-    switch (scope) {
-      case ZiweiScope.decade: active = state.currentDecade != null; break;
-      case ZiweiScope.year: active = state.currentYear != null; break;
-      case ZiweiScope.month: active = state.currentMonth != null; break;
-      case ZiweiScope.day: active = state.currentDay != null; break;
-      case ZiweiScope.hour: active = state.currentHour != null; break;
-      case ZiweiScope.smallLimit: active = false; break; // 暂时关闭小限
-      default: break;
-    }
-
-    if (!active) return _RoleDisplayInfo(text: '', color: Colors.transparent);
-
-    final r = plate.getRole(scope, palace.index);
-    String name = r.display;
-
-    // 关键瘦身：只取展示名的第一个字 (如：交友宫 -> 友)
-    String shortName = name.isNotEmpty ? name.substring(0, 1) : '';
-
-    return _RoleDisplayInfo(
-      text: '$prefix$shortName',
-      color: ZiweiClassicTheme.getScopeColor(scope),
-      isActive: true,
+      children: text.characters.map((c) => Text(c, style: style)).toList(),
     );
   }
 
@@ -525,18 +630,28 @@ class PalaceCellWidget extends ConsumerWidget {
     return 'level_none';
   }
 
-  /// 构建动态水印组件
+  /// 构建动态水印组件 (纯净版数字)
   Widget _buildDynamicWatermark(Decade decade) {
     final info = _getWatermarkInfo(decade);
-    return Opacity(
-      opacity: info.isActive ? 0.35 : 0.18,
-      child: Text(
-        info.text,
-        style: TextStyle(
-          fontSize: info.fontSize,
-          fontWeight: FontWeight.w700,
-          fontStyle: FontStyle.italic,
-          color: info.color,
+
+    return Align(
+      alignment: const Alignment(0, 0.5), // 下移至视觉区
+      child: Opacity(
+        opacity: info.isActive ? 0.35 : 0.18,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6.0), // 为斜体字留出倾斜空间
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              info.text,
+              style: TextStyle(
+                fontSize: info.fontSize,
+                fontWeight: FontWeight.w700,
+                fontStyle: FontStyle.italic,
+                color: info.color,
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -544,60 +659,66 @@ class PalaceCellWidget extends ConsumerWidget {
 
   /// 获取当前宫位应该显示的水印信息
   _WatermarkInfo _getWatermarkInfo(Decade decade) {
-    // 1. 流时命宫 (紫色)
+    // 1. 流时 (紫色)
     if (state.currentHour != null &&
         plate.getRole(ZiweiScope.hour, palace.index) == PalaceRole.life) {
       return _WatermarkInfo(
         text: state.currentHour!.hourIndex.hourName,
+        prefix: '时',
         color: ZiweiClassicTheme.getScopeColor(ZiweiScope.hour),
         isActive: true,
         fontSize: 22,
       );
     }
-    // 2. 流日命宫 (紫色)
+    // 2. 流日 (紫色)
     if (state.currentDay != null &&
         plate.getRole(ZiweiScope.day, palace.index) == PalaceRole.life) {
       return _WatermarkInfo(
         text: state.currentDay!.day.lunarDay,
+        prefix: '日',
         color: ZiweiClassicTheme.getScopeColor(ZiweiScope.day),
         isActive: true,
         fontSize: 22,
       );
     }
-    // 3. 流月命宫 (橙色)
+    // 3. 流月 (橙色)
     if (state.currentMonth != null &&
         plate.getRole(ZiweiScope.month, palace.index) == PalaceRole.life) {
       return _WatermarkInfo(
         text: state.currentMonth!.month.lunarMonth,
+        prefix: '月',
         color: ZiweiClassicTheme.getScopeColor(ZiweiScope.month),
         isActive: true,
         fontSize: 24,
       );
     }
-    // 4. 流年命宫 (蓝色)
+    // 4. 流年 (蓝色)
     if (state.currentYear != null &&
         plate.getRole(ZiweiScope.year, palace.index) == PalaceRole.life) {
       return _WatermarkInfo(
         text: '${state.currentYear!.year}',
+        prefix: '年',
         color: ZiweiClassicTheme.getScopeColor(ZiweiScope.year),
         isActive: true,
         fontSize: 26,
       );
     }
-    // 5. 大限命宫 (绿色)
+    // 5. 大限 (绿色)
     if (state.currentDecade != null &&
         plate.getRole(ZiweiScope.decade, palace.index) == PalaceRole.life) {
       return _WatermarkInfo(
         text: '${decade.startTime}~${decade.endTime}',
+        prefix: '大',
         color: ZiweiClassicTheme.getScopeColor(ZiweiScope.decade),
         isActive: true,
         fontSize: 28,
       );
     }
 
-    // 默认：显示原局大限岁数区间
+    // 默认：显示大限岁数区间
     return _WatermarkInfo(
       text: '${decade.startTime}~${decade.endTime}',
+      prefix: '',
       color: Colors.grey,
       isActive: false,
       fontSize: 28,
@@ -607,28 +728,16 @@ class PalaceCellWidget extends ConsumerWidget {
 
 class _WatermarkInfo {
   final String text;
+  final String prefix;
   final Color color;
   final bool isActive;
   final double fontSize;
 
   _WatermarkInfo({
     required this.text,
+    required this.prefix,
     required this.color,
     required this.isActive,
     required this.fontSize,
-  });
-}
-
-class _RoleDisplayInfo {
-  final String text;
-  final Color color;
-  final bool isActive;
-  final bool isOrigin;
-
-  _RoleDisplayInfo({
-    required this.text,
-    required this.color,
-    this.isActive = false,
-    this.isOrigin = false,
   });
 }

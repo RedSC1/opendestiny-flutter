@@ -80,14 +80,30 @@ class ZiweiUIManager extends _$ZiweiUIManager {
     // 2. 生成初始清单
     final initialManifest = _timelineProvider!.getManifest();
 
+    // 初始化默认选中：本命身命宫
+    final initialSelectedIndex = _findLifePalaceIndex(
+      _cachedOriginPlate!,
+      ZiweiScope.origin,
+    );
+
     // 初始化默认展示本命盘
     return ZiweiUIState(
       plate: _cachedOriginPlate!,
       date: date,
       ruleset: ruleset,
       manifest: initialManifest,
-      selectedPalaceIndex: null,
+      selectedPalaceIndex: initialSelectedIndex,
     );
+  }
+
+  /// 辅助方法：寻找指定层级的命宫索引
+  int _findLifePalaceIndex(ZiWeiPlate plate, ZiweiScope scope) {
+    for (int i = 0; i < 12; i++) {
+      if (plate.getRole(scope, i) == PalaceRole.life) {
+        return i;
+      }
+    }
+    return 0;
   }
 
   /// 更新清单快照
@@ -112,9 +128,13 @@ class ZiweiUIManager extends _$ZiweiUIManager {
     );
   }
 
-  /// 选中宫位 (0-11)
+  /// 选中宫位 (0-11)，支持再次点击取消选中
   void selectPalace(int? index) {
-    state = state.copyWith(selectedPalaceIndex: index);
+    if (state.selectedPalaceIndex == index) {
+      state = state.copyWith(selectedPalaceIndex: null);
+    } else {
+      state = state.copyWith(selectedPalaceIndex: index);
+    }
   }
 
   /// 回退到本命盘
@@ -127,7 +147,10 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       currentMonth: null,
       currentDay: null,
       currentHour: null,
-      selectedPalaceIndex: null,
+      selectedPalaceIndex: _findLifePalaceIndex(
+        _cachedOriginPlate!,
+        ZiweiScope.origin,
+      ),
     );
   }
 
@@ -227,6 +250,21 @@ class ZiweiUIManager extends _$ZiweiUIManager {
 
     final dynamicPlate = ZiweiEngine.calculateDynamic(limitContext);
 
+    // 确定当前最细层级的 Scope
+    ZiweiScope targetScope = ZiweiScope.origin;
+    if (hour != null)
+      targetScope = ZiweiScope.hour;
+    else if (day != null)
+      targetScope = ZiweiScope.day;
+    else if (month != null)
+      targetScope = ZiweiScope.month;
+    else if (year != null)
+      targetScope = ZiweiScope.year;
+    else if (decade != null)
+      targetScope = ZiweiScope.decade;
+
+    final lifeIndex = _findLifePalaceIndex(dynamicPlate, targetScope);
+
     state = state.copyWith(
       plate: dynamicPlate,
       manifest: _refreshManifest(
@@ -240,6 +278,7 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       currentMonth: month,
       currentDay: day,
       currentHour: hour,
+      selectedPalaceIndex: lifeIndex,
     );
   }
 }

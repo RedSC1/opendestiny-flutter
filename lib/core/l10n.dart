@@ -230,6 +230,7 @@ extension StringL10n on String {
     '日期格式': {
       AppLanguage.en: 'MMM dd, yyyy HH:mm',
       AppLanguage.zhTW: 'yyyy年MM月dd日 HH:mm',
+      AppLanguage.zhCN: 'yyyy-MM-dd HH:mm',
     },
     '男命': {AppLanguage.zhTW: '男命'},
     '女命': {AppLanguage.zhTW: '女命'},
@@ -352,6 +353,7 @@ extension StringL10n on String {
     '胎元': {AppLanguage.en: 'TaiYuan', AppLanguage.zhTW: '胎元'},
     '命宫': {AppLanguage.en: 'MingGong', AppLanguage.zhTW: '命宮'},
     '身宫': {AppLanguage.en: 'ShenGong', AppLanguage.zhTW: '身宮'},
+    '身': {AppLanguage.en: 'Body', AppLanguage.zhTW: '身'},
     '胎息': {AppLanguage.en: 'TaiXi', AppLanguage.zhTW: '胎息'},
     '公历': {AppLanguage.en: 'Solar', AppLanguage.zhTW: '公曆'},
     '农历': {AppLanguage.en: 'Lunar', AppLanguage.zhTW: '農曆'},

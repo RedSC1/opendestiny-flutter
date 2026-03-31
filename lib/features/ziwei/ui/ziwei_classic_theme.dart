@@ -26,7 +26,7 @@ class ZiweiClassicTheme {
   static const Color timeCellBorder = Color(0xFFECEFF1);
   static const Color timeRowLabelBg = Color(0xFFF5F5F5);
 
-  // --- 层级色彩映射 (对齐文墨天机/主流配色) ---
+  // --- 层级色彩映射 (主流配色) ---
   static const Color scopeOrigin = Color(0xFFC62828); // 本命 (红色)
   static const Color scopeDecade = Color(0xFF2E7D32); // 大限 (深绿)
   static const Color scopeSmallLimit = Color(0xFF0288D1); // 小限 (亮蓝)

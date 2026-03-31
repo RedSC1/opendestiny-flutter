@@ -81,24 +81,36 @@ class ZiweiCenterConnectionPainter extends CustomPainter {
 
     switch (dz) {
       // === 顶边 (y=0)，从左到右 ===
-      case DiZhi.si:   return Offset(0, 0);           // 左上角
-      case DiZhi.wu:   return Offset(w / 3, 0);       // 顶边 1/3 处
-      case DiZhi.wei:  return Offset(w * 2 / 3, 0);   // 顶边 2/3 处
-      case DiZhi.shen: return Offset(w, 0);            // 右上角
+      case DiZhi.si:
+        return const Offset(0, 0); // 左上角
+      case DiZhi.wu:
+        return Offset(w * 0.25, 0); // 顶边 1/4 处 (对齐午宫中轴)
+      case DiZhi.wei:
+        return Offset(w * 0.75, 0); // 顶边 3/4 处 (对齐未宫中轴)
+      case DiZhi.shen:
+        return Offset(w, 0); // 右上角
 
       // === 右边 (x=w)，从上到下 ===
-      case DiZhi.you:  return Offset(w, h / 3);        // 右边 1/3 处
-      case DiZhi.xu:   return Offset(w, h * 2 / 3);    // 右边 2/3 处
+      case DiZhi.you:
+        return Offset(w, h * 0.25); // 右边 1/4 处 (对齐酉宫中轴)
+      case DiZhi.xu:
+        return Offset(w, h * 0.75); // 右边 3/4 处 (对齐戌宫中轴)
 
       // === 底边 (y=h)，从右到左 ===
-      case DiZhi.hai:  return Offset(w, h);             // 右下角
-      case DiZhi.zi:   return Offset(w * 2 / 3, h);    // 底边 2/3 处
-      case DiZhi.chou: return Offset(w / 3, h);         // 底边 1/3 处
+      case DiZhi.hai:
+        return Offset(w, h); // 右下角
+      case DiZhi.zi:
+        return Offset(w * 0.75, h); // 底边 3/4 处 (对齐子宫中轴)
+      case DiZhi.chou:
+        return Offset(w * 0.25, h); // 底边 1/4 处 (对齐丑宫中轴)
 
       // === 左边 (x=0)，从下到上 ===
-      case DiZhi.yin:  return Offset(0, h);             // 左下角
-      case DiZhi.mao:  return Offset(0, h * 2 / 3);    // 左边 2/3 处
-      case DiZhi.chen: return Offset(0, h / 3);         // 左边 1/3 处
+      case DiZhi.yin:
+        return Offset(0, h); // 左下角
+      case DiZhi.mao:
+        return Offset(0, h * 0.75); // 左边 3/4 处 (对齐卯宫中轴)
+      case DiZhi.chen:
+        return Offset(0, h * 0.25); // 左边 1/4 处 (对齐辰宫中轴)
     }
   }
 
