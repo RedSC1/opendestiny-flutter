@@ -180,6 +180,8 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       node.month,
       state.currentYear!.year,
       _cachedOriginPlate!,
+      sequence: node.sequence,
+      isLeap: node.isLeap,
     );
     _recalculate(
       decade: state.currentDecade,
