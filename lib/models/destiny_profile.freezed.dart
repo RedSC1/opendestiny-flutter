@@ -230,6 +230,266 @@ abstract class _BaziOptions implements BaziOptions {
       throw _privateConstructorUsedError;
 }
 
+ZiweiOptions _$ZiweiOptionsFromJson(Map<String, dynamic> json) {
+  return _ZiweiOptions.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ZiweiOptions {
+  LeapMonthRule get leapRule => throw _privateConstructorUsedError;
+  Boundary get wuHuDunBasedOn => throw _privateConstructorUsedError;
+  Boundary get siHuaBasedOn => throw _privateConstructorUsedError;
+  ChildhoodRole get childhoodRule => throw _privateConstructorUsedError;
+  Boundary get flowLimitBasedOn => throw _privateConstructorUsedError;
+
+  /// Serializes this ZiweiOptions to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ZiweiOptions
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ZiweiOptionsCopyWith<ZiweiOptions> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ZiweiOptionsCopyWith<$Res> {
+  factory $ZiweiOptionsCopyWith(
+    ZiweiOptions value,
+    $Res Function(ZiweiOptions) then,
+  ) = _$ZiweiOptionsCopyWithImpl<$Res, ZiweiOptions>;
+  @useResult
+  $Res call({
+    LeapMonthRule leapRule,
+    Boundary wuHuDunBasedOn,
+    Boundary siHuaBasedOn,
+    ChildhoodRole childhoodRule,
+    Boundary flowLimitBasedOn,
+  });
+}
+
+/// @nodoc
+class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
+    implements $ZiweiOptionsCopyWith<$Res> {
+  _$ZiweiOptionsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ZiweiOptions
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? leapRule = null,
+    Object? wuHuDunBasedOn = null,
+    Object? siHuaBasedOn = null,
+    Object? childhoodRule = null,
+    Object? flowLimitBasedOn = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            leapRule: null == leapRule
+                ? _value.leapRule
+                : leapRule // ignore: cast_nullable_to_non_nullable
+                      as LeapMonthRule,
+            wuHuDunBasedOn: null == wuHuDunBasedOn
+                ? _value.wuHuDunBasedOn
+                : wuHuDunBasedOn // ignore: cast_nullable_to_non_nullable
+                      as Boundary,
+            siHuaBasedOn: null == siHuaBasedOn
+                ? _value.siHuaBasedOn
+                : siHuaBasedOn // ignore: cast_nullable_to_non_nullable
+                      as Boundary,
+            childhoodRule: null == childhoodRule
+                ? _value.childhoodRule
+                : childhoodRule // ignore: cast_nullable_to_non_nullable
+                      as ChildhoodRole,
+            flowLimitBasedOn: null == flowLimitBasedOn
+                ? _value.flowLimitBasedOn
+                : flowLimitBasedOn // ignore: cast_nullable_to_non_nullable
+                      as Boundary,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$ZiweiOptionsImplCopyWith<$Res>
+    implements $ZiweiOptionsCopyWith<$Res> {
+  factory _$$ZiweiOptionsImplCopyWith(
+    _$ZiweiOptionsImpl value,
+    $Res Function(_$ZiweiOptionsImpl) then,
+  ) = __$$ZiweiOptionsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    LeapMonthRule leapRule,
+    Boundary wuHuDunBasedOn,
+    Boundary siHuaBasedOn,
+    ChildhoodRole childhoodRule,
+    Boundary flowLimitBasedOn,
+  });
+}
+
+/// @nodoc
+class __$$ZiweiOptionsImplCopyWithImpl<$Res>
+    extends _$ZiweiOptionsCopyWithImpl<$Res, _$ZiweiOptionsImpl>
+    implements _$$ZiweiOptionsImplCopyWith<$Res> {
+  __$$ZiweiOptionsImplCopyWithImpl(
+    _$ZiweiOptionsImpl _value,
+    $Res Function(_$ZiweiOptionsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ZiweiOptions
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? leapRule = null,
+    Object? wuHuDunBasedOn = null,
+    Object? siHuaBasedOn = null,
+    Object? childhoodRule = null,
+    Object? flowLimitBasedOn = null,
+  }) {
+    return _then(
+      _$ZiweiOptionsImpl(
+        leapRule: null == leapRule
+            ? _value.leapRule
+            : leapRule // ignore: cast_nullable_to_non_nullable
+                  as LeapMonthRule,
+        wuHuDunBasedOn: null == wuHuDunBasedOn
+            ? _value.wuHuDunBasedOn
+            : wuHuDunBasedOn // ignore: cast_nullable_to_non_nullable
+                  as Boundary,
+        siHuaBasedOn: null == siHuaBasedOn
+            ? _value.siHuaBasedOn
+            : siHuaBasedOn // ignore: cast_nullable_to_non_nullable
+                  as Boundary,
+        childhoodRule: null == childhoodRule
+            ? _value.childhoodRule
+            : childhoodRule // ignore: cast_nullable_to_non_nullable
+                  as ChildhoodRole,
+        flowLimitBasedOn: null == flowLimitBasedOn
+            ? _value.flowLimitBasedOn
+            : flowLimitBasedOn // ignore: cast_nullable_to_non_nullable
+                  as Boundary,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ZiweiOptionsImpl implements _ZiweiOptions {
+  const _$ZiweiOptionsImpl({
+    this.leapRule = LeapMonthRule.splitAt15,
+    this.wuHuDunBasedOn = Boundary.lunar,
+    this.siHuaBasedOn = Boundary.lunar,
+    this.childhoodRule = ChildhoodRole.skip,
+    this.flowLimitBasedOn = Boundary.lunar,
+  });
+
+  factory _$ZiweiOptionsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ZiweiOptionsImplFromJson(json);
+
+  @override
+  @JsonKey()
+  final LeapMonthRule leapRule;
+  @override
+  @JsonKey()
+  final Boundary wuHuDunBasedOn;
+  @override
+  @JsonKey()
+  final Boundary siHuaBasedOn;
+  @override
+  @JsonKey()
+  final ChildhoodRole childhoodRule;
+  @override
+  @JsonKey()
+  final Boundary flowLimitBasedOn;
+
+  @override
+  String toString() {
+    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ZiweiOptionsImpl &&
+            (identical(other.leapRule, leapRule) ||
+                other.leapRule == leapRule) &&
+            (identical(other.wuHuDunBasedOn, wuHuDunBasedOn) ||
+                other.wuHuDunBasedOn == wuHuDunBasedOn) &&
+            (identical(other.siHuaBasedOn, siHuaBasedOn) ||
+                other.siHuaBasedOn == siHuaBasedOn) &&
+            (identical(other.childhoodRule, childhoodRule) ||
+                other.childhoodRule == childhoodRule) &&
+            (identical(other.flowLimitBasedOn, flowLimitBasedOn) ||
+                other.flowLimitBasedOn == flowLimitBasedOn));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    leapRule,
+    wuHuDunBasedOn,
+    siHuaBasedOn,
+    childhoodRule,
+    flowLimitBasedOn,
+  );
+
+  /// Create a copy of ZiweiOptions
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ZiweiOptionsImplCopyWith<_$ZiweiOptionsImpl> get copyWith =>
+      __$$ZiweiOptionsImplCopyWithImpl<_$ZiweiOptionsImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ZiweiOptionsImplToJson(this);
+  }
+}
+
+abstract class _ZiweiOptions implements ZiweiOptions {
+  const factory _ZiweiOptions({
+    final LeapMonthRule leapRule,
+    final Boundary wuHuDunBasedOn,
+    final Boundary siHuaBasedOn,
+    final ChildhoodRole childhoodRule,
+    final Boundary flowLimitBasedOn,
+  }) = _$ZiweiOptionsImpl;
+
+  factory _ZiweiOptions.fromJson(Map<String, dynamic> json) =
+      _$ZiweiOptionsImpl.fromJson;
+
+  @override
+  LeapMonthRule get leapRule;
+  @override
+  Boundary get wuHuDunBasedOn;
+  @override
+  Boundary get siHuaBasedOn;
+  @override
+  ChildhoodRole get childhoodRule;
+  @override
+  Boundary get flowLimitBasedOn;
+
+  /// Create a copy of ZiweiOptions
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ZiweiOptionsImplCopyWith<_$ZiweiOptionsImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 DestinyProfile _$DestinyProfileFromJson(Map<String, dynamic> json) {
   return _DestinyProfile.fromJson(json);
 }
@@ -246,6 +506,7 @@ mixin _$DestinyProfile {
   RatHourMode get ratHourMode => throw _privateConstructorUsedError;
   AppLanguage get language => throw _privateConstructorUsedError;
   BaziOptions get baziOptions => throw _privateConstructorUsedError;
+  ZiweiOptions get ziweiOptions => throw _privateConstructorUsedError;
 
   /// Serializes this DestinyProfile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -274,9 +535,11 @@ abstract class $DestinyProfileCopyWith<$Res> {
     RatHourMode ratHourMode,
     AppLanguage language,
     BaziOptions baziOptions,
+    ZiweiOptions ziweiOptions,
   });
 
   $BaziOptionsCopyWith<$Res> get baziOptions;
+  $ZiweiOptionsCopyWith<$Res> get ziweiOptions;
 }
 
 /// @nodoc
@@ -303,6 +566,7 @@ class _$DestinyProfileCopyWithImpl<$Res, $Val extends DestinyProfile>
     Object? ratHourMode = null,
     Object? language = null,
     Object? baziOptions = null,
+    Object? ziweiOptions = null,
   }) {
     return _then(
       _value.copyWith(
@@ -342,6 +606,10 @@ class _$DestinyProfileCopyWithImpl<$Res, $Val extends DestinyProfile>
                 ? _value.baziOptions
                 : baziOptions // ignore: cast_nullable_to_non_nullable
                       as BaziOptions,
+            ziweiOptions: null == ziweiOptions
+                ? _value.ziweiOptions
+                : ziweiOptions // ignore: cast_nullable_to_non_nullable
+                      as ZiweiOptions,
           )
           as $Val,
     );
@@ -354,6 +622,16 @@ class _$DestinyProfileCopyWithImpl<$Res, $Val extends DestinyProfile>
   $BaziOptionsCopyWith<$Res> get baziOptions {
     return $BaziOptionsCopyWith<$Res>(_value.baziOptions, (value) {
       return _then(_value.copyWith(baziOptions: value) as $Val);
+    });
+  }
+
+  /// Create a copy of DestinyProfile
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ZiweiOptionsCopyWith<$Res> get ziweiOptions {
+    return $ZiweiOptionsCopyWith<$Res>(_value.ziweiOptions, (value) {
+      return _then(_value.copyWith(ziweiOptions: value) as $Val);
     });
   }
 }
@@ -377,10 +655,13 @@ abstract class _$$DestinyProfileImplCopyWith<$Res>
     RatHourMode ratHourMode,
     AppLanguage language,
     BaziOptions baziOptions,
+    ZiweiOptions ziweiOptions,
   });
 
   @override
   $BaziOptionsCopyWith<$Res> get baziOptions;
+  @override
+  $ZiweiOptionsCopyWith<$Res> get ziweiOptions;
 }
 
 /// @nodoc
@@ -406,6 +687,7 @@ class __$$DestinyProfileImplCopyWithImpl<$Res>
     Object? ratHourMode = null,
     Object? language = null,
     Object? baziOptions = null,
+    Object? ziweiOptions = null,
   }) {
     return _then(
       _$DestinyProfileImpl(
@@ -445,6 +727,10 @@ class __$$DestinyProfileImplCopyWithImpl<$Res>
             ? _value.baziOptions
             : baziOptions // ignore: cast_nullable_to_non_nullable
                   as BaziOptions,
+        ziweiOptions: null == ziweiOptions
+            ? _value.ziweiOptions
+            : ziweiOptions // ignore: cast_nullable_to_non_nullable
+                  as ZiweiOptions,
       ),
     );
   }
@@ -463,6 +749,7 @@ class _$DestinyProfileImpl implements _DestinyProfile {
     this.ratHourMode = RatHourMode.noSplit,
     this.language = AppLanguage.zhCN,
     this.baziOptions = const BaziOptions(),
+    this.ziweiOptions = const ZiweiOptions(),
   });
 
   factory _$DestinyProfileImpl.fromJson(Map<String, dynamic> json) =>
@@ -495,10 +782,13 @@ class _$DestinyProfileImpl implements _DestinyProfile {
   @override
   @JsonKey()
   final BaziOptions baziOptions;
+  @override
+  @JsonKey()
+  final ZiweiOptions ziweiOptions;
 
   @override
   String toString() {
-    return 'DestinyProfile(birthTime: $birthTime, gender: $gender, longitude: $longitude, latitude: $latitude, locationName: $locationName, useTrueSolarTime: $useTrueSolarTime, ratHourMode: $ratHourMode, language: $language, baziOptions: $baziOptions)';
+    return 'DestinyProfile(birthTime: $birthTime, gender: $gender, longitude: $longitude, latitude: $latitude, locationName: $locationName, useTrueSolarTime: $useTrueSolarTime, ratHourMode: $ratHourMode, language: $language, baziOptions: $baziOptions, ziweiOptions: $ziweiOptions)';
   }
 
   @override
@@ -522,7 +812,9 @@ class _$DestinyProfileImpl implements _DestinyProfile {
             (identical(other.language, language) ||
                 other.language == language) &&
             (identical(other.baziOptions, baziOptions) ||
-                other.baziOptions == baziOptions));
+                other.baziOptions == baziOptions) &&
+            (identical(other.ziweiOptions, ziweiOptions) ||
+                other.ziweiOptions == ziweiOptions));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -538,6 +830,7 @@ class _$DestinyProfileImpl implements _DestinyProfile {
     ratHourMode,
     language,
     baziOptions,
+    ziweiOptions,
   );
 
   /// Create a copy of DestinyProfile
@@ -568,6 +861,7 @@ abstract class _DestinyProfile implements DestinyProfile {
     final RatHourMode ratHourMode,
     final AppLanguage language,
     final BaziOptions baziOptions,
+    final ZiweiOptions ziweiOptions,
   }) = _$DestinyProfileImpl;
 
   factory _DestinyProfile.fromJson(Map<String, dynamic> json) =
@@ -591,6 +885,8 @@ abstract class _DestinyProfile implements DestinyProfile {
   AppLanguage get language;
   @override
   BaziOptions get baziOptions;
+  @override
+  ZiweiOptions get ziweiOptions;
 
   /// Create a copy of DestinyProfile
   /// with the given fields replaced by the non-null parameter values.

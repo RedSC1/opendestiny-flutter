@@ -231,6 +231,13 @@ extension StringL10n on String {
       AppLanguage.en: 'MMM dd, yyyy HH:mm',
       AppLanguage.zhTW: 'yyyy年MM月dd日 HH:mm',
     },
+    '男命': {AppLanguage.zhTW: '男命'},
+    '女命': {AppLanguage.zhTW: '女命'},
+    '命主': {AppLanguage.zhTW: '命主'},
+    '身主': {AppLanguage.zhTW: '身主'},
+    '农': {AppLanguage.zhTW: '農'},
+    '年': {AppLanguage.zhTW: '年'},
+    '闰': {AppLanguage.zhTW: '閏'},
 
     // 设置主页
     '界面显示 (Language)': {
@@ -335,6 +342,9 @@ extension StringL10n on String {
     '流日': {AppLanguage.en: 'Day', AppLanguage.zhTW: '流日'},
     '流时': {AppLanguage.en: 'Hour', AppLanguage.zhTW: '流時'},
     '大运列表': {AppLanguage.en: 'Decades', AppLanguage.zhTW: '大運列表'},
+    '大限': {AppLanguage.en: 'Decade', AppLanguage.zhTW: '大限'},
+    '小限': {AppLanguage.en: 'Small Limit', AppLanguage.zhTW: '小限'},
+    '回到本命盘': {AppLanguage.en: 'Reset to Origin', AppLanguage.zhTW: '回到本命盤'},
     '流年轨迹': {AppLanguage.en: 'Annual Flow', AppLanguage.zhTW: '流年軌跡'},
     '流月轨迹': {AppLanguage.en: 'Monthly Flow', AppLanguage.zhTW: '流月軌跡'},
     '流日轨迹': {AppLanguage.en: 'Daily Flow', AppLanguage.zhTW: '流日軌跡'},
@@ -811,6 +821,87 @@ extension StringL10n on String {
     '酉': {AppLanguage.en: 'You', AppLanguage.zhTW: '酉'},
     '戌': {AppLanguage.en: 'Xu', AppLanguage.zhTW: '戌'},
     '亥': {AppLanguage.en: 'Hai', AppLanguage.zhTW: '亥'},
+
+    '紫微斗数': {AppLanguage.en: 'Ziwei Doushu', AppLanguage.zhTW: '紫微斗數'},
+    '紫微': {AppLanguage.en: 'Ziwei', AppLanguage.zhTW: '紫微'},
+    // 紫微二级设置
+    '紫微排盘流派设置': {
+      AppLanguage.en: 'Ziwei Calculation Settings',
+      AppLanguage.zhTW: '紫微排盤流派設置',
+    },
+    '闰月排法': {AppLanguage.en: 'Leap Month Rule', AppLanguage.zhTW: '閏月排法'},
+    '十五分割法': {AppLanguage.en: 'Split at 15th', AppLanguage.zhTW: '十五分割法'},
+    '前十五天归上月，后十五天归下月': {
+      AppLanguage.en: 'Before 15th is prev month, after is next',
+      AppLanguage.zhTW: '前十五天歸上月，後十五天歸下月',
+    },
+    '作下月计算': {AppLanguage.en: 'As Next Month', AppLanguage.zhTW: '作下月計算'},
+    '闰月整月直接算作下一个月': {
+      AppLanguage.en: 'Leap month is treated as the next month',
+      AppLanguage.zhTW: '閏月整月直接算作下一個月',
+    },
+    '作本月计算': {AppLanguage.en: 'As Current Month', AppLanguage.zhTW: '作本月計算'},
+    '闰月整月算作当月': {
+      AppLanguage.en: 'Leap month is treated as the current month',
+      AppLanguage.zhTW: '閏月整月算作當月',
+    },
+    '四化基准点': {AppLanguage.en: 'SiHua Standard', AppLanguage.zhTW: '四化基準點'},
+    '四化天干跟随农历': {
+      AppLanguage.en: 'SiHua follows Lunar stem',
+      AppLanguage.zhTW: '四化天干跟隨農曆',
+    },
+    '传统排法': {AppLanguage.en: 'Traditional Method', AppLanguage.zhTW: '傳統排法'},
+    '四化天干跟随节气': {
+      AppLanguage.en: 'SiHua follows Solar stem',
+      AppLanguage.zhTW: '四化天干跟隨節氣',
+    },
+    '童限排法': {AppLanguage.en: 'Childhood Luck Rule', AppLanguage.zhTW: '童限排法'},
+    '一岁一宫顺行': {
+      AppLanguage.en: 'One palace per year (Forward)',
+      AppLanguage.zhTW: '一歲一宮順行',
+    },
+    '一命二财三疾厄': {
+      AppLanguage.en: 'Life -> Wealth -> Health',
+      AppLanguage.zhTW: '一命二財三疾厄',
+    },
+    '实验性功能': {AppLanguage.en: 'Experimental', AppLanguage.zhTW: '實驗性功能'},
+    '实验性功能 (谨慎修改)': {
+      AppLanguage.en: 'Experimental Features (Handle with care)',
+      AppLanguage.zhTW: '實驗性功能 (謹慎修改)',
+    },
+    '更多高级排法设置': {
+      AppLanguage.en: 'Advanced Calculation Settings',
+      AppLanguage.zhTW: '更多高級排法設置',
+    },
+    '五虎遁基准点': {AppLanguage.en: 'WuHuDun Standard', AppLanguage.zhTW: '五虎遁基準點'},
+    '十二建星宫干跟随农历': {
+      AppLanguage.en: 'Stems follow Lunar calendar',
+      AppLanguage.zhTW: '十二建星宮干跟隨農曆',
+    },
+    '十二建星宫干跟随节气': {
+      AppLanguage.en: 'Stems follow Solar terms',
+      AppLanguage.zhTW: '十二建星宮干跟隨節氣',
+    },
+    '流运起例基准 (流动线)': {
+      AppLanguage.en: 'Flow Limit Standard',
+      AppLanguage.zhTW: '流運起例基準 (流動線)',
+    },
+    '流运是以农历为界': {
+      AppLanguage.en: 'Flow limit based on Lunar',
+      AppLanguage.zhTW: '流運是以農曆為界',
+    },
+    '初一换月，正一换年': {
+      AppLanguage.en: '1st for month, Lunar Year for year',
+      AppLanguage.zhTW: '初一換月，正一換年',
+    },
+    '流运是以节气为界': {
+      AppLanguage.en: 'Flow limit based on Solar',
+      AppLanguage.zhTW: '流運是以節氣為界',
+    },
+    '交节换月，立春换年': {
+      AppLanguage.en: 'Solar terms for month, LiChun for year',
+      AppLanguage.zhTW: '交節換月，立春換年',
+    },
   };
 }
 

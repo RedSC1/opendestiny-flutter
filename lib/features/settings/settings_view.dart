@@ -4,6 +4,7 @@ import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../../providers/input_provider.dart';
 import '../../core/l10n.dart'; // ✅ 确保引用了语言定义
 import 'bazi_settings_view.dart';
+import 'ziwei_settings_view.dart';
 
 class SettingsView extends ConsumerWidget {
   const SettingsView({super.key});
@@ -97,6 +98,12 @@ class SettingsView extends ConsumerWidget {
           title: Text('紫微流派设置'.tr),
           subtitle: Text('闰月处理、起例基准等'.tr),
           trailing: const Icon(Icons.chevron_right),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ZiweiSettingsView()),
+            );
+          },
         ),
       ],
     );

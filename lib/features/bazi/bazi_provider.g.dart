@@ -6,7 +6,7 @@ part of 'bazi_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$baziChartHash() => r'5edd2112e27d3209484ab094843766ccb06fe5cf';
+String _$baziChartHash() => r'd90e694459bf67e45ed238eeb7bd1ee971f23bc9';
 
 /// See also [baziChart].
 @ProviderFor(baziChart)

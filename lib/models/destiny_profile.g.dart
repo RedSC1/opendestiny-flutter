@@ -45,6 +45,47 @@ const _$EarthPalaceAlgorithmEnumMap = {
   EarthPalaceAlgorithm.waterEarth: 'waterEarth',
 };
 
+_$ZiweiOptionsImpl _$$ZiweiOptionsImplFromJson(Map<String, dynamic> json) =>
+    _$ZiweiOptionsImpl(
+      leapRule:
+          $enumDecodeNullable(_$LeapMonthRuleEnumMap, json['leapRule']) ??
+          LeapMonthRule.splitAt15,
+      wuHuDunBasedOn:
+          $enumDecodeNullable(_$BoundaryEnumMap, json['wuHuDunBasedOn']) ??
+          Boundary.lunar,
+      siHuaBasedOn:
+          $enumDecodeNullable(_$BoundaryEnumMap, json['siHuaBasedOn']) ??
+          Boundary.lunar,
+      childhoodRule:
+          $enumDecodeNullable(_$ChildhoodRoleEnumMap, json['childhoodRule']) ??
+          ChildhoodRole.skip,
+      flowLimitBasedOn:
+          $enumDecodeNullable(_$BoundaryEnumMap, json['flowLimitBasedOn']) ??
+          Boundary.lunar,
+    );
+
+Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
+    <String, dynamic>{
+      'leapRule': _$LeapMonthRuleEnumMap[instance.leapRule]!,
+      'wuHuDunBasedOn': _$BoundaryEnumMap[instance.wuHuDunBasedOn]!,
+      'siHuaBasedOn': _$BoundaryEnumMap[instance.siHuaBasedOn]!,
+      'childhoodRule': _$ChildhoodRoleEnumMap[instance.childhoodRule]!,
+      'flowLimitBasedOn': _$BoundaryEnumMap[instance.flowLimitBasedOn]!,
+    };
+
+const _$LeapMonthRuleEnumMap = {
+  LeapMonthRule.asPrevious: 'asPrevious',
+  LeapMonthRule.asNext: 'asNext',
+  LeapMonthRule.splitAt15: 'splitAt15',
+};
+
+const _$BoundaryEnumMap = {Boundary.lunar: 'lunar', Boundary.solar: 'solar'};
+
+const _$ChildhoodRoleEnumMap = {
+  ChildhoodRole.skip: 'skip',
+  ChildhoodRole.regular: 'regular',
+};
+
 _$DestinyProfileImpl _$$DestinyProfileImplFromJson(Map<String, dynamic> json) =>
     _$DestinyProfileImpl(
       birthTime: DateTime.parse(json['birthTime'] as String),
@@ -63,6 +104,9 @@ _$DestinyProfileImpl _$$DestinyProfileImplFromJson(Map<String, dynamic> json) =>
       baziOptions: json['baziOptions'] == null
           ? const BaziOptions()
           : BaziOptions.fromJson(json['baziOptions'] as Map<String, dynamic>),
+      ziweiOptions: json['ziweiOptions'] == null
+          ? const ZiweiOptions()
+          : ZiweiOptions.fromJson(json['ziweiOptions'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$DestinyProfileImplToJson(
@@ -77,6 +121,7 @@ Map<String, dynamic> _$$DestinyProfileImplToJson(
   'ratHourMode': _$RatHourModeEnumMap[instance.ratHourMode]!,
   'language': _$AppLanguageEnumMap[instance.language]!,
   'baziOptions': instance.baziOptions,
+  'ziweiOptions': instance.ziweiOptions,
 };
 
 const _$GenderEnumMap = {Gender.male: 'male', Gender.female: 'female'};

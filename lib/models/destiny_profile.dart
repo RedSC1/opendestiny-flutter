@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:bazi_core/bazi_core.dart'; 
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart'; 
 import '../core/l10n.dart'; // ✅ 补上翻译层引用
+import 'package:ziwei_core/ziwei_core.dart';
 
 part 'destiny_profile.freezed.dart';
 part 'destiny_profile.g.dart';
@@ -15,6 +16,19 @@ class BaziOptions with _$BaziOptions {
   }) = _BaziOptions;
 
   factory BaziOptions.fromJson(Map<String, dynamic> json) => _$BaziOptionsFromJson(json);
+}
+
+@freezed
+class ZiweiOptions with _$ZiweiOptions {
+  const factory ZiweiOptions({
+    @Default(LeapMonthRule.splitAt15) LeapMonthRule leapRule,
+    @Default(Boundary.lunar) Boundary wuHuDunBasedOn,
+    @Default(Boundary.lunar) Boundary siHuaBasedOn,
+    @Default(ChildhoodRole.skip) ChildhoodRole childhoodRule,
+    @Default(Boundary.lunar) Boundary flowLimitBasedOn,
+  }) = _ZiweiOptions;
+
+  factory ZiweiOptions.fromJson(Map<String, dynamic> json) => _$ZiweiOptionsFromJson(json);
 }
 
 @freezed
@@ -32,6 +46,7 @@ class DestinyProfile with _$DestinyProfile {
     @Default(AppLanguage.zhCN) AppLanguage language, 
     
     @Default(BaziOptions()) BaziOptions baziOptions,
+    @Default(ZiweiOptions()) ZiweiOptions ziweiOptions,
   }) = _DestinyProfile;
 
   factory DestinyProfile.fromJson(Map<String, dynamic> json) => _$DestinyProfileFromJson(json);

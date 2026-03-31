@@ -6,7 +6,7 @@ part of 'input_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$inputNotifierHash() => r'225b4a80d037df02a169359f649d8bea3c4a59eb';
+String _$inputNotifierHash() => r'b988b866a1643c9eed15a51cb717646180ff098a';
 
 /// See also [InputNotifier].
 @ProviderFor(InputNotifier)

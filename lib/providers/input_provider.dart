@@ -42,4 +42,8 @@ class InputNotifier extends _$InputNotifier {
   void updateBaziOptions(BaziOptions options) {
     state = state.copyWith(baziOptions: options);
   }
+
+  void updateZiweiOptions(ZiweiOptions options) {
+    state = state.copyWith(ziweiOptions: options);
+  }
 }
