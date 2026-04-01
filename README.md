@@ -28,6 +28,19 @@
 
 ---
 
+## 📱 界面预览 (Screenshots)
+
+<p align="center">
+  <img src="assets/images/screenshot_1.png" width="30%" />
+  <img src="assets/images/screenshot_2.png" width="30%" />
+  <img src="assets/images/screenshot_3.png" width="30%" />
+</p>
+<p align="center">
+  <em>（提示：请在此处替换你的 App 实际运行截图：八字盘、紫微盘、设置页等）</em>
+</p>
+
+---
+
 ## ✨ 核心特性
 
 *   **🌌 专业的紫微斗数与八字联动**
