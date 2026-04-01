@@ -45,38 +45,58 @@ const _$EarthPalaceAlgorithmEnumMap = {
   EarthPalaceAlgorithm.waterEarth: 'waterEarth',
 };
 
-_$ZiweiOptionsImpl _$$ZiweiOptionsImplFromJson(Map<String, dynamic> json) =>
-    _$ZiweiOptionsImpl(
-      leapRule:
-          $enumDecodeNullable(_$LeapMonthRuleEnumMap, json['leapRule']) ??
-          LeapMonthRule.splitAt15,
-      wuHuDunBasedOn:
-          $enumDecodeNullable(_$BoundaryEnumMap, json['wuHuDunBasedOn']) ??
-          Boundary.lunar,
-      siHuaBasedOn:
-          $enumDecodeNullable(_$BoundaryEnumMap, json['siHuaBasedOn']) ??
-          Boundary.lunar,
-      childhoodRule:
-          $enumDecodeNullable(_$ChildhoodRoleEnumMap, json['childhoodRule']) ??
-          ChildhoodRole.skip,
-      flowLimitBasedOn:
-          $enumDecodeNullable(_$BoundaryEnumMap, json['flowLimitBasedOn']) ??
-          Boundary.lunar,
-      siHuaMode:
-          $enumDecodeNullable(_$ZiweiSiHuaModeEnumMap, json['siHuaMode']) ??
-          ZiweiSiHuaMode.builtin,
-      customSiHuaJson: json['customSiHuaJson'] as String? ?? '',
-      flowStarDisplay: json['flowStarDisplay'] == null
-          ? const ZiweiFlowStarDisplayOptions()
-          : ZiweiFlowStarDisplayOptions.fromJson(
-              json['flowStarDisplay'] as Map<String, dynamic>,
-            ),
-      animation: json['animation'] == null
-          ? const ZiweiAnimationOptions()
-          : ZiweiAnimationOptions.fromJson(
-              json['animation'] as Map<String, dynamic>,
-            ),
-    );
+_$ZiweiOptionsImpl _$$ZiweiOptionsImplFromJson(
+  Map<String, dynamic> json,
+) => _$ZiweiOptionsImpl(
+  leapRule:
+      $enumDecodeNullable(_$LeapMonthRuleEnumMap, json['leapRule']) ??
+      LeapMonthRule.splitAt15,
+  wuHuDunBasedOn:
+      $enumDecodeNullable(_$BoundaryEnumMap, json['wuHuDunBasedOn']) ??
+      Boundary.lunar,
+  siHuaBasedOn:
+      $enumDecodeNullable(_$BoundaryEnumMap, json['siHuaBasedOn']) ??
+      Boundary.lunar,
+  childhoodRule:
+      $enumDecodeNullable(_$ChildhoodRoleEnumMap, json['childhoodRule']) ??
+      ChildhoodRole.skip,
+  flowLimitBasedOn:
+      $enumDecodeNullable(_$BoundaryEnumMap, json['flowLimitBasedOn']) ??
+      Boundary.lunar,
+  siHuaMode:
+      $enumDecodeNullable(_$ZiweiSiHuaModeEnumMap, json['siHuaMode']) ??
+      ZiweiSiHuaMode.builtin,
+  customSiHuaJson: json['customSiHuaJson'] as String? ?? '',
+  siHuaProfiles:
+      (json['siHuaProfiles'] as List<dynamic>?)
+          ?.map((e) => ZiweiCustomProfile.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <ZiweiCustomProfile>[],
+  activeSiHuaProfileId: json['activeSiHuaProfileId'] as String? ?? '',
+  brightnessMode:
+      $enumDecodeNullable(
+        _$ZiweiBrightnessModeEnumMap,
+        json['brightnessMode'],
+      ) ??
+      ZiweiBrightnessMode.builtin,
+  customBrightnessJson: json['customBrightnessJson'] as String? ?? '',
+  brightnessProfiles:
+      (json['brightnessProfiles'] as List<dynamic>?)
+          ?.map((e) => ZiweiCustomProfile.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <ZiweiCustomProfile>[],
+  activeBrightnessProfileId: json['activeBrightnessProfileId'] as String? ?? '',
+  flowStarDisplay: json['flowStarDisplay'] == null
+      ? const ZiweiFlowStarDisplayOptions()
+      : ZiweiFlowStarDisplayOptions.fromJson(
+          json['flowStarDisplay'] as Map<String, dynamic>,
+        ),
+  animation: json['animation'] == null
+      ? const ZiweiAnimationOptions()
+      : ZiweiAnimationOptions.fromJson(
+          json['animation'] as Map<String, dynamic>,
+        ),
+);
 
 Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
     <String, dynamic>{
@@ -87,6 +107,12 @@ Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
       'flowLimitBasedOn': _$BoundaryEnumMap[instance.flowLimitBasedOn]!,
       'siHuaMode': _$ZiweiSiHuaModeEnumMap[instance.siHuaMode]!,
       'customSiHuaJson': instance.customSiHuaJson,
+      'siHuaProfiles': instance.siHuaProfiles,
+      'activeSiHuaProfileId': instance.activeSiHuaProfileId,
+      'brightnessMode': _$ZiweiBrightnessModeEnumMap[instance.brightnessMode]!,
+      'customBrightnessJson': instance.customBrightnessJson,
+      'brightnessProfiles': instance.brightnessProfiles,
+      'activeBrightnessProfileId': instance.activeBrightnessProfileId,
       'flowStarDisplay': instance.flowStarDisplay,
       'animation': instance.animation,
     };
@@ -107,6 +133,11 @@ const _$ChildhoodRoleEnumMap = {
 const _$ZiweiSiHuaModeEnumMap = {
   ZiweiSiHuaMode.builtin: 'builtin',
   ZiweiSiHuaMode.custom: 'custom',
+};
+
+const _$ZiweiBrightnessModeEnumMap = {
+  ZiweiBrightnessMode.builtin: 'builtin',
+  ZiweiBrightnessMode.custom: 'custom',
 };
 
 _$DestinyProfileImpl _$$DestinyProfileImplFromJson(Map<String, dynamic> json) =>

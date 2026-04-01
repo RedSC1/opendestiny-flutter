@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ziwei_core/ziwei_core.dart';
+import '../../../core/l10n.dart';
+import '../../../providers/input_provider.dart';
 import '../providers/ziwei_providers.dart';
+import '../../../core/ziwei_ai_exporter.dart';
 
 class ZiweiToolbarWidget extends ConsumerWidget {
   const ZiweiToolbarWidget({super.key});
@@ -17,11 +21,11 @@ class ZiweiToolbarWidget extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surface,
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.5),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
             width: 0.5,
           ),
           top: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.5),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
             width: 0.5,
           ),
         ),
@@ -35,7 +39,7 @@ class ZiweiToolbarWidget extends ConsumerWidget {
             children: [
               _buildTimeShiftButton(
                 icon: Icons.keyboard_double_arrow_left,
-                tooltip: '上一日',
+                tooltip: '上一日'.tr,
                 onPressed: () {
                   ref.read(ziweiDateOffsetProvider.notifier).state =
                       offset - const Duration(days: 1);
@@ -43,7 +47,7 @@ class ZiweiToolbarWidget extends ConsumerWidget {
               ),
               _buildTimeShiftButton(
                 icon: Icons.keyboard_arrow_left,
-                tooltip: '上一时辰 (2小时)',
+                tooltip: '上一时辰 (2小时)'.tr,
                 onPressed: () {
                   ref.read(ziweiDateOffsetProvider.notifier).state =
                       offset - const Duration(hours: 2);
@@ -56,7 +60,7 @@ class ZiweiToolbarWidget extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: ActionChip(
                     visualDensity: VisualDensity.compact,
-                    label: const Text('复原', style: TextStyle(fontSize: 10)),
+                    label: Text('复原'.tr, style: const TextStyle(fontSize: 10)),
                     backgroundColor: Theme.of(
                       context,
                     ).colorScheme.errorContainer,
@@ -70,11 +74,11 @@ class ZiweiToolbarWidget extends ConsumerWidget {
                   ),
                 )
               else
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
-                    '定盘',
-                    style: TextStyle(
+                    '定盘'.tr,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Colors.grey,
@@ -84,7 +88,7 @@ class ZiweiToolbarWidget extends ConsumerWidget {
 
               _buildTimeShiftButton(
                 icon: Icons.keyboard_arrow_right,
-                tooltip: '下一时辰 (2小时)',
+                tooltip: '下一时辰 (2小时)'.tr,
                 onPressed: () {
                   ref.read(ziweiDateOffsetProvider.notifier).state =
                       offset + const Duration(hours: 2);
@@ -92,7 +96,7 @@ class ZiweiToolbarWidget extends ConsumerWidget {
               ),
               _buildTimeShiftButton(
                 icon: Icons.keyboard_double_arrow_right,
-                tooltip: '下一日',
+                tooltip: '下一日'.tr,
                 onPressed: () {
                   ref.read(ziweiDateOffsetProvider.notifier).state =
                       offset + const Duration(days: 1);
@@ -101,23 +105,49 @@ class ZiweiToolbarWidget extends ConsumerWidget {
             ],
           ),
 
-          // 2. 天地人盘选择器
-          SegmentedButton<TDRpan>(
-            showSelectedIcon: false,
-            style: SegmentedButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              textStyle: const TextStyle(fontSize: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-            ),
-            segments: const [
-              ButtonSegment(value: TDRpan.tianPan, label: Text('天盘')),
-              ButtonSegment(value: TDRpan.diPan, label: Text('地盘')),
-              ButtonSegment(value: TDRpan.renPan, label: Text('人盘')),
+          // 2. 天地人盘选择器 + AI 导出
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SegmentedButton<TDRpan>(
+                showSelectedIcon: false,
+                style: SegmentedButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  textStyle: const TextStyle(fontSize: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+                segments: [
+                  ButtonSegment(value: TDRpan.tianPan, label: Text('天盘'.tr)),
+                  ButtonSegment(value: TDRpan.diPan, label: Text('地盘'.tr)),
+                  ButtonSegment(value: TDRpan.renPan, label: Text('人盘'.tr)),
+                ],
+                selected: {tdrPan},
+                onSelectionChanged: (Set<TDRpan> newSelection) {
+                  ref.read(tdrPanProvider.notifier).state = newSelection.first;
+                },
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () {
+                  final plate = ref.read(ziweiUIManagerProvider).plate;
+                  final settings = ref.read(appSettingsProvider);
+                  final json = ZiweiAiExporter.exportToAiJson(
+                    plate,
+                    brightnessMode: settings.ziweiOptions.brightnessMode.name,
+                  );
+                  Clipboard.setData(ClipboardData(text: json));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('已复制紫微 AI 分析数据到剪贴板'.tr),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.smart_toy, color: Colors.blueGrey),
+                tooltip: '复制 AI 分析数据'.tr,
+                visualDensity: VisualDensity.compact,
+              ),
             ],
-            selected: {tdrPan},
-            onSelectionChanged: (Set<TDRpan> newSelection) {
-              ref.read(tdrPanProvider.notifier).state = newSelection.first;
-            },
           ),
         ],
       ),

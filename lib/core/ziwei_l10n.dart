@@ -179,7 +179,7 @@ String formatBrightness(String key) {
   final lang = AppL10nSettings.currentLanguage;
   return _brightnessTranslation[key]?[lang] ??
       _brightnessTranslation[key]?[AppLanguage.zhCN] ??
-      '';
+      key.replaceFirst('level_', '');
 }
 
 // --- 全量映射数据库 ---
@@ -347,7 +347,6 @@ const _sihuaTranslation = {
     AppLanguage.en: 'Ji',
   },
 };
-
 
 const _brightnessTranslation = {
   'level_miao': {AppLanguage.zhCN: '庙', AppLanguage.zhTW: '廟'},

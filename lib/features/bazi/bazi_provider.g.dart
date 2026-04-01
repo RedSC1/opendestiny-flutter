@@ -23,7 +23,7 @@ final baziChartProvider = AutoDisposeProvider<BaziChart>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef BaziChartRef = AutoDisposeProviderRef<BaziChart>;
-String _$fortuneTableHash() => r'e150e70d11ebe55b7cccba4bd81fab3f96f12534';
+String _$fortuneTableHash() => r'568a6348d6a5e33f76f52270207259dc1469871e';
 
 /// See also [fortuneTable].
 @ProviderFor(fortuneTable)

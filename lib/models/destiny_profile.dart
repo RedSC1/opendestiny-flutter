@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:bazi_core/bazi_core.dart'; 
-import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart'; 
+import 'package:bazi_core/bazi_core.dart';
+import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../core/l10n.dart'; // ✅ 补上翻译层引用
 import 'package:ziwei_core/ziwei_core.dart';
 
@@ -108,12 +108,7 @@ class TimePackConfig {
           other.timeZone == timeZone;
 
   @override
-  int get hashCode => Object.hash(
-        longitude,
-        latitude,
-        locationName,
-        timeZone,
-      );
+  int get hashCode => Object.hash(longitude, latitude, locationName, timeZone);
 }
 
 class SolarBirthInput {
@@ -288,7 +283,12 @@ class BirthInput {
   const BirthInput({
     this.calendarType = BirthCalendarType.solar,
     this.solar = const SolarBirthInput(year: 2000, month: 1, day: 1, hour: 12),
-    this.lunar = const LunarBirthInput(year: 2000, month: '正', day: 1, hour: 12),
+    this.lunar = const LunarBirthInput(
+      year: 2000,
+      month: '正',
+      day: 1,
+      hour: 12,
+    ),
     this.timeConfig = const TimePackConfig(),
   });
 
@@ -361,11 +361,11 @@ class BirthInput {
   Location get location => timeConfig.location;
 
   LunarDate get rawLunarDate => LunarDate.fromString(
-        lunar.year,
-        lunar.month,
-        lunar.day,
-        isLeap: lunar.isLeap,
-      );
+    lunar.year,
+    lunar.month,
+    lunar.day,
+    isLeap: lunar.isLeap,
+  );
 
   AstroDateTime get lunarClockTime {
     final base = rawLunarDate.toSolar;
@@ -406,12 +406,7 @@ class BirthInput {
           other.timeConfig == timeConfig;
 
   @override
-  int get hashCode => Object.hash(
-        calendarType,
-        solar,
-        lunar,
-        timeConfig,
-      );
+  int get hashCode => Object.hash(calendarType, solar, lunar, timeConfig);
 }
 
 @freezed
@@ -419,10 +414,12 @@ class BaziOptions with _$BaziOptions {
   const factory BaziOptions({
     @Default(SiLingVersion.sanMingTongHui) SiLingVersion siLingVersion,
     @Default(DaYunAlgorithm.precise120) DaYunAlgorithm daYunAlgorithm,
-    @Default(EarthPalaceAlgorithm.fireEarth) EarthPalaceAlgorithm earthPalaceAlgorithm,
+    @Default(EarthPalaceAlgorithm.fireEarth)
+    EarthPalaceAlgorithm earthPalaceAlgorithm,
   }) = _BaziOptions;
 
-  factory BaziOptions.fromJson(Map<String, dynamic> json) => _$BaziOptionsFromJson(json);
+  factory BaziOptions.fromJson(Map<String, dynamic> json) =>
+      _$BaziOptionsFromJson(json);
 }
 
 class ZiweiFlowStarDisplayOptions {
@@ -488,8 +485,8 @@ class ZiweiAnimationOptions {
     bool? enableFlyingStarArrow,
   }) {
     return ZiweiAnimationOptions(
-      enableFlyingStarHighlightFrame: enableFlyingStarHighlightFrame ??
-          this.enableFlyingStarHighlightFrame,
+      enableFlyingStarHighlightFrame:
+          enableFlyingStarHighlightFrame ?? this.enableFlyingStarHighlightFrame,
       enableFlyingStarArrow:
           enableFlyingStarArrow ?? this.enableFlyingStarArrow,
     );
@@ -521,7 +518,75 @@ class ZiweiAnimationOptions {
       Object.hash(enableFlyingStarHighlightFrame, enableFlyingStarArrow);
 }
 
+enum ZiweiCustomProfileType { siHua, brightness }
+
+class ZiweiCustomProfile {
+  final String id;
+  final String name;
+  final String json;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const ZiweiCustomProfile({
+    required this.id,
+    required this.name,
+    required this.json,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  ZiweiCustomProfile copyWith({
+    String? id,
+    String? name,
+    String? json,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return ZiweiCustomProfile(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      json: json ?? this.json,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  factory ZiweiCustomProfile.fromJson(Map<String, dynamic> json) {
+    final now = DateTime.now();
+    return ZiweiCustomProfile(
+      id: json['id'] as String? ?? 'profile_${now.microsecondsSinceEpoch}',
+      name: json['name'] as String? ?? '未命名流派',
+      json: json['json'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? now,
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? now,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'json': json,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ZiweiCustomProfile &&
+          other.id == id &&
+          other.name == name &&
+          other.json == json &&
+          other.createdAt == createdAt &&
+          other.updatedAt == updatedAt;
+
+  @override
+  int get hashCode => Object.hash(id, name, json, createdAt, updatedAt);
+}
+
 enum ZiweiSiHuaMode { builtin, custom }
+
+enum ZiweiBrightnessMode { builtin, custom }
 
 @freezed
 class ZiweiOptions with _$ZiweiOptions {
@@ -533,11 +598,19 @@ class ZiweiOptions with _$ZiweiOptions {
     @Default(Boundary.lunar) Boundary flowLimitBasedOn,
     @Default(ZiweiSiHuaMode.builtin) ZiweiSiHuaMode siHuaMode,
     @Default('') String customSiHuaJson,
-    @Default(ZiweiFlowStarDisplayOptions()) ZiweiFlowStarDisplayOptions flowStarDisplay,
+    @Default(<ZiweiCustomProfile>[]) List<ZiweiCustomProfile> siHuaProfiles,
+    @Default('') String activeSiHuaProfileId,
+    @Default(ZiweiBrightnessMode.builtin) ZiweiBrightnessMode brightnessMode,
+    @Default('') String customBrightnessJson,
+    @Default(<ZiweiCustomProfile>[]) List<ZiweiCustomProfile> brightnessProfiles,
+    @Default('') String activeBrightnessProfileId,
+    @Default(ZiweiFlowStarDisplayOptions())
+    ZiweiFlowStarDisplayOptions flowStarDisplay,
     @Default(ZiweiAnimationOptions()) ZiweiAnimationOptions animation,
   }) = _ZiweiOptions;
 
-  factory ZiweiOptions.fromJson(Map<String, dynamic> json) => _$ZiweiOptionsFromJson(json);
+  factory ZiweiOptions.fromJson(Map<String, dynamic> json) =>
+      _$ZiweiOptionsFromJson(json);
 }
 
 class AppSettings {
@@ -578,8 +651,7 @@ class AppSettings {
           AppLanguage.zhCN,
       useTrueSolarTime: json['useTrueSolarTime'] as bool? ?? true,
       ratHourMode:
-          _ratHourModeFromJson(json['ratHourMode']) ??
-          RatHourMode.noSplit,
+          _ratHourModeFromJson(json['ratHourMode']) ?? RatHourMode.noSplit,
       baziOptions: json['baziOptions'] == null
           ? const BaziOptions()
           : BaziOptions.fromJson(json['baziOptions'] as Map<String, dynamic>),
@@ -609,12 +681,12 @@ class AppSettings {
 
   @override
   int get hashCode => Object.hash(
-        language,
-        useTrueSolarTime,
-        ratHourMode,
-        baziOptions,
-        ziweiOptions,
-      );
+    language,
+    useTrueSolarTime,
+    ratHourMode,
+    baziOptions,
+    ziweiOptions,
+  );
 }
 
 class DestinyCase {
@@ -637,10 +709,7 @@ class DestinyCase {
   }) : createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? createdAt ?? DateTime.now();
 
-  factory DestinyCase.initial({
-    String id = 'default',
-    String name = '默认案例',
-  }) {
+  factory DestinyCase.initial({String id = 'default', String name = '默认案例'}) {
     final now = DateTime.now();
     return DestinyCase(
       id: id,
@@ -668,7 +737,8 @@ class DestinyCase {
       gender: gender ?? this.gender,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? (touchUpdatedAt ? DateTime.now() : this.updatedAt),
+      updatedAt:
+          updatedAt ?? (touchUpdatedAt ? DateTime.now() : this.updatedAt),
     );
   }
 
@@ -699,13 +769,13 @@ class DestinyCase {
   };
 
   CaseSummary get summary => CaseSummary(
-        id: id,
-        name: name,
-        updatedAt: updatedAt,
-        subtitle: note.isNotEmpty
-            ? note
-            : '${birthInput.activeClockTime.year}-${birthInput.activeClockTime.month.toString().padLeft(2, '0')}-${birthInput.activeClockTime.day.toString().padLeft(2, '0')}',
-      );
+    id: id,
+    name: name,
+    updatedAt: updatedAt,
+    subtitle: note.isNotEmpty
+        ? note
+        : '${birthInput.activeClockTime.year}-${birthInput.activeClockTime.month.toString().padLeft(2, '0')}-${birthInput.activeClockTime.day.toString().padLeft(2, '0')}',
+  );
 
   factory DestinyCase.fromProfile(
     DestinyProfile profile, {
@@ -739,15 +809,8 @@ class DestinyCase {
           other.updatedAt == updatedAt;
 
   @override
-  int get hashCode => Object.hash(
-        id,
-        name,
-        birthInput,
-        gender,
-        note,
-        createdAt,
-        updatedAt,
-      );
+  int get hashCode =>
+      Object.hash(id, name, birthInput, gender, note, createdAt, updatedAt);
 }
 
 class CaseSummary {
@@ -801,11 +864,12 @@ class DestinyProfile with _$DestinyProfile {
   const factory DestinyProfile({
     @Default(BirthInput()) BirthInput birthInput,
     @Default(Gender.male) Gender gender,
-    @Default(AppLanguage.zhCN) AppLanguage language, 
-    
+    @Default(AppLanguage.zhCN) AppLanguage language,
+
     @Default(BaziOptions()) BaziOptions baziOptions,
     @Default(ZiweiOptions()) ZiweiOptions ziweiOptions,
   }) = _DestinyProfile;
 
-  factory DestinyProfile.fromJson(Map<String, dynamic> json) => _$DestinyProfileFromJson(json);
+  factory DestinyProfile.fromJson(Map<String, dynamic> json) =>
+      _$DestinyProfileFromJson(json);
 }

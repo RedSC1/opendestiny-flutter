@@ -6,7 +6,7 @@ part of 'ziwei_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ziweiRulesetHash() => r'7263172999082c9a6e51f4297824bb2d976a4e87';
+String _$ziweiRulesetHash() => r'0e2e7e1eecb008384b0bc430987a0982e803e49a';
 
 /// 1. 负责把 UI 层的 [ZiweiOptions] 转译为底层的 [ZiweiRuleset]
 ///

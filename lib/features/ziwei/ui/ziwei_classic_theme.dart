@@ -71,7 +71,7 @@ class ZiweiClassicTheme {
       case 'level_xian':
         return const Color(0xFF339933);
       default:
-        return Colors.transparent;
+        return const Color(0xFF607D8B);
     }
   }
 
@@ -107,6 +107,12 @@ String getStarDisplayName(Star star) => star.display;
 /// 获取星曜亮度 (通过 i10n 外挂)
 String getStarBrightness(Star star, DiZhi branch, Map<int, String> labels) {
   if (star is StaticStar) {
+    final bIndex = star.getBrightness(branch);
+    if (bIndex == -1) return '';
+    final bKey = labels[bIndex];
+    return formatBrightness(bKey ?? 'level_none');
+  }
+  if (star is FlowStar) {
     final bIndex = star.getBrightness(branch);
     if (bIndex == -1) return '';
     final bKey = labels[bIndex];

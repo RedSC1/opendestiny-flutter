@@ -13,19 +13,49 @@ part 'ziwei_providers.freezed.dart';
 final tdrPanProvider = StateProvider<TDRpan>((ref) => TDRpan.tianPan);
 final ziweiDateOffsetProvider = StateProvider<Duration>((ref) => Duration.zero);
 
+String _resolveActiveSiHuaJson(ZiweiOptions options) {
+  if (options.siHuaProfiles.isNotEmpty) {
+    final active = options.siHuaProfiles
+        .where((profile) => profile.id == options.activeSiHuaProfileId)
+        .firstOrNull;
+    return (active ?? options.siHuaProfiles.first).json;
+  }
+  return options.customSiHuaJson;
+}
+
+String _resolveActiveBrightnessJson(ZiweiOptions options) {
+  if (options.brightnessProfiles.isNotEmpty) {
+    final active = options.brightnessProfiles
+        .where((profile) => profile.id == options.activeBrightnessProfileId)
+        .firstOrNull;
+    return (active ?? options.brightnessProfiles.first).json;
+  }
+  return options.customBrightnessJson;
+}
+
 /// 1. 负责把 UI 层的 [ZiweiOptions] 转译为底层的 [ZiweiRuleset]
 @riverpod
 ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
   final profile = ref.watch(inputNotifierProvider);
   final options = profile.ziweiOptions;
   final defaultRuleset = ConfigLoader.getDefault();
-  final baseRuleset = options.siHuaMode == ZiweiSiHuaMode.custom &&
-          options.customSiHuaJson.trim().isNotEmpty
+  final activeSiHuaJson = _resolveActiveSiHuaJson(options);
+  final activeBrightnessJson = _resolveActiveBrightnessJson(options);
+  final siHuaRuleset =
+      options.siHuaMode == ZiweiSiHuaMode.custom && activeSiHuaJson.trim().isNotEmpty
       ? ConfigLoader.overrideWith(
           defaultRuleset,
-          sihuaJson: options.customSiHuaJson,
+          sihuaJson: activeSiHuaJson,
         )
       : defaultRuleset;
+  final baseRuleset =
+      options.brightnessMode == ZiweiBrightnessMode.custom &&
+          activeBrightnessJson.trim().isNotEmpty
+      ? ConfigLoader.overrideWith(
+          siHuaRuleset,
+          brightnessJson: activeBrightnessJson,
+        )
+      : siHuaRuleset;
 
   return ZiweiRuleset(
     stars: baseRuleset.stars,
@@ -64,7 +94,7 @@ ZiweiDate originDate(OriginDateRef ref) {
 
   final offset = ref.watch(ziweiDateOffsetProvider);
   var activeClockTime = birthInput.activeClockTime;
-  
+
   if (offset != Duration.zero) {
     // Shift the actual physical time by offset using AstroDateTime's add method to support BCE dates
     activeClockTime = activeClockTime.add(offset);
@@ -341,7 +371,9 @@ class ZiweiUIManager extends _$ZiweiUIManager {
   SmallLimit? _resolveSmallLimit(FlowYear? year) {
     if (_cachedOriginPlate == null || year == null) return null;
 
-    final effectiveBirthYear = Decade.getEffectiveBirthYear(_cachedOriginPlate!);
+    final effectiveBirthYear = Decade.getEffectiveBirthYear(
+      _cachedOriginPlate!,
+    );
     final virtualAge = year.year - effectiveBirthYear + 1;
     return SmallLimit.create(virtualAge, _cachedOriginPlate!);
   }

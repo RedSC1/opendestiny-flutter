@@ -178,6 +178,144 @@ class InputNotifier extends _$InputNotifier {
     _updateProfile();
   }
 
+  void createZiweiCustomProfile({
+    required ZiweiCustomProfileType type,
+    required String name,
+    required String json,
+  }) {
+    final now = DateTime.now();
+    final profile = ZiweiCustomProfile(
+      id: '${type.name}_${now.microsecondsSinceEpoch}',
+      name: name,
+      json: json,
+      createdAt: now,
+      updatedAt: now,
+    );
+    final options = _settings.ziweiOptions;
+    final profiles = [..._profilesForType(options, type), profile];
+    _settings = _settings.copyWith(
+      ziweiOptions: _updateProfilesForType(
+        options,
+        type,
+        profiles: profiles,
+        activeId: profile.id,
+      ),
+    );
+    _updateProfile();
+  }
+
+  void renameZiweiCustomProfile({
+    required ZiweiCustomProfileType type,
+    required String id,
+    required String name,
+  }) {
+    final options = _settings.ziweiOptions;
+    final source = _profilesForType(options, type)
+        .where((profile) => profile.id == id)
+        .firstOrNull;
+    if (source == null || _isProtectedZiweiCustomProfile(type, source)) return;
+    final profiles = _profilesForType(options, type)
+        .map(
+          (profile) => profile.id == id
+              ? profile.copyWith(name: name, updatedAt: DateTime.now())
+              : profile,
+        )
+        .toList();
+    _settings = _settings.copyWith(
+      ziweiOptions: _updateProfilesForType(options, type, profiles: profiles),
+    );
+    _updateProfile();
+  }
+
+  void duplicateZiweiCustomProfile({
+    required ZiweiCustomProfileType type,
+    required String id,
+  }) {
+    final options = _settings.ziweiOptions;
+    final source = _profilesForType(options, type)
+        .where((profile) => profile.id == id)
+        .firstOrNull;
+    if (source == null) return;
+    final now = DateTime.now();
+    final copy = source.copyWith(
+      id: '${type.name}_${now.microsecondsSinceEpoch}',
+      name: '${source.name} Copy',
+      createdAt: now,
+      updatedAt: now,
+    );
+    final profiles = [..._profilesForType(options, type), copy];
+    _settings = _settings.copyWith(
+      ziweiOptions: _updateProfilesForType(
+        options,
+        type,
+        profiles: profiles,
+        activeId: copy.id,
+      ),
+    );
+    _updateProfile();
+  }
+
+  void deleteZiweiCustomProfile({
+    required ZiweiCustomProfileType type,
+    required String id,
+  }) {
+    final options = _settings.ziweiOptions;
+    final source = _profilesForType(options, type)
+        .where((profile) => profile.id == id)
+        .firstOrNull;
+    if (source == null || _isProtectedZiweiCustomProfile(type, source)) return;
+    final profiles = _profilesForType(options, type)
+        .where((profile) => profile.id != id)
+        .toList();
+    final currentActiveId = _activeProfileIdForType(options, type);
+    final nextActiveId = currentActiveId == id
+        ? (profiles.isEmpty ? '' : profiles.first.id)
+        : currentActiveId;
+    _settings = _settings.copyWith(
+      ziweiOptions: _updateProfilesForType(
+        options,
+        type,
+        profiles: profiles,
+        activeId: nextActiveId,
+      ),
+    );
+    _updateProfile();
+  }
+
+  void setActiveZiweiCustomProfile({
+    required ZiweiCustomProfileType type,
+    required String id,
+  }) {
+    final options = _settings.ziweiOptions;
+    _settings = _settings.copyWith(
+      ziweiOptions: _updateProfilesForType(options, type, activeId: id),
+    );
+    _updateProfile();
+  }
+
+  void saveZiweiCustomProfileJson({
+    required ZiweiCustomProfileType type,
+    required String id,
+    required String json,
+  }) {
+    final options = _settings.ziweiOptions;
+    final source = _profilesForType(options, type)
+        .where((profile) => profile.id == id)
+        .firstOrNull;
+    if (source == null || _isProtectedZiweiCustomProfile(type, source)) return;
+    final profiles = _profilesForType(options, type)
+        .map(
+          (profile) => profile.id == id
+              ? profile.copyWith(json: json, updatedAt: DateTime.now())
+              : profile,
+        )
+        .toList();
+    _settings = _settings.copyWith(
+      ziweiOptions: _updateProfilesForType(options, type, profiles: profiles),
+    );
+    _updateProfile();
+  }
+
   Future<void> createNewCase() async {
     final now = DateTime.now();
     _currentCase = DestinyCase(
@@ -284,7 +422,7 @@ class InputNotifier extends _$InputNotifier {
       }
 
       if (startVersion == _mutationVersion) {
-        _settings = nextSettings;
+        _settings = _normalizeZiweiProfiles(nextSettings);
         _currentCase = nextCase;
         await _refreshCaseSummaries();
         state = _composeProfile();
@@ -381,6 +519,112 @@ class InputNotifier extends _$InputNotifier {
       default:
         return RatHourMode.noSplit;
     }
+  }
+
+  AppSettings _normalizeZiweiProfiles(AppSettings settings) {
+    final options = settings.ziweiOptions;
+    var siHuaProfiles = options.siHuaProfiles;
+    var activeSiHuaProfileId = options.activeSiHuaProfileId;
+    var brightnessProfiles = options.brightnessProfiles;
+    var activeBrightnessProfileId = options.activeBrightnessProfileId;
+
+    if (siHuaProfiles.isEmpty && options.customSiHuaJson.trim().isNotEmpty) {
+      final now = DateTime.now();
+      final profile = ZiweiCustomProfile(
+        id: 'sihua_migrated_${now.microsecondsSinceEpoch}',
+        name: '迁移四化流派',
+        json: options.customSiHuaJson,
+        createdAt: now,
+        updatedAt: now,
+      );
+      siHuaProfiles = [profile];
+      activeSiHuaProfileId = profile.id;
+    } else if (siHuaProfiles.isNotEmpty &&
+        siHuaProfiles.every((profile) => profile.id != activeSiHuaProfileId)) {
+      activeSiHuaProfileId = siHuaProfiles.first.id;
+    }
+
+    if (brightnessProfiles.isEmpty &&
+        options.customBrightnessJson.trim().isNotEmpty) {
+      final now = DateTime.now();
+      final profile = ZiweiCustomProfile(
+        id: 'brightness_migrated_${now.microsecondsSinceEpoch}',
+        name: '迁移亮度流派',
+        json: options.customBrightnessJson,
+        createdAt: now,
+        updatedAt: now,
+      );
+      brightnessProfiles = [profile];
+      activeBrightnessProfileId = profile.id;
+    } else if (brightnessProfiles.isNotEmpty &&
+        brightnessProfiles.every(
+          (profile) => profile.id != activeBrightnessProfileId,
+        )) {
+      activeBrightnessProfileId = brightnessProfiles.first.id;
+    }
+
+    return settings.copyWith(
+      ziweiOptions: options.copyWith(
+        siHuaProfiles: siHuaProfiles,
+        activeSiHuaProfileId: activeSiHuaProfileId,
+        brightnessProfiles: brightnessProfiles,
+        activeBrightnessProfileId: activeBrightnessProfileId,
+      ),
+    );
+  }
+
+  List<ZiweiCustomProfile> _profilesForType(
+    ZiweiOptions options,
+    ZiweiCustomProfileType type,
+  ) {
+    return type == ZiweiCustomProfileType.siHua
+        ? options.siHuaProfiles
+        : options.brightnessProfiles;
+  }
+
+  String _activeProfileIdForType(
+    ZiweiOptions options,
+    ZiweiCustomProfileType type,
+  ) {
+    return type == ZiweiCustomProfileType.siHua
+        ? options.activeSiHuaProfileId
+        : options.activeBrightnessProfileId;
+  }
+
+  bool _isProtectedZiweiCustomProfile(
+    ZiweiCustomProfileType type,
+    ZiweiCustomProfile profile,
+  ) {
+    return _protectedProfileNamesForType(type).contains(profile.name);
+  }
+
+  Set<String> _protectedProfileNamesForType(ZiweiCustomProfileType type) {
+    return type == ZiweiCustomProfileType.siHua
+        ? const {'默认四化流派', '默認四化流派', 'Default SiHua Profile'}
+        : const {
+            '默认亮度流派',
+            '默認亮度流派',
+            'Default Brightness Profile',
+          };
+  }
+
+  ZiweiOptions _updateProfilesForType(
+    ZiweiOptions options,
+    ZiweiCustomProfileType type, {
+    List<ZiweiCustomProfile>? profiles,
+    String? activeId,
+  }) {
+    if (type == ZiweiCustomProfileType.siHua) {
+      return options.copyWith(
+        siHuaProfiles: profiles ?? options.siHuaProfiles,
+        activeSiHuaProfileId: activeId ?? options.activeSiHuaProfileId,
+      );
+    }
+    return options.copyWith(
+      brightnessProfiles: profiles ?? options.brightnessProfiles,
+      activeBrightnessProfileId:
+          activeId ?? options.activeBrightnessProfileId,
+    );
   }
 
   Future<void> _refreshCaseSummaries() async {

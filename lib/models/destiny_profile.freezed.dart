@@ -243,6 +243,14 @@ mixin _$ZiweiOptions {
   Boundary get flowLimitBasedOn => throw _privateConstructorUsedError;
   ZiweiSiHuaMode get siHuaMode => throw _privateConstructorUsedError;
   String get customSiHuaJson => throw _privateConstructorUsedError;
+  List<ZiweiCustomProfile> get siHuaProfiles =>
+      throw _privateConstructorUsedError;
+  String get activeSiHuaProfileId => throw _privateConstructorUsedError;
+  ZiweiBrightnessMode get brightnessMode => throw _privateConstructorUsedError;
+  String get customBrightnessJson => throw _privateConstructorUsedError;
+  List<ZiweiCustomProfile> get brightnessProfiles =>
+      throw _privateConstructorUsedError;
+  String get activeBrightnessProfileId => throw _privateConstructorUsedError;
   ZiweiFlowStarDisplayOptions get flowStarDisplay =>
       throw _privateConstructorUsedError;
   ZiweiAnimationOptions get animation => throw _privateConstructorUsedError;
@@ -272,6 +280,12 @@ abstract class $ZiweiOptionsCopyWith<$Res> {
     Boundary flowLimitBasedOn,
     ZiweiSiHuaMode siHuaMode,
     String customSiHuaJson,
+    List<ZiweiCustomProfile> siHuaProfiles,
+    String activeSiHuaProfileId,
+    ZiweiBrightnessMode brightnessMode,
+    String customBrightnessJson,
+    List<ZiweiCustomProfile> brightnessProfiles,
+    String activeBrightnessProfileId,
     ZiweiFlowStarDisplayOptions flowStarDisplay,
     ZiweiAnimationOptions animation,
   });
@@ -299,6 +313,12 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
     Object? flowLimitBasedOn = null,
     Object? siHuaMode = null,
     Object? customSiHuaJson = null,
+    Object? siHuaProfiles = null,
+    Object? activeSiHuaProfileId = null,
+    Object? brightnessMode = null,
+    Object? customBrightnessJson = null,
+    Object? brightnessProfiles = null,
+    Object? activeBrightnessProfileId = null,
     Object? flowStarDisplay = null,
     Object? animation = null,
   }) {
@@ -332,6 +352,30 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
                 ? _value.customSiHuaJson
                 : customSiHuaJson // ignore: cast_nullable_to_non_nullable
                       as String,
+            siHuaProfiles: null == siHuaProfiles
+                ? _value.siHuaProfiles
+                : siHuaProfiles // ignore: cast_nullable_to_non_nullable
+                      as List<ZiweiCustomProfile>,
+            activeSiHuaProfileId: null == activeSiHuaProfileId
+                ? _value.activeSiHuaProfileId
+                : activeSiHuaProfileId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            brightnessMode: null == brightnessMode
+                ? _value.brightnessMode
+                : brightnessMode // ignore: cast_nullable_to_non_nullable
+                      as ZiweiBrightnessMode,
+            customBrightnessJson: null == customBrightnessJson
+                ? _value.customBrightnessJson
+                : customBrightnessJson // ignore: cast_nullable_to_non_nullable
+                      as String,
+            brightnessProfiles: null == brightnessProfiles
+                ? _value.brightnessProfiles
+                : brightnessProfiles // ignore: cast_nullable_to_non_nullable
+                      as List<ZiweiCustomProfile>,
+            activeBrightnessProfileId: null == activeBrightnessProfileId
+                ? _value.activeBrightnessProfileId
+                : activeBrightnessProfileId // ignore: cast_nullable_to_non_nullable
+                      as String,
             flowStarDisplay: null == flowStarDisplay
                 ? _value.flowStarDisplay
                 : flowStarDisplay // ignore: cast_nullable_to_non_nullable
@@ -363,6 +407,12 @@ abstract class _$$ZiweiOptionsImplCopyWith<$Res>
     Boundary flowLimitBasedOn,
     ZiweiSiHuaMode siHuaMode,
     String customSiHuaJson,
+    List<ZiweiCustomProfile> siHuaProfiles,
+    String activeSiHuaProfileId,
+    ZiweiBrightnessMode brightnessMode,
+    String customBrightnessJson,
+    List<ZiweiCustomProfile> brightnessProfiles,
+    String activeBrightnessProfileId,
     ZiweiFlowStarDisplayOptions flowStarDisplay,
     ZiweiAnimationOptions animation,
   });
@@ -389,6 +439,12 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
     Object? flowLimitBasedOn = null,
     Object? siHuaMode = null,
     Object? customSiHuaJson = null,
+    Object? siHuaProfiles = null,
+    Object? activeSiHuaProfileId = null,
+    Object? brightnessMode = null,
+    Object? customBrightnessJson = null,
+    Object? brightnessProfiles = null,
+    Object? activeBrightnessProfileId = null,
     Object? flowStarDisplay = null,
     Object? animation = null,
   }) {
@@ -422,6 +478,30 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
             ? _value.customSiHuaJson
             : customSiHuaJson // ignore: cast_nullable_to_non_nullable
                   as String,
+        siHuaProfiles: null == siHuaProfiles
+            ? _value._siHuaProfiles
+            : siHuaProfiles // ignore: cast_nullable_to_non_nullable
+                  as List<ZiweiCustomProfile>,
+        activeSiHuaProfileId: null == activeSiHuaProfileId
+            ? _value.activeSiHuaProfileId
+            : activeSiHuaProfileId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        brightnessMode: null == brightnessMode
+            ? _value.brightnessMode
+            : brightnessMode // ignore: cast_nullable_to_non_nullable
+                  as ZiweiBrightnessMode,
+        customBrightnessJson: null == customBrightnessJson
+            ? _value.customBrightnessJson
+            : customBrightnessJson // ignore: cast_nullable_to_non_nullable
+                  as String,
+        brightnessProfiles: null == brightnessProfiles
+            ? _value._brightnessProfiles
+            : brightnessProfiles // ignore: cast_nullable_to_non_nullable
+                  as List<ZiweiCustomProfile>,
+        activeBrightnessProfileId: null == activeBrightnessProfileId
+            ? _value.activeBrightnessProfileId
+            : activeBrightnessProfileId // ignore: cast_nullable_to_non_nullable
+                  as String,
         flowStarDisplay: null == flowStarDisplay
             ? _value.flowStarDisplay
             : flowStarDisplay // ignore: cast_nullable_to_non_nullable
@@ -446,9 +526,17 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     this.flowLimitBasedOn = Boundary.lunar,
     this.siHuaMode = ZiweiSiHuaMode.builtin,
     this.customSiHuaJson = '',
+    final List<ZiweiCustomProfile> siHuaProfiles = const <ZiweiCustomProfile>[],
+    this.activeSiHuaProfileId = '',
+    this.brightnessMode = ZiweiBrightnessMode.builtin,
+    this.customBrightnessJson = '',
+    final List<ZiweiCustomProfile> brightnessProfiles =
+        const <ZiweiCustomProfile>[],
+    this.activeBrightnessProfileId = '',
     this.flowStarDisplay = const ZiweiFlowStarDisplayOptions(),
     this.animation = const ZiweiAnimationOptions(),
-  });
+  }) : _siHuaProfiles = siHuaProfiles,
+       _brightnessProfiles = brightnessProfiles;
 
   factory _$ZiweiOptionsImpl.fromJson(Map<String, dynamic> json) =>
       _$$ZiweiOptionsImplFromJson(json);
@@ -474,6 +562,37 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
   @override
   @JsonKey()
   final String customSiHuaJson;
+  final List<ZiweiCustomProfile> _siHuaProfiles;
+  @override
+  @JsonKey()
+  List<ZiweiCustomProfile> get siHuaProfiles {
+    if (_siHuaProfiles is EqualUnmodifiableListView) return _siHuaProfiles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_siHuaProfiles);
+  }
+
+  @override
+  @JsonKey()
+  final String activeSiHuaProfileId;
+  @override
+  @JsonKey()
+  final ZiweiBrightnessMode brightnessMode;
+  @override
+  @JsonKey()
+  final String customBrightnessJson;
+  final List<ZiweiCustomProfile> _brightnessProfiles;
+  @override
+  @JsonKey()
+  List<ZiweiCustomProfile> get brightnessProfiles {
+    if (_brightnessProfiles is EqualUnmodifiableListView)
+      return _brightnessProfiles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_brightnessProfiles);
+  }
+
+  @override
+  @JsonKey()
+  final String activeBrightnessProfileId;
   @override
   @JsonKey()
   final ZiweiFlowStarDisplayOptions flowStarDisplay;
@@ -483,7 +602,7 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
 
   @override
   String toString() {
-    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, siHuaMode: $siHuaMode, customSiHuaJson: $customSiHuaJson, flowStarDisplay: $flowStarDisplay, animation: $animation)';
+    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, siHuaMode: $siHuaMode, customSiHuaJson: $customSiHuaJson, siHuaProfiles: $siHuaProfiles, activeSiHuaProfileId: $activeSiHuaProfileId, brightnessMode: $brightnessMode, customBrightnessJson: $customBrightnessJson, brightnessProfiles: $brightnessProfiles, activeBrightnessProfileId: $activeBrightnessProfileId, flowStarDisplay: $flowStarDisplay, animation: $animation)';
   }
 
   @override
@@ -505,6 +624,25 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
                 other.siHuaMode == siHuaMode) &&
             (identical(other.customSiHuaJson, customSiHuaJson) ||
                 other.customSiHuaJson == customSiHuaJson) &&
+            const DeepCollectionEquality().equals(
+              other._siHuaProfiles,
+              _siHuaProfiles,
+            ) &&
+            (identical(other.activeSiHuaProfileId, activeSiHuaProfileId) ||
+                other.activeSiHuaProfileId == activeSiHuaProfileId) &&
+            (identical(other.brightnessMode, brightnessMode) ||
+                other.brightnessMode == brightnessMode) &&
+            (identical(other.customBrightnessJson, customBrightnessJson) ||
+                other.customBrightnessJson == customBrightnessJson) &&
+            const DeepCollectionEquality().equals(
+              other._brightnessProfiles,
+              _brightnessProfiles,
+            ) &&
+            (identical(
+                  other.activeBrightnessProfileId,
+                  activeBrightnessProfileId,
+                ) ||
+                other.activeBrightnessProfileId == activeBrightnessProfileId) &&
             (identical(other.flowStarDisplay, flowStarDisplay) ||
                 other.flowStarDisplay == flowStarDisplay) &&
             (identical(other.animation, animation) ||
@@ -522,6 +660,12 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     flowLimitBasedOn,
     siHuaMode,
     customSiHuaJson,
+    const DeepCollectionEquality().hash(_siHuaProfiles),
+    activeSiHuaProfileId,
+    brightnessMode,
+    customBrightnessJson,
+    const DeepCollectionEquality().hash(_brightnessProfiles),
+    activeBrightnessProfileId,
     flowStarDisplay,
     animation,
   );
@@ -549,6 +693,12 @@ abstract class _ZiweiOptions implements ZiweiOptions {
     final Boundary flowLimitBasedOn,
     final ZiweiSiHuaMode siHuaMode,
     final String customSiHuaJson,
+    final List<ZiweiCustomProfile> siHuaProfiles,
+    final String activeSiHuaProfileId,
+    final ZiweiBrightnessMode brightnessMode,
+    final String customBrightnessJson,
+    final List<ZiweiCustomProfile> brightnessProfiles,
+    final String activeBrightnessProfileId,
     final ZiweiFlowStarDisplayOptions flowStarDisplay,
     final ZiweiAnimationOptions animation,
   }) = _$ZiweiOptionsImpl;
@@ -570,6 +720,18 @@ abstract class _ZiweiOptions implements ZiweiOptions {
   ZiweiSiHuaMode get siHuaMode;
   @override
   String get customSiHuaJson;
+  @override
+  List<ZiweiCustomProfile> get siHuaProfiles;
+  @override
+  String get activeSiHuaProfileId;
+  @override
+  ZiweiBrightnessMode get brightnessMode;
+  @override
+  String get customBrightnessJson;
+  @override
+  List<ZiweiCustomProfile> get brightnessProfiles;
+  @override
+  String get activeBrightnessProfileId;
   @override
   ZiweiFlowStarDisplayOptions get flowStarDisplay;
   @override

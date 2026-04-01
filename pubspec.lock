@@ -1024,10 +1024,9 @@ packages:
   ziwei_core:
     dependency: "direct main"
     description:
-      name: ziwei_core
-      sha256: "21798887569a74a94d1019bf5adea1b5ccaad5e96a277bf46ca48286fe66fbf2"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../ziwei_core"
+      relative: true
+    source: path
     version: "0.11.0"
 sdks:
   dart: ">=3.10.8 <4.0.0"

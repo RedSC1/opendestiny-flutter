@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:bazi_core/bazi_core.dart';
 import 'bazi_provider.dart';
 import 'widgets/bazi_header.dart';
 import 'widgets/bazi_chart_board.dart';
@@ -31,6 +32,7 @@ class BaziView extends ConsumerWidget {
     final dayGan = baziChart.bazi.day.gan;
     final showInteractions = ref.watch(showInteractionProvider);
     final appSettings = ref.watch(appSettingsProvider);
+    final currentCase = ref.watch(currentCaseProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -48,26 +50,31 @@ class BaziView extends ConsumerWidget {
                   Expanded(
                     child: BaziHeader(
                       chart: baziChart,
+                      fortuneTable: fortuneTable,
                       showTrueSolarTime: appSettings.useTrueSolarTime,
+                      currentCase: currentCase,
+                      appSettings: appSettings,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const BaziTabSwitcher(),
-                      const SizedBox(height: 8),
-                      // 顶部开关 Row (专业模式 & 交互图)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
+                      const SizedBox(height: 6),
+                      Wrap(
+                        alignment: WrapAlignment.end,
+                        spacing: 6,
+                        runSpacing: 6,
                         children: [
-                          // 1. 交互图开关
                           InkWell(
                             onTap: () {
                               ref.read(showInteractionProvider.notifier).state = !showInteractions;
                             },
                             borderRadius: BorderRadius.circular(8),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                               decoration: BoxDecoration(
                                 color: showInteractions ? Colors.indigo.shade50 : Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(8),
@@ -76,25 +83,23 @@ class BaziView extends ConsumerWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text('连线图'.tr, 
+                                  Text('连线图'.tr,
                                     style: TextStyle(
-                                      fontSize: 12, 
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       color: showInteractions ? Colors.indigo.shade800 : Colors.grey.shade800
                                     )
                                   ),
                                   const SizedBox(width: 4),
                                   Icon(
-                                    Icons.hub_outlined, 
-                                    size: 16, 
+                                    Icons.hub_outlined,
+                                    size: 15,
                                     color: showInteractions ? Colors.indigo.shade700 : Colors.grey.shade700
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          // 2. 专业模式开关
                           InkWell(
                             onTap: () {
                               ref.read(showProfessionalProvider.notifier).state =
@@ -102,7 +107,7 @@ class BaziView extends ConsumerWidget {
                             },
                             borderRadius: BorderRadius.circular(8),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(8),
@@ -111,17 +116,17 @@ class BaziView extends ConsumerWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text('专业模式'.tr, 
+                                  Text('专业模式'.tr,
                                     style: TextStyle(
-                                      fontSize: 12, 
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.grey.shade800
                                     )
                                   ),
                                   const SizedBox(width: 4),
                                   Icon(
-                                    ref.watch(showProfessionalProvider) ? Icons.unfold_less : Icons.unfold_more, 
-                                    size: 16, 
+                                    ref.watch(showProfessionalProvider) ? Icons.unfold_less : Icons.unfold_more,
+                                    size: 15,
                                     color: Colors.grey.shade700
                                   ),
                                 ],
@@ -154,13 +159,14 @@ class BaziView extends ConsumerWidget {
             // 起运 & 司令信息
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Wrap(
-                spacing: 16,
-                runSpacing: 4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildInfoChip('起运'.tr, fortuneTable.fortune.qiYunDt.toString()),
-                  if (baziChart.siLing != null)
+                  _buildInfoChip('起运'.tr, _formatQiYunDt(fortuneTable.fortune.qiYunDt)),
+                  if (baziChart.siLing != null) ...[
+                    const SizedBox(height: 4),
                     _buildInfoChip('司令'.tr, baziChart.siLing!.gan.display),
+                  ],
                 ],
               ),
             ),
@@ -183,20 +189,31 @@ class BaziView extends ConsumerWidget {
   Widget _buildInfoChip(String label, String value) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           '$label: ',
           style: const TextStyle(fontSize: 11, color: Colors.grey),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            color: Colors.blueGrey,
+        Flexible(
+          child: Text(
+            value,
+            softWrap: true,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueGrey,
+            ),
           ),
         ),
       ],
     );
+  }
+
+  String _formatQiYunDt(QiYunDt value) {
+    if (AppL10nSettings.currentLanguage == AppLanguage.en) {
+      return 'After birth ${value.year} years ${value.month} months ${value.day} days ${value.hour} hours ${value.minute} minutes ${value.second} seconds, luck cycle begins';
+    }
+    return '${'出生后'.tr} ${value.year}${'年'.tr} ${value.month}${'个月'.tr} ${value.day}${'天'.tr} ${value.hour}${'小时'.tr} ${value.minute}${'分钟'.tr} ${value.second}${'秒'.tr} ${'交运'.tr}';
   }
 }

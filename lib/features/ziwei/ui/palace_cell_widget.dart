@@ -51,7 +51,9 @@ class PalaceCellWidget extends ConsumerWidget {
     final role = plate.getRole(ZiweiScope.origin, palace.index);
     final decade = _findDecade();
     final flowStarDisplay = ref.watch(
-      inputNotifierProvider.select((profile) => profile.ziweiOptions.flowStarDisplay),
+      inputNotifierProvider.select(
+        (profile) => profile.ziweiOptions.flowStarDisplay,
+      ),
     );
     final enableFlyingStarHighlightFrame = ref.watch(
       inputNotifierProvider.select(
@@ -334,18 +336,25 @@ class PalaceCellWidget extends ConsumerWidget {
     const baseBottom = 24.0;
     const overlayZoneWidth = 78.0;
 
-    final contentWidth =
-        (constraints.maxWidth - 8).clamp(0.0, double.infinity).toDouble();
+    final contentWidth = (constraints.maxWidth - 8)
+        .clamp(0.0, double.infinity)
+        .toDouble();
     final estimatedTopHeight = _estimateRightOverlayConflictHeight(
       topStars,
       contentWidth,
       overlayZoneWidth,
     );
-    final adaptiveTop = estimatedTopHeight > 0 ? estimatedTopHeight + 8 : baseTop;
+    final adaptiveTop = estimatedTopHeight > 0
+        ? estimatedTopHeight + 8
+        : baseTop;
     final topInset = adaptiveTop > baseTop ? adaptiveTop : baseTop;
 
-    return const EdgeInsets.fromLTRB(baseLeft, 0, baseRight, baseBottom)
-        .copyWith(top: topInset);
+    return const EdgeInsets.fromLTRB(
+      baseLeft,
+      0,
+      baseRight,
+      baseBottom,
+    ).copyWith(top: topInset);
   }
 
   double _estimateRightOverlayConflictHeight(
@@ -510,7 +519,8 @@ class PalaceCellWidget extends ConsumerWidget {
                       baseFontSize,
                       constraints.maxHeight,
                       selectedFlyingTargets[star.key],
-                      enableFlyingStarHighlightFrame: enableFlyingStarHighlightFrame,
+                      enableFlyingStarHighlightFrame:
+                          enableFlyingStarHighlightFrame,
                       enableFlyingStarArrow: enableFlyingStarArrow,
                     ),
                   );
@@ -524,7 +534,8 @@ class PalaceCellWidget extends ConsumerWidget {
                       secondaryFontSize,
                       constraints.maxHeight,
                       selectedFlyingTargets[star.key],
-                      enableFlyingStarHighlightFrame: enableFlyingStarHighlightFrame,
+                      enableFlyingStarHighlightFrame:
+                          enableFlyingStarHighlightFrame,
                       enableFlyingStarArrow: enableFlyingStarArrow,
                     ),
                   );
@@ -542,12 +553,10 @@ class PalaceCellWidget extends ConsumerWidget {
     Star star,
     double fontSize,
     double maxHeight,
-    SiHuaType? flyingHighlightType,
-    {
+    SiHuaType? flyingHighlightType, {
     required bool enableFlyingStarHighlightFrame,
     required bool enableFlyingStarArrow,
-    }
-  ) {
+  }) {
     final name = getStarDisplayName(star);
     final brightness = getStarBrightness(
       star,
@@ -727,9 +736,7 @@ class PalaceCellWidget extends ConsumerWidget {
     final rule = plate.ruleset.siHuaRules[selectedStem];
     if (rule == null || rule.isEmpty) return const {};
 
-    return {
-      for (final entry in rule.entries) entry.value: entry.key,
-    };
+    return {for (final entry in rule.entries) entry.value: entry.key};
   }
 
   /// 构建单个四化圆扣 (动态大小：跟随 fontSize)
@@ -787,15 +794,16 @@ class PalaceCellWidget extends ConsumerWidget {
                 .map(
                   (line) => Text(
                     line.name,
-                    style: const TextStyle(
-                      fontSize: 9.5, // 稍微调大点，增强可读性
-                      height: 1.1,
-                    ).copyWith(
-                      color: line.color,
-                      fontWeight: line.isFlow
-                          ? FontWeight.w700
-                          : FontWeight.w400,
-                    ),
+                    style:
+                        const TextStyle(
+                          fontSize: 9.5, // 稍微调大点，增强可读性
+                          height: 1.1,
+                        ).copyWith(
+                          color: line.color,
+                          fontWeight: line.isFlow
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                        ),
                   ),
                 )
                 .toList(),
@@ -938,8 +946,9 @@ class PalaceCellWidget extends ConsumerWidget {
         .where((star) => !_isExcludedOverlayFlowStar(star))
         .toList()
       ..sort((a, b) {
-        final scopeCompare =
-            _flowScopeOrder(a.scope).compareTo(_flowScopeOrder(b.scope));
+        final scopeCompare = _flowScopeOrder(
+          a.scope,
+        ).compareTo(_flowScopeOrder(b.scope));
         if (scopeCompare != 0) return scopeCompare;
         return _flowStarDisplayName(a).compareTo(_flowStarDisplayName(b));
       });
@@ -1037,17 +1046,10 @@ class PalaceCellWidget extends ConsumerWidget {
       ];
     }
     if (state.currentMonth != null) {
-      return const [
-        ZiweiScope.month,
-        ZiweiScope.year,
-        ZiweiScope.decade,
-      ];
+      return const [ZiweiScope.month, ZiweiScope.year, ZiweiScope.decade];
     }
     if (state.currentYear != null) {
-      return const [
-        ZiweiScope.year,
-        ZiweiScope.decade,
-      ];
+      return const [ZiweiScope.year, ZiweiScope.decade];
     }
     if (state.currentDecade != null) {
       return const [ZiweiScope.decade];
@@ -1100,6 +1102,10 @@ class PalaceCellWidget extends ConsumerWidget {
 
   String _getBrightnessKey(Star star) {
     if (star is StaticStar) {
+      final bIndex = star.getBrightness(palace.branch);
+      return plate.ruleset.brightnessLabels[bIndex] ?? 'level_none';
+    }
+    if (star is FlowStar) {
       final bIndex = star.getBrightness(palace.branch);
       return plate.ruleset.brightnessLabels[bIndex] ?? 'level_none';
     }
