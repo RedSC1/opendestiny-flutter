@@ -1,0 +1,244 @@
+name: Build Artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-artifacts-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_CHANNEL: stable
+  APP_NAME: opendestiny
+  APP_DIR: opendestiny-flutter
+
+jobs:
+  windows-exe:
+    name: Windows EXE
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.APP_DIR }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Build Windows release
+        run: flutter build windows --release
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Package Windows artifact
+        shell: pwsh
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          Compress-Archive `
+            -Path build/windows/x64/runner/Release/* `
+            -DestinationPath dist/${{ env.APP_NAME }}-windows-x64.zip `
+            -Force
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: ${{ env.APP_DIR }}/dist/${{ env.APP_NAME }}-windows-x64.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  android-apk:
+    name: Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.APP_DIR }}
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Build Android release APK
+        run: flutter build apk --release
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Collect Android artifact
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/${{ env.APP_NAME }}-android-release.apk
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: ${{ env.APP_DIR }}/dist/${{ env.APP_NAME }}-android-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  macos-package:
+    name: macOS Package
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.APP_DIR }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Enable macOS desktop
+        run: flutter config --enable-macos-desktop
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Build macOS release
+        run: flutter build macos --release
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Package macOS artifact
+        run: |
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/macos/Build/Products/Release/${{ env.APP_NAME }}.app \
+            dist/${{ env.APP_NAME }}-macos.zip
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-package
+          path: ${{ env.APP_DIR }}/dist/${{ env.APP_NAME }}-macos.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  web-zip:
+    name: Web ZIP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.APP_DIR }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Enable web
+        run: flutter config --enable-web
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Build web release
+        run: flutter build web --release
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Package web artifact
+        run: |
+          mkdir -p dist
+          cd build/web
+          zip -r ../../dist/${{ env.APP_NAME }}-web.zip .
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-zip
+          path: ${{ env.APP_DIR }}/dist/${{ env.APP_NAME }}-web.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs:
+      - windows-exe
+      - android-apk
+      - macos-package
+      - web-zip
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-exe
+          path: dist/windows-exe
+
+      - name: Download Android artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: dist/android-apk
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-package
+          path: dist/macos-package
+
+      - name: Download Web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-zip
+          path: dist/web-zip
+
+      - name: Create or update GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/windows-exe/${{ env.APP_NAME }}-windows-x64.zip
+            dist/android-apk/${{ env.APP_NAME }}-android-release.apk
+            dist/macos-package/${{ env.APP_NAME }}-macos.zip
+            dist/web-zip/${{ env.APP_NAME }}-web.zip
