@@ -23,7 +23,7 @@ mixin _$ZiweiUIState {
   ZiweiRuleset get ruleset => throw _privateConstructorUsedError; // 基础规则
   TimelineManifest get manifest =>
       throw _privateConstructorUsedError; // 当前流运清单快照
-  Decade? get currentDecade => throw _privateConstructorUsedError; // 游标：大限
+  Decade? get currentDecade => throw _privateConstructorUsedError; // 游标：大限 / 童限
   FlowYear? get currentYear => throw _privateConstructorUsedError; // 游标：流年
   FlowMonth? get currentMonth => throw _privateConstructorUsedError; // 游标：流月
   bool? get currentMonthIsLeap =>
@@ -272,7 +272,7 @@ class _$ZiweiUIStateImpl implements _ZiweiUIState {
   // 当前流运清单快照
   @override
   final Decade? currentDecade;
-  // 游标：大限
+  // 游标：大限 / 童限
   @override
   final FlowYear? currentYear;
   // 游标：流年
@@ -371,7 +371,7 @@ abstract class _ZiweiUIState implements ZiweiUIState {
   @override
   TimelineManifest get manifest; // 当前流运清单快照
   @override
-  Decade? get currentDecade; // 游标：大限
+  Decade? get currentDecade; // 游标：大限 / 童限
   @override
   FlowYear? get currentYear; // 游标：流年
   @override

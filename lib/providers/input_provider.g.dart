@@ -6,7 +6,58 @@ part of 'input_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$inputNotifierHash() => r'b988b866a1643c9eed15a51cb717646180ff098a';
+String _$appSettingsHash() => r'dd92da0b6c877fec51da4b98ef5c004ccbd34845';
+
+/// See also [appSettings].
+@ProviderFor(appSettings)
+final appSettingsProvider = AutoDisposeProvider<AppSettings>.internal(
+  appSettings,
+  name: r'appSettingsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$appSettingsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AppSettingsRef = AutoDisposeProviderRef<AppSettings>;
+String _$currentCaseHash() => r'490f1b8fc93d0ae789724eb3a7b96a102bace978';
+
+/// See also [currentCase].
+@ProviderFor(currentCase)
+final currentCaseProvider = AutoDisposeProvider<DestinyCase>.internal(
+  currentCase,
+  name: r'currentCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$currentCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CurrentCaseRef = AutoDisposeProviderRef<DestinyCase>;
+String _$caseSummariesHash() => r'314369c1fdfe13ebcb03394fb4fdb6ad05a55170';
+
+/// See also [caseSummaries].
+@ProviderFor(caseSummaries)
+final caseSummariesProvider = AutoDisposeProvider<List<CaseSummary>>.internal(
+  caseSummaries,
+  name: r'caseSummariesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$caseSummariesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CaseSummariesRef = AutoDisposeProviderRef<List<CaseSummary>>;
+String _$inputNotifierHash() => r'13e7b41d79704521b97d3138cd41778708a5197e';
 
 /// See also [InputNotifier].
 @ProviderFor(InputNotifier)

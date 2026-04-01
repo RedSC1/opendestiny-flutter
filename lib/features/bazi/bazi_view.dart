@@ -6,6 +6,7 @@ import 'widgets/bazi_chart_board.dart';
 import 'widgets/bazi_tab_switcher.dart';
 import 'widgets/fortune_flow_board.dart';
 import '../../core/l10n.dart';
+import '../../providers/input_provider.dart';
 
 // 1. 状态管理
 enum BaziBottomTab { taiMingShen, fortune }
@@ -29,6 +30,7 @@ class BaziView extends ConsumerWidget {
     final currentTab = ref.watch(baziBottomTabProvider);
     final dayGan = baziChart.bazi.day.gan;
     final showInteractions = ref.watch(showInteractionProvider);
+    final appSettings = ref.watch(appSettingsProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -43,7 +45,12 @@ class BaziView extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: BaziHeader(chart: baziChart)),
+                  Expanded(
+                    child: BaziHeader(
+                      chart: baziChart,
+                      showTrueSolarTime: appSettings.useTrueSolarTime,
+                    ),
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [

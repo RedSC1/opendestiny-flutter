@@ -4,8 +4,13 @@ import '../../../core/l10n.dart';
 
 class BaziHeader extends StatelessWidget {
   final BaziChart chart;
+  final bool showTrueSolarTime;
 
-  const BaziHeader({super.key, required this.chart});
+  const BaziHeader({
+    super.key,
+    required this.chart,
+    required this.showTrueSolarTime,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +38,11 @@ class BaziHeader extends StatelessWidget {
           children: [
             Text('${'公历'.tr}：${chart.time.bjClt}', style: const TextStyle(fontSize: 14)),
             Text('${'农历'.tr}：${chart.lunarDate}', style: const TextStyle(fontSize: 14, color: Colors.black54)),
+            if (showTrueSolarTime)
+              Text(
+                '${'真太阳时'.tr}：${chart.time.solarTime.trueSolarTime}',
+                style: const TextStyle(fontSize: 14, color: Colors.deepPurple),
+              ),
           ],
         ),
       ],

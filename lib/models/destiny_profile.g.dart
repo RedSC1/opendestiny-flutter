@@ -62,6 +62,10 @@ _$ZiweiOptionsImpl _$$ZiweiOptionsImplFromJson(Map<String, dynamic> json) =>
       flowLimitBasedOn:
           $enumDecodeNullable(_$BoundaryEnumMap, json['flowLimitBasedOn']) ??
           Boundary.lunar,
+      siHuaMode:
+          $enumDecodeNullable(_$ZiweiSiHuaModeEnumMap, json['siHuaMode']) ??
+          ZiweiSiHuaMode.builtin,
+      customSiHuaJson: json['customSiHuaJson'] as String? ?? '',
       flowStarDisplay: json['flowStarDisplay'] == null
           ? const ZiweiFlowStarDisplayOptions()
           : ZiweiFlowStarDisplayOptions.fromJson(
@@ -81,8 +85,10 @@ Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
       'siHuaBasedOn': _$BoundaryEnumMap[instance.siHuaBasedOn]!,
       'childhoodRule': _$ChildhoodRoleEnumMap[instance.childhoodRule]!,
       'flowLimitBasedOn': _$BoundaryEnumMap[instance.flowLimitBasedOn]!,
-      'flowStarDisplay': instance.flowStarDisplay.toJson(),
-      'animation': instance.animation.toJson(),
+      'siHuaMode': _$ZiweiSiHuaModeEnumMap[instance.siHuaMode]!,
+      'customSiHuaJson': instance.customSiHuaJson,
+      'flowStarDisplay': instance.flowStarDisplay,
+      'animation': instance.animation,
     };
 
 const _$LeapMonthRuleEnumMap = {
@@ -98,18 +104,18 @@ const _$ChildhoodRoleEnumMap = {
   ChildhoodRole.regular: 'regular',
 };
 
+const _$ZiweiSiHuaModeEnumMap = {
+  ZiweiSiHuaMode.builtin: 'builtin',
+  ZiweiSiHuaMode.custom: 'custom',
+};
+
 _$DestinyProfileImpl _$$DestinyProfileImplFromJson(Map<String, dynamic> json) =>
     _$DestinyProfileImpl(
-      birthTime: DateTime.parse(json['birthTime'] as String),
+      birthInput: json['birthInput'] == null
+          ? const BirthInput()
+          : BirthInput.fromJson(json['birthInput'] as Map<String, dynamic>),
       gender:
           $enumDecodeNullable(_$GenderEnumMap, json['gender']) ?? Gender.male,
-      longitude: (json['longitude'] as num?)?.toDouble() ?? 120.0,
-      latitude: (json['latitude'] as num?)?.toDouble() ?? 30.0,
-      locationName: json['locationName'] as String? ?? '北京',
-      useTrueSolarTime: json['useTrueSolarTime'] as bool? ?? true,
-      ratHourMode:
-          $enumDecodeNullable(_$RatHourModeEnumMap, json['ratHourMode']) ??
-          RatHourMode.noSplit,
       language:
           $enumDecodeNullable(_$AppLanguageEnumMap, json['language']) ??
           AppLanguage.zhCN,
@@ -124,25 +130,14 @@ _$DestinyProfileImpl _$$DestinyProfileImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$DestinyProfileImplToJson(
   _$DestinyProfileImpl instance,
 ) => <String, dynamic>{
-  'birthTime': instance.birthTime.toIso8601String(),
+  'birthInput': instance.birthInput,
   'gender': _$GenderEnumMap[instance.gender]!,
-  'longitude': instance.longitude,
-  'latitude': instance.latitude,
-  'locationName': instance.locationName,
-  'useTrueSolarTime': instance.useTrueSolarTime,
-  'ratHourMode': _$RatHourModeEnumMap[instance.ratHourMode]!,
   'language': _$AppLanguageEnumMap[instance.language]!,
   'baziOptions': instance.baziOptions,
   'ziweiOptions': instance.ziweiOptions,
 };
 
 const _$GenderEnumMap = {Gender.male: 'male', Gender.female: 'female'};
-
-const _$RatHourModeEnumMap = {
-  RatHourMode.noSplit: 'noSplit',
-  RatHourMode.todayGan: 'todayGan',
-  RatHourMode.tomorrowGan: 'tomorrowGan',
-};
 
 const _$AppLanguageEnumMap = {
   AppLanguage.zhCN: 'zhCN',

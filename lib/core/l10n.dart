@@ -204,11 +204,23 @@ extension StringL10n on String {
   static const _uiMap = {
     // 导航与基础
     '资料': {AppLanguage.en: 'Profile', AppLanguage.zhTW: '資料'},
+    '案例库': {AppLanguage.en: 'Case Library', AppLanguage.zhTW: '案例庫'},
+    '当前时间': {AppLanguage.en: 'Current Time', AppLanguage.zhTW: '當前時間'},
+    '未存档草稿': {AppLanguage.en: 'Unsaved Draft', AppLanguage.zhTW: '未存檔草稿'},
+    '新建案例': {AppLanguage.en: 'New Case', AppLanguage.zhTW: '新建案例'},
+    '删除案例': {AppLanguage.en: 'Delete Case', AppLanguage.zhTW: '刪除案例'},
+    '删除': {AppLanguage.en: 'Delete', AppLanguage.zhTW: '刪除'},
+    '确定要删除「': {
+      AppLanguage.en: 'Are you sure you want to delete "',
+      AppLanguage.zhTW: '確定要刪除「',
+    },
+    '」吗？': {AppLanguage.en: '"?', AppLanguage.zhTW: '」嗎？'},
     '八字': {AppLanguage.en: 'Bazi', AppLanguage.zhTW: '八字'},
     '个人资料': {AppLanguage.en: 'Profile', AppLanguage.zhTW: '個人資料'},
     '八字排盘': {AppLanguage.en: 'Bazi Chart', AppLanguage.zhTW: '八字排盤'},
     '连线图': {AppLanguage.en: 'Diagram', AppLanguage.zhTW: '連線圖'},
     '设置': {AppLanguage.en: 'Settings', AppLanguage.zhTW: '設置'},
+    '关于': {AppLanguage.en: 'About', AppLanguage.zhTW: '關於'},
     '乾造': {AppLanguage.en: 'Male', AppLanguage.zhTW: '乾造'},
     '坤造': {AppLanguage.en: 'Female', AppLanguage.zhTW: '坤造'},
     '注：神煞功能暂未进行精确人工校对，结果仅供参考。': {
@@ -220,13 +232,104 @@ extension StringL10n on String {
 
     // 资料页
     '出生信息录入': {AppLanguage.en: 'Birth Information', AppLanguage.zhTW: '出生信息錄入'},
+    '编辑资料': {AppLanguage.en: 'Edit Profile', AppLanguage.zhTW: '編輯資料'},
+    '编辑': {AppLanguage.en: 'Edit', AppLanguage.zhTW: '編輯'},
+    '当前正在编辑未存档草稿': {
+      AppLanguage.en: 'Editing unsaved draft',
+      AppLanguage.zhTW: '當前正在編輯未存檔草稿',
+    },
+    '当前案例：': {AppLanguage.en: 'Current Case: ', AppLanguage.zhTW: '當前案例：'},
+    '自动保存': {AppLanguage.en: 'Auto Save', AppLanguage.zhTW: '自動保存'},
+    '编辑姓名': {AppLanguage.en: 'Edit Name', AppLanguage.zhTW: '編輯姓名'},
+    '编辑出生地点与时区': {
+      AppLanguage.en: 'Edit Location & Timezone',
+      AppLanguage.zhTW: '編輯出生地點與時區',
+    },
+    '选择城市': {AppLanguage.en: 'Choose City', AppLanguage.zhTW: '選擇城市'},
+    '地点名称': {AppLanguage.en: 'Location Name', AppLanguage.zhTW: '地點名稱'},
+    '经度 (-180 ~ 180)': {
+      AppLanguage.en: 'Longitude (-180 ~ 180)',
+      AppLanguage.zhTW: '經度 (-180 ~ 180)',
+    },
+    '纬度 (-90 ~ 90)': {
+      AppLanguage.en: 'Latitude (-90 ~ 90)',
+      AppLanguage.zhTW: '緯度 (-90 ~ 90)',
+    },
+    '时区 (UTC+)': {
+      AppLanguage.en: 'Timezone (UTC+)',
+      AppLanguage.zhTW: '時區 (UTC+)',
+    },
+    '请输入有效的数字': {
+      AppLanguage.en: 'Please enter valid numbers',
+      AppLanguage.zhTW: '請輸入有效的數字',
+    },
+    '经纬度超出范围': {
+      AppLanguage.en: 'Longitude or latitude out of range',
+      AppLanguage.zhTW: '經緯度超出範圍',
+    },
+    '输入超出合理范围': {
+      AppLanguage.en: 'Input out of valid range',
+      AppLanguage.zhTW: '輸入超出合理範圍',
+    },
+    '日期不合法，请检查输入': {
+      AppLanguage.en: 'Invalid date, please check input',
+      AppLanguage.zhTW: '日期不合法，請檢查輸入',
+    },
+    '高级模式（直接输入月份名称）': {
+      AppLanguage.en: 'Advanced Mode (enter lunar month name directly)',
+      AppLanguage.zhTW: '高級模式（直接輸入月份名稱）',
+    },
+    '月（如：正、二、后九、十三）': {
+      AppLanguage.en: 'Month (e.g. 正, 二, 后九, 十三)',
+      AppLanguage.zhTW: '月（如：正、二、後九、十三）',
+    },
+    '月份必须在 1-12 之间': {
+      AppLanguage.en: 'Month must be between 1 and 12',
+      AppLanguage.zhTW: '月份必須在 1-12 之間',
+    },
+    '农历日期不合法：': {
+      AppLanguage.en: 'Invalid lunar date: ',
+      AppLanguage.zhTW: '農曆日期不合法：',
+    },
+    '省': {AppLanguage.en: 'Province', AppLanguage.zhTW: '省'},
+    '市': {AppLanguage.en: 'City', AppLanguage.zhTW: '市'},
+    '区': {AppLanguage.en: 'District', AppLanguage.zhTW: '區'},
     '出生日期与时间': {AppLanguage.en: 'Date & Time', AppLanguage.zhTW: '出生日期與時間'},
+    '输入历法': {AppLanguage.en: 'Input Calendar', AppLanguage.zhTW: '輸入曆法'},
+    '公历出生时间': {AppLanguage.en: 'Solar Birth Time', AppLanguage.zhTW: '公曆出生時間'},
+    '农历出生时间': {AppLanguage.en: 'Lunar Birth Time', AppLanguage.zhTW: '農曆出生時間'},
+    '编辑公历出生时间': {
+      AppLanguage.en: 'Edit Solar Birth Time',
+      AppLanguage.zhTW: '編輯公曆出生時間',
+    },
+    '编辑农历出生时间': {
+      AppLanguage.en: 'Edit Lunar Birth Time',
+      AppLanguage.zhTW: '編輯農曆出生時間',
+    },
+    '出生地点与时区': {
+      AppLanguage.en: 'Location & Timezone',
+      AppLanguage.zhTW: '出生地點與時區',
+    },
+    '使用整数输入以支持公元前与农历原始录入': {
+      AppLanguage.en:
+          'Use integer input to support BCE dates and raw lunar entry',
+      AppLanguage.zhTW: '使用整數輸入以支援公元前與農曆原始錄入',
+    },
     '性别': {AppLanguage.en: 'Gender', AppLanguage.zhTW: '性別'},
     '乾 (男)': {AppLanguage.en: 'Male', AppLanguage.zhTW: '乾 (男)'},
     '坤 (女)': {AppLanguage.en: 'Female', AppLanguage.zhTW: '坤 (女)'},
     '出生地点': {AppLanguage.en: 'Birth Location', AppLanguage.zhTW: '出生地點'},
+    '姓名': {AppLanguage.en: 'Name', AppLanguage.zhTW: '姓名'},
+    '案例': {AppLanguage.en: 'Case', AppLanguage.zhTW: '案例'},
     '经度': {AppLanguage.en: 'Longitude', AppLanguage.zhTW: '經度'},
+    '纬度': {AppLanguage.en: 'Latitude', AppLanguage.zhTW: '緯度'},
+    '时区': {AppLanguage.en: 'Timezone', AppLanguage.zhTW: '時區'},
     '北京': {AppLanguage.en: 'Beijing', AppLanguage.zhTW: '北京'},
+    '保存': {AppLanguage.en: 'Save', AppLanguage.zhTW: '保存'},
+    '取消': {AppLanguage.en: 'Cancel', AppLanguage.zhTW: '取消'},
+    '秒': {AppLanguage.en: 'Second', AppLanguage.zhTW: '秒'},
+    '分': {AppLanguage.en: 'Minute', AppLanguage.zhTW: '分'},
+    '闰月': {AppLanguage.en: 'Leap Month', AppLanguage.zhTW: '閏月'},
     '日期格式': {
       AppLanguage.en: 'MMM dd, yyyy HH:mm',
       AppLanguage.zhTW: 'yyyy年MM月dd日 HH:mm',
@@ -237,7 +340,8 @@ extension StringL10n on String {
     '命主': {AppLanguage.zhTW: '命主'},
     '身主': {AppLanguage.zhTW: '身主'},
     '农': {AppLanguage.zhTW: '農'},
-    '年': {AppLanguage.zhTW: '年'},
+    '年': {AppLanguage.en: 'Year', AppLanguage.zhTW: '年'},
+    '时': {AppLanguage.en: 'Hour', AppLanguage.zhTW: '時'},
     '闰': {AppLanguage.zhTW: '閏'},
 
     // 设置主页
@@ -849,6 +953,19 @@ extension StringL10n on String {
       AppLanguage.zhTW: '閏月整月算作當月',
     },
     '四化基准点': {AppLanguage.en: 'SiHua Standard', AppLanguage.zhTW: '四化基準點'},
+    '四化流派': {AppLanguage.en: 'SiHua School', AppLanguage.zhTW: '四化流派'},
+    '内置规则': {AppLanguage.en: 'Built-in Rules', AppLanguage.zhTW: '內置規則'},
+    '使用系统默认四化表': {
+      AppLanguage.en: 'Use system default SiHua rules',
+      AppLanguage.zhTW: '使用系統默認四化表',
+    },
+    '自定义规则': {AppLanguage.en: 'Custom Rules', AppLanguage.zhTW: '自定義規則'},
+    '手动编辑十天干禄权科忌': {
+      AppLanguage.en: 'Edit Lu Quan Ke Ji for ten stems manually',
+      AppLanguage.zhTW: '手動編輯十天干祿權科忌',
+    },
+    '四化设置': {AppLanguage.en: ' SiHua Settings', AppLanguage.zhTW: '四化設置'},
+    '未设置': {AppLanguage.en: 'Unset', AppLanguage.zhTW: '未設置'},
     '四化天干跟随农历': {
       AppLanguage.en: 'SiHua follows Lunar stem',
       AppLanguage.zhTW: '四化天干跟隨農曆',
@@ -935,6 +1052,18 @@ extension StringL10n on String {
       AppLanguage.en: 'Solar terms for month, LiChun for year',
       AppLanguage.zhTW: '交節換月，立春換年',
     },
+
+    // 紫微中宫与基础信息
+    '阳男': {AppLanguage.en: 'Yang Male', AppLanguage.zhTW: '陽男'},
+    '阴男': {AppLanguage.en: 'Yin Male', AppLanguage.zhTW: '陰男'},
+    '阳女': {AppLanguage.en: 'Yang Female', AppLanguage.zhTW: '陽女'},
+    '阴女': {AppLanguage.en: 'Yin Female', AppLanguage.zhTW: '陰女'},
+    '木三局': {AppLanguage.en: 'Wood 3', AppLanguage.zhTW: '木三局'},
+    '火六局': {AppLanguage.en: 'Fire 6', AppLanguage.zhTW: '火六局'},
+    '土五局': {AppLanguage.en: 'Earth 5', AppLanguage.zhTW: '土五局'},
+    '金四局': {AppLanguage.en: 'Metal 4', AppLanguage.zhTW: '金四局'},
+    '水二局': {AppLanguage.en: 'Water 2', AppLanguage.zhTW: '水二局'},
+    '匿名': {AppLanguage.en: 'Anonymous', AppLanguage.zhTW: '匿名'},
   };
 }
 

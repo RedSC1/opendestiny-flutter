@@ -326,11 +326,28 @@ const _palaceTranslation = {
 };
 
 const _sihuaTranslation = {
-  SiHuaType.lu: {AppLanguage.zhCN: '禄', AppLanguage.zhTW: '祿'},
-  SiHuaType.quan: {AppLanguage.zhCN: '权', AppLanguage.zhTW: '權'},
-  SiHuaType.ke: {AppLanguage.zhCN: '科', AppLanguage.zhTW: '科'},
-  SiHuaType.ji: {AppLanguage.zhCN: '忌', AppLanguage.zhTW: '忌'},
+  SiHuaType.lu: {
+    AppLanguage.zhCN: '禄',
+    AppLanguage.zhTW: '祿',
+    AppLanguage.en: 'Lu',
+  },
+  SiHuaType.quan: {
+    AppLanguage.zhCN: '权',
+    AppLanguage.zhTW: '權',
+    AppLanguage.en: 'Quan',
+  },
+  SiHuaType.ke: {
+    AppLanguage.zhCN: '科',
+    AppLanguage.zhTW: '科',
+    AppLanguage.en: 'Ke',
+  },
+  SiHuaType.ji: {
+    AppLanguage.zhCN: '忌',
+    AppLanguage.zhTW: '忌',
+    AppLanguage.en: 'Ji',
+  },
 };
+
 
 const _brightnessTranslation = {
   'level_miao': {AppLanguage.zhCN: '庙', AppLanguage.zhTW: '廟'},

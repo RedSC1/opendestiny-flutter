@@ -44,7 +44,7 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
     final selM = ref.watch(selMonthIdxProvider);
     final selDay = ref.watch(selDayIdxProvider);
     final selH = ref.watch(selHourIdxProvider);
-    final ratHourMode = ref.watch(inputNotifierProvider).ratHourMode;
+    final ratHourMode = ref.watch(appSettingsProvider).ratHourMode;
 
     final now = AstroDateTime.fromDateTime(DateTime.now());
     final currentLichunJD = getSpecificJieQi(now.year, 21);

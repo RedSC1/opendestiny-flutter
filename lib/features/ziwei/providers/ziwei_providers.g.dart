@@ -6,7 +6,7 @@ part of 'ziwei_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ziweiRulesetHash() => r'd22469350b6327880bbf9fe3d26891391cd11d80';
+String _$ziweiRulesetHash() => r'7263172999082c9a6e51f4297824bb2d976a4e87';
 
 /// 1. 负责把 UI 层的 [ZiweiOptions] 转译为底层的 [ZiweiRuleset]
 ///
@@ -25,7 +25,7 @@ final ziweiRulesetProvider = AutoDisposeProvider<ZiweiRuleset>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ZiweiRulesetRef = AutoDisposeProviderRef<ZiweiRuleset>;
-String _$originDateHash() => r'1d5a1abb22694f7dfdf2e12041151fecf35b53df';
+String _$originDateHash() => r'23e12bbfb0b5b1a9bd2cf17b73154caa75f278b8';
 
 /// 2. 负责构建底层基准时间 [ZiweiDate]
 ///
@@ -44,7 +44,7 @@ final originDateProvider = AutoDisposeProvider<ZiweiDate>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef OriginDateRef = AutoDisposeProviderRef<ZiweiDate>;
-String _$ziweiUIManagerHash() => r'd35a882560c5f10b76e81805de352724a4612332';
+String _$ziweiUIManagerHash() => r'7d295a10256d3f2fb8d3100053649543488d335e';
 
 /// 4. 终极状态管家 Manager
 /// 接管底部表格的交互，控制流运变更，并将带有流动星曜的动态盘面推给 UI

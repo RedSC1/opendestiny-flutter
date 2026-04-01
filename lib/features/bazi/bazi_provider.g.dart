@@ -6,7 +6,7 @@ part of 'bazi_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$baziChartHash() => r'd90e694459bf67e45ed238eeb7bd1ee971f23bc9';
+String _$baziChartHash() => r'238bbb7c087a1a7d8bb8dffb96602638f1cf929a';
 
 /// See also [baziChart].
 @ProviderFor(baziChart)
@@ -23,7 +23,7 @@ final baziChartProvider = AutoDisposeProvider<BaziChart>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef BaziChartRef = AutoDisposeProviderRef<BaziChart>;
-String _$fortuneTableHash() => r'290fa7b6b3eef1f6332484c50d73ca8d2949954c';
+String _$fortuneTableHash() => r'e150e70d11ebe55b7cccba4bd81fab3f96f12534';
 
 /// See also [fortuneTable].
 @ProviderFor(fortuneTable)

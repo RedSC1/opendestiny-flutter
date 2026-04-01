@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart'; 
+import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../../providers/input_provider.dart';
 import '../../core/l10n.dart'; // ✅ 确保引用了语言定义
 import 'bazi_settings_view.dart';
 import 'ziwei_settings_view.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../core/app_version.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsView extends ConsumerWidget {
   const SettingsView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final birthData = ref.watch(inputNotifierProvider);
+    final profile = ref.watch(inputNotifierProvider);
+    final settings = ref.watch(appSettingsProvider);
 
     return ListView(
       padding: const EdgeInsets.all(16.0),
@@ -20,36 +24,40 @@ class SettingsView extends ConsumerWidget {
         RadioListTile<AppLanguage>(
           title: const Text('简体中文'),
           value: AppLanguage.zhCN,
-          groupValue: birthData.language,
+          groupValue: profile.language,
           onChanged: (val) {
-            if (val != null) ref.read(inputNotifierProvider.notifier).updateLanguage(val);
+            if (val != null)
+              ref.read(inputNotifierProvider.notifier).updateLanguage(val);
           },
         ),
         RadioListTile<AppLanguage>(
           title: const Text('繁體中文'),
           value: AppLanguage.zhTW,
-          groupValue: birthData.language,
+          groupValue: profile.language,
           onChanged: (val) {
-            if (val != null) ref.read(inputNotifierProvider.notifier).updateLanguage(val);
+            if (val != null)
+              ref.read(inputNotifierProvider.notifier).updateLanguage(val);
           },
         ),
         RadioListTile<AppLanguage>(
           title: const Text('English'),
           value: AppLanguage.en,
-          groupValue: birthData.language,
+          groupValue: profile.language,
           onChanged: (val) {
-            if (val != null) ref.read(inputNotifierProvider.notifier).updateLanguage(val);
+            if (val != null)
+              ref.read(inputNotifierProvider.notifier).updateLanguage(val);
           },
         ),
 
         const Divider(),
         _buildSectionTitle('全局历法配置'.tr),
-        
+
         SwitchListTile(
           title: Text('真太阳时修正'.tr),
           subtitle: Text('基于地理位置计算平太阳时误差'.tr),
-          value: birthData.useTrueSolarTime,
-          onChanged: (val) => ref.read(inputNotifierProvider.notifier).toggleTrueSolarTime(val),
+          value: settings.useTrueSolarTime,
+          onChanged: (val) =>
+              ref.read(inputNotifierProvider.notifier).toggleTrueSolarTime(val),
         ),
 
         const Divider(),
@@ -58,27 +66,30 @@ class SettingsView extends ConsumerWidget {
           title: Text('不分早晚子 (传统派)'.tr),
           subtitle: Text('23:00 准时换日'.tr),
           value: RatHourMode.noSplit,
-          groupValue: birthData.ratHourMode,
+          groupValue: settings.ratHourMode,
           onChanged: (val) {
-            if (val != null) ref.read(inputNotifierProvider.notifier).updateRatHourMode(val);
+            if (val != null)
+              ref.read(inputNotifierProvider.notifier).updateRatHourMode(val);
           },
         ),
         RadioListTile<RatHourMode>(
           title: Text('晚子算当天 + 明天天干 (主流)'.tr),
           subtitle: Text('00:00 换日，23:00-00:00 借用明天天干'.tr),
           value: RatHourMode.tomorrowGan,
-          groupValue: birthData.ratHourMode,
+          groupValue: settings.ratHourMode,
           onChanged: (val) {
-            if (val != null) ref.read(inputNotifierProvider.notifier).updateRatHourMode(val);
+            if (val != null)
+              ref.read(inputNotifierProvider.notifier).updateRatHourMode(val);
           },
         ),
         RadioListTile<RatHourMode>(
           title: Text('晚子算当天 + 今天天干 (古法)'.tr),
           subtitle: Text('00:00 换日，23:00-00:00 使用今天天干'.tr),
           value: RatHourMode.todayGan,
-          groupValue: birthData.ratHourMode,
+          groupValue: settings.ratHourMode,
           onChanged: (val) {
-            if (val != null) ref.read(inputNotifierProvider.notifier).updateRatHourMode(val);
+            if (val != null)
+              ref.read(inputNotifierProvider.notifier).updateRatHourMode(val);
           },
         ),
 
@@ -101,7 +112,56 @@ class SettingsView extends ConsumerWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ZiweiSettingsView()),
+              MaterialPageRoute(
+                builder: (context) => const ZiweiSettingsView(),
+              ),
+            );
+          },
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.info_outline),
+          title: Text('关于'.tr),
+          onTap: () {
+            showAboutDialog(
+              context: context,
+              applicationName: 'OpenDestiny',
+              applicationVersion: AppVersion.current,
+              applicationIcon: SizedBox(
+                width: 64,
+                height: 64,
+                child: SvgPicture.asset(
+                  'assets/images/shubanlogo.svg',
+                  fit: BoxFit.contain,
+                ),
+              ),
+              applicationLegalese:
+                  'Copyright © 2026 RedSC1\nLicensed under MIT',
+              children: [
+                const SizedBox(height: 20),
+                const Text('开源易学排盘工具，支持八字与紫微斗数。更多功能正在开发中。'),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () async {
+                    final url = Uri.parse(
+                      'https://github.com/RedSC1/opendestiny-flutter',
+                    );
+                    if (await canLaunchUrl(url)) {
+                      await launchUrl(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
+                  child: Text(
+                    'GitHub: https://github.com/RedSC1/opendestiny-flutter',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
             );
           },
         ),
@@ -114,7 +174,11 @@ class SettingsView extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Colors.deepPurple,
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:bazi_core/bazi_core.dart';
-import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
+import '../../models/destiny_profile.dart';
 import '../../providers/input_provider.dart';
 
 part 'bazi_provider.g.dart';
@@ -8,20 +8,34 @@ part 'bazi_provider.g.dart';
 @riverpod
 BaziChart baziChart(BaziChartRef ref) {
   final profile = ref.watch(inputNotifierProvider);
-  
-  final solarTime = AstroDateTime(
-    profile.birthTime.year,
-    profile.birthTime.month,
-    profile.birthTime.day,
-    profile.birthTime.hour,
-    profile.birthTime.minute,
-  );
-  
+  final settings = ref.watch(appSettingsProvider);
+  final birthInput = profile.birthInput;
+
+  if (birthInput.calendarType == BirthCalendarType.lunar) {
+    final lunar = birthInput.lunar;
+    return BaziChart.createByLunarDate(
+      year: lunar.year,
+      monthName: lunar.month,
+      day: lunar.day,
+      hour: lunar.hour,
+      minute: lunar.minute,
+      second: lunar.second,
+      isleap: lunar.isLeap,
+      location: birthInput.location,
+      timeZone: birthInput.timeZone,
+      useTrueSolarTime: settings.useTrueSolarTime,
+      ratHourMode: settings.ratHourMode,
+      gender: profile.gender,
+      siLingVersion: profile.baziOptions.siLingVersion,
+    );
+  }
+
   return BaziChart.createBySolarDate(
-    clockTime: solarTime,
-    location: Location(profile.longitude, profile.latitude),
-    useTrueSolarTime: profile.useTrueSolarTime,
-    ratHourMode: profile.ratHourMode,
+    clockTime: birthInput.solar.toAstroDateTime(),
+    location: birthInput.location,
+    timeZone: birthInput.timeZone,
+    useTrueSolarTime: settings.useTrueSolarTime,
+    ratHourMode: settings.ratHourMode,
     gender: profile.gender,
     siLingVersion: profile.baziOptions.siLingVersion,
   );
@@ -30,12 +44,11 @@ BaziChart baziChart(BaziChartRef ref) {
 @riverpod
 FortuneTable fortuneTable(FortuneTableRef ref) {
   final chart = ref.watch(baziChartProvider);
-  final profile = ref.watch(inputNotifierProvider);
   
   final fortune = Fortune.createByBaziChart(chart);
   return FortuneTable.build(
     fortune, 
     decadeCount: 12, 
-    ratHourMode: profile.ratHourMode, // ✅ 传入新的枚举模式
+    ratHourMode: ref.watch(appSettingsProvider).ratHourMode,
   );
 }

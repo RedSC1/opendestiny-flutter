@@ -241,6 +241,8 @@ mixin _$ZiweiOptions {
   Boundary get siHuaBasedOn => throw _privateConstructorUsedError;
   ChildhoodRole get childhoodRule => throw _privateConstructorUsedError;
   Boundary get flowLimitBasedOn => throw _privateConstructorUsedError;
+  ZiweiSiHuaMode get siHuaMode => throw _privateConstructorUsedError;
+  String get customSiHuaJson => throw _privateConstructorUsedError;
   ZiweiFlowStarDisplayOptions get flowStarDisplay =>
       throw _privateConstructorUsedError;
   ZiweiAnimationOptions get animation => throw _privateConstructorUsedError;
@@ -268,6 +270,8 @@ abstract class $ZiweiOptionsCopyWith<$Res> {
     Boundary siHuaBasedOn,
     ChildhoodRole childhoodRule,
     Boundary flowLimitBasedOn,
+    ZiweiSiHuaMode siHuaMode,
+    String customSiHuaJson,
     ZiweiFlowStarDisplayOptions flowStarDisplay,
     ZiweiAnimationOptions animation,
   });
@@ -293,6 +297,8 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
     Object? siHuaBasedOn = null,
     Object? childhoodRule = null,
     Object? flowLimitBasedOn = null,
+    Object? siHuaMode = null,
+    Object? customSiHuaJson = null,
     Object? flowStarDisplay = null,
     Object? animation = null,
   }) {
@@ -318,6 +324,14 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
                 ? _value.flowLimitBasedOn
                 : flowLimitBasedOn // ignore: cast_nullable_to_non_nullable
                       as Boundary,
+            siHuaMode: null == siHuaMode
+                ? _value.siHuaMode
+                : siHuaMode // ignore: cast_nullable_to_non_nullable
+                      as ZiweiSiHuaMode,
+            customSiHuaJson: null == customSiHuaJson
+                ? _value.customSiHuaJson
+                : customSiHuaJson // ignore: cast_nullable_to_non_nullable
+                      as String,
             flowStarDisplay: null == flowStarDisplay
                 ? _value.flowStarDisplay
                 : flowStarDisplay // ignore: cast_nullable_to_non_nullable
@@ -347,6 +361,8 @@ abstract class _$$ZiweiOptionsImplCopyWith<$Res>
     Boundary siHuaBasedOn,
     ChildhoodRole childhoodRule,
     Boundary flowLimitBasedOn,
+    ZiweiSiHuaMode siHuaMode,
+    String customSiHuaJson,
     ZiweiFlowStarDisplayOptions flowStarDisplay,
     ZiweiAnimationOptions animation,
   });
@@ -371,6 +387,8 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
     Object? siHuaBasedOn = null,
     Object? childhoodRule = null,
     Object? flowLimitBasedOn = null,
+    Object? siHuaMode = null,
+    Object? customSiHuaJson = null,
     Object? flowStarDisplay = null,
     Object? animation = null,
   }) {
@@ -396,6 +414,14 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
             ? _value.flowLimitBasedOn
             : flowLimitBasedOn // ignore: cast_nullable_to_non_nullable
                   as Boundary,
+        siHuaMode: null == siHuaMode
+            ? _value.siHuaMode
+            : siHuaMode // ignore: cast_nullable_to_non_nullable
+                  as ZiweiSiHuaMode,
+        customSiHuaJson: null == customSiHuaJson
+            ? _value.customSiHuaJson
+            : customSiHuaJson // ignore: cast_nullable_to_non_nullable
+                  as String,
         flowStarDisplay: null == flowStarDisplay
             ? _value.flowStarDisplay
             : flowStarDisplay // ignore: cast_nullable_to_non_nullable
@@ -418,6 +444,8 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     this.siHuaBasedOn = Boundary.lunar,
     this.childhoodRule = ChildhoodRole.skip,
     this.flowLimitBasedOn = Boundary.lunar,
+    this.siHuaMode = ZiweiSiHuaMode.builtin,
+    this.customSiHuaJson = '',
     this.flowStarDisplay = const ZiweiFlowStarDisplayOptions(),
     this.animation = const ZiweiAnimationOptions(),
   });
@@ -442,6 +470,12 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
   final Boundary flowLimitBasedOn;
   @override
   @JsonKey()
+  final ZiweiSiHuaMode siHuaMode;
+  @override
+  @JsonKey()
+  final String customSiHuaJson;
+  @override
+  @JsonKey()
   final ZiweiFlowStarDisplayOptions flowStarDisplay;
   @override
   @JsonKey()
@@ -449,7 +483,7 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
 
   @override
   String toString() {
-    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, flowStarDisplay: $flowStarDisplay, animation: $animation)';
+    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, siHuaMode: $siHuaMode, customSiHuaJson: $customSiHuaJson, flowStarDisplay: $flowStarDisplay, animation: $animation)';
   }
 
   @override
@@ -467,6 +501,10 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
                 other.childhoodRule == childhoodRule) &&
             (identical(other.flowLimitBasedOn, flowLimitBasedOn) ||
                 other.flowLimitBasedOn == flowLimitBasedOn) &&
+            (identical(other.siHuaMode, siHuaMode) ||
+                other.siHuaMode == siHuaMode) &&
+            (identical(other.customSiHuaJson, customSiHuaJson) ||
+                other.customSiHuaJson == customSiHuaJson) &&
             (identical(other.flowStarDisplay, flowStarDisplay) ||
                 other.flowStarDisplay == flowStarDisplay) &&
             (identical(other.animation, animation) ||
@@ -482,6 +520,8 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     siHuaBasedOn,
     childhoodRule,
     flowLimitBasedOn,
+    siHuaMode,
+    customSiHuaJson,
     flowStarDisplay,
     animation,
   );
@@ -507,6 +547,8 @@ abstract class _ZiweiOptions implements ZiweiOptions {
     final Boundary siHuaBasedOn,
     final ChildhoodRole childhoodRule,
     final Boundary flowLimitBasedOn,
+    final ZiweiSiHuaMode siHuaMode,
+    final String customSiHuaJson,
     final ZiweiFlowStarDisplayOptions flowStarDisplay,
     final ZiweiAnimationOptions animation,
   }) = _$ZiweiOptionsImpl;
@@ -524,6 +566,10 @@ abstract class _ZiweiOptions implements ZiweiOptions {
   ChildhoodRole get childhoodRule;
   @override
   Boundary get flowLimitBasedOn;
+  @override
+  ZiweiSiHuaMode get siHuaMode;
+  @override
+  String get customSiHuaJson;
   @override
   ZiweiFlowStarDisplayOptions get flowStarDisplay;
   @override
@@ -543,14 +589,8 @@ DestinyProfile _$DestinyProfileFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$DestinyProfile {
-  DateTime get birthTime => throw _privateConstructorUsedError;
+  BirthInput get birthInput => throw _privateConstructorUsedError;
   Gender get gender => throw _privateConstructorUsedError;
-  double get longitude => throw _privateConstructorUsedError;
-  double get latitude => throw _privateConstructorUsedError;
-  String get locationName =>
-      throw _privateConstructorUsedError; // --- 全局历法开关 ---
-  bool get useTrueSolarTime => throw _privateConstructorUsedError;
-  RatHourMode get ratHourMode => throw _privateConstructorUsedError;
   AppLanguage get language => throw _privateConstructorUsedError;
   BaziOptions get baziOptions => throw _privateConstructorUsedError;
   ZiweiOptions get ziweiOptions => throw _privateConstructorUsedError;
@@ -573,13 +613,8 @@ abstract class $DestinyProfileCopyWith<$Res> {
   ) = _$DestinyProfileCopyWithImpl<$Res, DestinyProfile>;
   @useResult
   $Res call({
-    DateTime birthTime,
+    BirthInput birthInput,
     Gender gender,
-    double longitude,
-    double latitude,
-    String locationName,
-    bool useTrueSolarTime,
-    RatHourMode ratHourMode,
     AppLanguage language,
     BaziOptions baziOptions,
     ZiweiOptions ziweiOptions,
@@ -604,47 +639,22 @@ class _$DestinyProfileCopyWithImpl<$Res, $Val extends DestinyProfile>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? birthTime = null,
+    Object? birthInput = null,
     Object? gender = null,
-    Object? longitude = null,
-    Object? latitude = null,
-    Object? locationName = null,
-    Object? useTrueSolarTime = null,
-    Object? ratHourMode = null,
     Object? language = null,
     Object? baziOptions = null,
     Object? ziweiOptions = null,
   }) {
     return _then(
       _value.copyWith(
-            birthTime: null == birthTime
-                ? _value.birthTime
-                : birthTime // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
+            birthInput: null == birthInput
+                ? _value.birthInput
+                : birthInput // ignore: cast_nullable_to_non_nullable
+                      as BirthInput,
             gender: null == gender
                 ? _value.gender
                 : gender // ignore: cast_nullable_to_non_nullable
                       as Gender,
-            longitude: null == longitude
-                ? _value.longitude
-                : longitude // ignore: cast_nullable_to_non_nullable
-                      as double,
-            latitude: null == latitude
-                ? _value.latitude
-                : latitude // ignore: cast_nullable_to_non_nullable
-                      as double,
-            locationName: null == locationName
-                ? _value.locationName
-                : locationName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            useTrueSolarTime: null == useTrueSolarTime
-                ? _value.useTrueSolarTime
-                : useTrueSolarTime // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            ratHourMode: null == ratHourMode
-                ? _value.ratHourMode
-                : ratHourMode // ignore: cast_nullable_to_non_nullable
-                      as RatHourMode,
             language: null == language
                 ? _value.language
                 : language // ignore: cast_nullable_to_non_nullable
@@ -693,13 +703,8 @@ abstract class _$$DestinyProfileImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    DateTime birthTime,
+    BirthInput birthInput,
     Gender gender,
-    double longitude,
-    double latitude,
-    String locationName,
-    bool useTrueSolarTime,
-    RatHourMode ratHourMode,
     AppLanguage language,
     BaziOptions baziOptions,
     ZiweiOptions ziweiOptions,
@@ -725,47 +730,22 @@ class __$$DestinyProfileImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? birthTime = null,
+    Object? birthInput = null,
     Object? gender = null,
-    Object? longitude = null,
-    Object? latitude = null,
-    Object? locationName = null,
-    Object? useTrueSolarTime = null,
-    Object? ratHourMode = null,
     Object? language = null,
     Object? baziOptions = null,
     Object? ziweiOptions = null,
   }) {
     return _then(
       _$DestinyProfileImpl(
-        birthTime: null == birthTime
-            ? _value.birthTime
-            : birthTime // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
+        birthInput: null == birthInput
+            ? _value.birthInput
+            : birthInput // ignore: cast_nullable_to_non_nullable
+                  as BirthInput,
         gender: null == gender
             ? _value.gender
             : gender // ignore: cast_nullable_to_non_nullable
                   as Gender,
-        longitude: null == longitude
-            ? _value.longitude
-            : longitude // ignore: cast_nullable_to_non_nullable
-                  as double,
-        latitude: null == latitude
-            ? _value.latitude
-            : latitude // ignore: cast_nullable_to_non_nullable
-                  as double,
-        locationName: null == locationName
-            ? _value.locationName
-            : locationName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        useTrueSolarTime: null == useTrueSolarTime
-            ? _value.useTrueSolarTime
-            : useTrueSolarTime // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        ratHourMode: null == ratHourMode
-            ? _value.ratHourMode
-            : ratHourMode // ignore: cast_nullable_to_non_nullable
-                  as RatHourMode,
         language: null == language
             ? _value.language
             : language // ignore: cast_nullable_to_non_nullable
@@ -787,13 +767,8 @@ class __$$DestinyProfileImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DestinyProfileImpl implements _DestinyProfile {
   const _$DestinyProfileImpl({
-    required this.birthTime,
+    this.birthInput = const BirthInput(),
     this.gender = Gender.male,
-    this.longitude = 120.0,
-    this.latitude = 30.0,
-    this.locationName = '北京',
-    this.useTrueSolarTime = true,
-    this.ratHourMode = RatHourMode.noSplit,
     this.language = AppLanguage.zhCN,
     this.baziOptions = const BaziOptions(),
     this.ziweiOptions = const ZiweiOptions(),
@@ -803,26 +778,11 @@ class _$DestinyProfileImpl implements _DestinyProfile {
       _$$DestinyProfileImplFromJson(json);
 
   @override
-  final DateTime birthTime;
+  @JsonKey()
+  final BirthInput birthInput;
   @override
   @JsonKey()
   final Gender gender;
-  @override
-  @JsonKey()
-  final double longitude;
-  @override
-  @JsonKey()
-  final double latitude;
-  @override
-  @JsonKey()
-  final String locationName;
-  // --- 全局历法开关 ---
-  @override
-  @JsonKey()
-  final bool useTrueSolarTime;
-  @override
-  @JsonKey()
-  final RatHourMode ratHourMode;
   @override
   @JsonKey()
   final AppLanguage language;
@@ -835,7 +795,7 @@ class _$DestinyProfileImpl implements _DestinyProfile {
 
   @override
   String toString() {
-    return 'DestinyProfile(birthTime: $birthTime, gender: $gender, longitude: $longitude, latitude: $latitude, locationName: $locationName, useTrueSolarTime: $useTrueSolarTime, ratHourMode: $ratHourMode, language: $language, baziOptions: $baziOptions, ziweiOptions: $ziweiOptions)';
+    return 'DestinyProfile(birthInput: $birthInput, gender: $gender, language: $language, baziOptions: $baziOptions, ziweiOptions: $ziweiOptions)';
   }
 
   @override
@@ -843,19 +803,9 @@ class _$DestinyProfileImpl implements _DestinyProfile {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$DestinyProfileImpl &&
-            (identical(other.birthTime, birthTime) ||
-                other.birthTime == birthTime) &&
+            (identical(other.birthInput, birthInput) ||
+                other.birthInput == birthInput) &&
             (identical(other.gender, gender) || other.gender == gender) &&
-            (identical(other.longitude, longitude) ||
-                other.longitude == longitude) &&
-            (identical(other.latitude, latitude) ||
-                other.latitude == latitude) &&
-            (identical(other.locationName, locationName) ||
-                other.locationName == locationName) &&
-            (identical(other.useTrueSolarTime, useTrueSolarTime) ||
-                other.useTrueSolarTime == useTrueSolarTime) &&
-            (identical(other.ratHourMode, ratHourMode) ||
-                other.ratHourMode == ratHourMode) &&
             (identical(other.language, language) ||
                 other.language == language) &&
             (identical(other.baziOptions, baziOptions) ||
@@ -868,13 +818,8 @@ class _$DestinyProfileImpl implements _DestinyProfile {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    birthTime,
+    birthInput,
     gender,
-    longitude,
-    latitude,
-    locationName,
-    useTrueSolarTime,
-    ratHourMode,
     language,
     baziOptions,
     ziweiOptions,
@@ -899,13 +844,8 @@ class _$DestinyProfileImpl implements _DestinyProfile {
 
 abstract class _DestinyProfile implements DestinyProfile {
   const factory _DestinyProfile({
-    required final DateTime birthTime,
+    final BirthInput birthInput,
     final Gender gender,
-    final double longitude,
-    final double latitude,
-    final String locationName,
-    final bool useTrueSolarTime,
-    final RatHourMode ratHourMode,
     final AppLanguage language,
     final BaziOptions baziOptions,
     final ZiweiOptions ziweiOptions,
@@ -915,19 +855,9 @@ abstract class _DestinyProfile implements DestinyProfile {
       _$DestinyProfileImpl.fromJson;
 
   @override
-  DateTime get birthTime;
+  BirthInput get birthInput;
   @override
   Gender get gender;
-  @override
-  double get longitude;
-  @override
-  double get latitude;
-  @override
-  String get locationName; // --- 全局历法开关 ---
-  @override
-  bool get useTrueSolarTime;
-  @override
-  RatHourMode get ratHourMode;
   @override
   AppLanguage get language;
   @override

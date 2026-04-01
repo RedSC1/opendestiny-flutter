@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:ziwei_core/ziwei_core.dart';
 import 'package:ziwei_core/src/core/timeline_provider.dart';
@@ -9,24 +10,37 @@ import '../../../providers/input_provider.dart';
 part 'ziwei_providers.g.dart';
 part 'ziwei_providers.freezed.dart';
 
+final tdrPanProvider = StateProvider<TDRpan>((ref) => TDRpan.tianPan);
+final ziweiDateOffsetProvider = StateProvider<Duration>((ref) => Duration.zero);
+
 /// 1. 负责把 UI 层的 [ZiweiOptions] 转译为底层的 [ZiweiRuleset]
 @riverpod
 ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
   final profile = ref.watch(inputNotifierProvider);
+  final options = profile.ziweiOptions;
   final defaultRuleset = ConfigLoader.getDefault();
+  final baseRuleset = options.siHuaMode == ZiweiSiHuaMode.custom &&
+          options.customSiHuaJson.trim().isNotEmpty
+      ? ConfigLoader.overrideWith(
+          defaultRuleset,
+          sihuaJson: options.customSiHuaJson,
+        )
+      : defaultRuleset;
 
   return ZiweiRuleset(
-    stars: defaultRuleset.stars,
-    flowDefinitions: defaultRuleset.flowDefinitions,
-    brightnessLabels: defaultRuleset.brightnessLabels,
-    siHuaRules: defaultRuleset.siHuaRules,
-    mingZhuRule: defaultRuleset.mingZhuRule,
-    shenZhuRule: defaultRuleset.shenZhuRule,
+    stars: baseRuleset.stars,
+    flowDefinitions: baseRuleset.flowDefinitions,
+    brightnessLabels: baseRuleset.brightnessLabels,
+    siHuaRules: baseRuleset.siHuaRules,
+    mingZhuRule: baseRuleset.mingZhuRule,
+    shenZhuRule: baseRuleset.shenZhuRule,
     calendarOptions: CalendarOptions(
-      leapRule: profile.ziweiOptions.leapRule,
-      wuHuDunBasedOn: profile.ziweiOptions.wuHuDunBasedOn,
-      siHuaBasedOn: profile.ziweiOptions.siHuaBasedOn,
-      flowLimitBasedOn: profile.ziweiOptions.flowLimitBasedOn,
+      leapRule: options.leapRule,
+      wuHuDunBasedOn: options.wuHuDunBasedOn,
+      siHuaBasedOn: options.siHuaBasedOn,
+      childhoodRule: options.childhoodRule,
+      flowLimitBasedOn: options.flowLimitBasedOn,
+      enableHistorical: baseRuleset.calendarOptions.enableHistorical,
     ),
   );
 }
@@ -35,12 +49,36 @@ ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
 @riverpod
 ZiweiDate originDate(OriginDateRef ref) {
   final profile = ref.watch(inputNotifierProvider);
-  final calendarOptions = ref.watch(ziweiRulesetProvider).calendarOptions;
+  final settings = ref.watch(appSettingsProvider);
+  final rulesetOptions = ref.watch(ziweiRulesetProvider).calendarOptions;
+  final birthInput = profile.birthInput;
+  final calendarOptions = CalendarOptions(
+    ratHourMode: settings.ratHourMode,
+    leapRule: rulesetOptions.leapRule,
+    wuHuDunBasedOn: rulesetOptions.wuHuDunBasedOn,
+    siHuaBasedOn: rulesetOptions.siHuaBasedOn,
+    childhoodRule: rulesetOptions.childhoodRule,
+    flowLimitBasedOn: rulesetOptions.flowLimitBasedOn,
+    enableHistorical: rulesetOptions.enableHistorical,
+  );
 
+  final offset = ref.watch(ziweiDateOffsetProvider);
+  var activeClockTime = birthInput.activeClockTime;
+  
+  if (offset != Duration.zero) {
+    // Shift the actual physical time by offset using AstroDateTime's add method to support BCE dates
+    activeClockTime = activeClockTime.add(offset);
+  }
+
+  // To properly initialize ZiweiDate with the shifted offset, we always use the physical Solar time
+  // This avoids tricky lunar leap month boundary adjustments manually, since BaziCore can derive everything from Solar.
   return ZiweiDate.fromSolar(
-    profile.birthTime,
+    activeClockTime,
     gender: profile.gender,
     options: calendarOptions,
+    location: birthInput.location,
+    timeZone: birthInput.timeZone,
+    useTrueSolarTime: settings.useTrueSolarTime,
   );
 }
 
@@ -73,9 +111,10 @@ class ZiweiUIManager extends _$ZiweiUIManager {
   ZiweiUIState build() {
     final ruleset = ref.watch(ziweiRulesetProvider);
     final date = ref.watch(originDateProvider);
+    final tdrPan = ref.watch(tdrPanProvider);
 
     // 1. 计算本命盘
-    _cachedOriginPlate = ZiweiEngine.calculate(date, ruleset);
+    _cachedOriginPlate = ZiweiEngine.calculate(date, ruleset, tdrPan: tdrPan);
     _timelineProvider = TimelineProvider(_cachedOriginPlate!);
 
     // 2. 生成初始清单
