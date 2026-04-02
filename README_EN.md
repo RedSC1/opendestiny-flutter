@@ -18,37 +18,95 @@
 
 ## 🌟 Introduction
 
-**OpenDestiny** (开源命运/术数引擎应用) is a beautifully crafted, cross-platform Flutter application dedicated to generating highly accurate traditional Chinese astrological charts, primarily focusing on **Bazi (Four Pillars of Destiny)** and **Ziwei Doushu (Purple Star Astrology)**.
+**OpenDestiny** is a modern, professional-grade traditional Chinese astrology (Ziwei Doushu & Bazi) cross-platform application built with Flutter.
 
-Building on top of an immensely powerful, thoroughly decoupled set of pure Dart engines (`sxwnl_spa_dart`, `bazi_core`, `ziwei_core`), OpenDestiny boasts a massive 6,000-year algorithmic timeline tracking capabilities, offering researchers, practitioners, and enthusiasts a modern, blazing-fast, and completely offline computational platform.
+More than just a tool with a beautiful interface, it serves as a **UI implementation benchmark** for its underlying astrological engine matrix. By bridging rigorous modern software engineering with ancient metaphysical logic, OpenDestiny aims to provide a sophisticated platform for the **digital archiving** and **empirical research** of traditional culture.
+
+### 💎 Technical Highlights
+
+*   **🛠️ Platform-Agnostic Logic**: Built on a modular matrix of pure Dart libraries. Achieves 100% cross-platform logic parity and high-performance offline computation without native binary dependencies.
+*   **⏳ Extended Chronological Range**: Theoretically supports full chart generation and progression from 1000 BCE to 9999 CE*, covering the vast majority of historical and future calendar epochs.
+*   **🎯 True Solar Time Correction**: Employs high-precision astronomical algorithms for location-based True Solar Time calibration and precise day-transition (Early/Late Zi) logic.
+*   **🧪 Neutral Logical Scrutiny**: Deconstructs traditional rules into programmable logic. Provides a neutral platform for researchers to independently **verify or falsify** theories against historical data.
+
+**Project Mission**: This project serves primarily as an electronic archive for traditional astrology and predictive sciences. We do not assume the validity of any metaphysical theories. Instead, we provide a neutral, precise computational platform through modern software engineering, supporting rigorous reviews and letting users scrutinize the logic against objective data.
+
+---
+> \*Note: Due to the long-term drift of Earth's rotation (ΔT), astronomical time predictions after 2025 CE will gradually decrease in precision over time.
+
+## ✨ Key Features
+
+*   **📊 Comprehensive Charting**
+    *   **Ziwei Doushu**: Supports Heaven/Earth/Human plates with Sanhe, Feixing, and Sihua mode switching.
+    *   **Bazi**: Visual representation of interactions (clashes, harms, etc.) and automatic Shensha calculation.
+    *   **Dynamic Progression**: Stateful tracking of time-scales from Decades (Daxian) down to specific Hours (Liushi).
+*   **📡 High-Precision Computation**
+    *   **Astronomical Algorithms**: True Solar Time correction and precise handling of Early/Late Zi hour transitions.
+    *   **Broad Range**: Theoretically supports 10,000-year historical and future calendar ranges.
+*   **🛠️ Architecture & Tech Stack**
+    *   **State Management**: Fully powered by `Riverpod` + `Freezed` for a predictable, decoupled logic flow.
+    *   **Type Safety**: Robust data serialization handled by `json_serializable`.
+*   **🌐 Cross-Platform Deployment**
+    *   **Native-Free**: 100% pure Dart core logic—no C++/JNI dependencies, ensuring high portability.
+    *   **Unified Codebase**: Native binaries for Android, iOS, Windows, macOS, Linux, and high-performance Web builds.
 
 ---
 
-## ✨ Core Features
+## 🏛️ Architecture & Component Matrix
 
-*   **🌌 Professional Ziwei Doushu & Bazi Integration**
-    *   Generates accurate Heaven (天盘), Earth (地盘), and Human (人盘) plates.
-    *   Dynamic flows (Decade, Year, Month, Day, Hour) powered by a robust state machine mechanism.
-    *   High-precision ephemeris astronomical calendar computations including True Solar Time (Apparent Solar Time) correction.
-*   **🎨 Stunning UI & UX**
-    *   Built cleanly with modern Material Design principles combined with specialized traditional chart layout algorithms.
-    *   Responsive and dynamically auto-scaling dashboard UI designed to avoid display overlapping on mobile screens.
-*   **📐 Architectural Excellence**
-    *   State management strictly controlled by `Riverpod` + `Freezed`.
-    *   Clean separation of UI rendering and underlying astrological logic calculations.
-    *   Fast, type-safe data serialization with `json_serializable`.
-*   **🌐 True Cross-Platform Capabilities**
-    *   Supports Android, iOS, Windows, macOS, Linux, and Web directly out of the box with zero native-code dependencies.
+### 🏗️ Logical Architecture
+OpenDestiny follows the **Detached Logic & UI** principle. All astrological computations are handled by independent Dart core libraries, while Flutter acts solely as the rendering layer:
+
+```text
+[ User Input ] ──► [ BirthData Model ] ──► [ Riverpod Providers ]
+                                               │
+                                               ▼
+[ Flutter UI ] ◄── [ Immutable State ] ◄── [ Core Engines ]
+(Material 3)        (Freezed/Models)       (Bazi/Ziwei/SPA)
+```
+
+### 📦 Core Components
+The application is built upon a suite of modular, open-source libraries published on Pub.dev:
+
+1.  📦 **[`sxwnl_spa_dart`](https://pub.dev/packages/sxwnl_spa_dart)** (v0.16.0): High-precision astronomical calendar and solar term computations.
+2.  📦 **[`bazi_core`](https://pub.dev/packages/bazi_core)** (v0.6.0): The logic engine for Bazi pillars, luck cycles, and interactions.
+3.  📦 **[`ziwei_core`](https://pub.dev/packages/ziwei_core)** (v0.11.0): The rule-engine for plotting Ziwei Doushu star positions and transformations.
+
+### 📂 Directory Structure
+The project adopts a **Feature-first** organization, facilitating horizontal scaling for new astrological modules:
+
+```text
+lib/
+├── core/           # Routing, themes, persistence, and shared utilities
+├── data/           # Static assets and database mapping (e.g., city database)
+├── features/       # 🚀 Core business modules (bazi, ziwei, profile, settings)
+├── models/         # Cross-module domain entities (e.g., BirthData)
+└── main.dart       # Application entry point with ProviderScope root
+```
 
 ---
 
-## 🏛️ Ecosystem Architecture
+## 🧪 Quality & Development
 
-OpenDestiny serves as the polished, client-facing flagship for a suite of underlying open-source Dart libraries:
+### Automated Testing
+Run unit tests to verify the integrity of the underlying logic:
+```bash
+flutter test
+```
 
-1.  📦 **[`sxwnl_spa_dart`](https://pub.dev/packages/sxwnl_spa_dart)** (v0.16.0) - High-precision **astronomical** and solar term computations.
-2.  📦 **[`bazi_core`](https://pub.dev/packages/bazi_core)** (v0.6.0) - The primary engine for Lunar calculations, Bazi pillars, and Si Ling.
-3.  📦 **[`ziwei_core`](https://pub.dev/packages/ziwei_core)** (v0.11.0) - The core rule-engine for plotting Ziwei Doushu charts.
+### Code Generation
+This project relies on code generation (Riverpod Generator, Freezed, Json Serializable). Run this after modifying models:
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+### Data Maintenance
+The `tool/` directory contains utility scripts for processing base data, such as generating the city database:
+```bash
+dart run tool/generate_cities.dart
+```
+
+> 💡 For in-depth design details, Provider caching strategies, and dependency management, please refer to: **[Architecture Document (ARCHITECTURE.md)](./ARCHITECTURE.md)**.
 
 ---
 

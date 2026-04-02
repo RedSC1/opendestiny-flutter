@@ -31,7 +31,7 @@ class ZiweiToolbarWidget extends ConsumerWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: 6.ws, vertical: 3.hs),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -45,160 +45,189 @@ class ZiweiToolbarWidget extends ConsumerWidget {
           ),
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 时间偏移控制
-            _buildTimeShiftButton(
-              icon: Icons.keyboard_double_arrow_left,
-              tooltip: '上一日'.tr,
-              onPressed: () {
-                ref.read(ziweiDateOffsetProvider.notifier).state =
-                    offset - const Duration(days: 1);
-              },
-            ),
-            _buildTimeShiftButton(
-              icon: Icons.keyboard_arrow_left,
-              tooltip: '上一时辰'.tr,
-              onPressed: () {
-                ref.read(ziweiDateOffsetProvider.notifier).state =
-                    offset - const Duration(hours: 2);
-              },
-            ),
-
-            // 恢复按钮或定盘文字
-            if (offset != Duration.zero)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: ActionChip(
-                  visualDensity: VisualDensity.compact,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-                  label: Text('复原'.tr, style: TextStyle(fontSize: 9.5.ts)),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.errorContainer,
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onErrorContainer,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SizedBox(
+            width: constraints.maxWidth,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 时间偏移控制
+                  _buildTimeShiftButton(
+                    icon: Icons.keyboard_double_arrow_left,
+                    tooltip: '上一日'.tr,
+                    onPressed: () {
+                      ref.read(ziweiDateOffsetProvider.notifier).state =
+                          offset - const Duration(days: 1);
+                    },
                   ),
-                  onPressed: () {
-                    ref.read(ziweiDateOffsetProvider.notifier).state =
-                        Duration.zero;
-                  },
-                ),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: Text(
-                  '定盘'.tr,
-                  style: TextStyle(
-                    fontSize: 10.5.ts,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
+                  _buildTimeShiftButton(
+                    icon: Icons.keyboard_arrow_left,
+                    tooltip: '上一时辰'.tr,
+                    onPressed: () {
+                      ref.read(ziweiDateOffsetProvider.notifier).state =
+                          offset - const Duration(hours: 2);
+                    },
                   ),
-                ),
+
+                  // 恢复按钮或定盘文字
+                  if (offset != Duration.zero)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 3.ws),
+                      child: ActionChip(
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                        labelPadding: EdgeInsets.symmetric(horizontal: 2.ws),
+                        label: Text(
+                          '复原'.tr,
+                          style: TextStyle(fontSize: 9.5.ts),
+                        ),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.errorContainer,
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                        onPressed: () {
+                          ref.read(ziweiDateOffsetProvider.notifier).state =
+                              Duration.zero;
+                        },
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5.ws),
+                      child: Text(
+                        '定盘'.tr,
+                        style: TextStyle(
+                          fontSize: 10.5.ts,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+
+                  _buildTimeShiftButton(
+                    icon: Icons.keyboard_arrow_right,
+                    tooltip: '下一时辰'.tr,
+                    onPressed: () {
+                      ref.read(ziweiDateOffsetProvider.notifier).state =
+                          offset + const Duration(hours: 2);
+                    },
+                  ),
+                  _buildTimeShiftButton(
+                    icon: Icons.keyboard_double_arrow_right,
+                    tooltip: '下一日'.tr,
+                    onPressed: () {
+                      ref.read(ziweiDateOffsetProvider.notifier).state =
+                          offset + const Duration(days: 1);
+                    },
+                  ),
+
+                  SizedBox(width: 6.ws),
+
+                  // 天地人盘下拉菜单
+                  PopupMenuButton<TDRpan>(
+                    initialValue: tdrPan,
+                    tooltip: '切换天地人盘'.tr,
+                    onSelected: (value) {
+                      ref.read(tdrPanProvider.notifier).state = value;
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: TDRpan.tianPan,
+                        child: Text('天盘'.tr),
+                      ),
+                      PopupMenuItem(
+                        value: TDRpan.diPan,
+                        child: Text('地盘'.tr),
+                      ),
+                      PopupMenuItem(
+                        value: TDRpan.renPan,
+                        child: Text('人盘'.tr),
+                      ),
+                    ],
+                    child: Chip(
+                      visualDensity: const VisualDensity(
+                        horizontal: -2,
+                        vertical: -2,
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 2.ws),
+                      label: Text(
+                        panNames[tdrPan]!,
+                        style: TextStyle(fontSize: 10.ts),
+                      ),
+                      avatar: Icon(Icons.unfold_more, size: 14.ts),
+                    ),
+                  ),
+
+                  SizedBox(width: 3.ws),
+
+                  PopupMenuButton<ZiweiChartMode>(
+                    initialValue: chartMode,
+                    tooltip: '切换盘式'.tr,
+                    onSelected: (value) {
+                      ref.read(ziweiChartModeProvider.notifier).state = value;
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: ZiweiChartMode.sanhe,
+                        child: Text('三合'.tr),
+                      ),
+                      PopupMenuItem(
+                        value: ZiweiChartMode.sihua,
+                        child: Text('四化'.tr),
+                      ),
+                      PopupMenuItem(
+                        value: ZiweiChartMode.flying,
+                        child: Text('飞星'.tr),
+                      ),
+                    ],
+                    child: Chip(
+                      visualDensity: const VisualDensity(
+                        horizontal: -2,
+                        vertical: -2,
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 2.ws),
+                      label: Text(
+                        chartModeNames[chartMode]!,
+                        style: TextStyle(fontSize: 10.ts),
+                      ),
+                      avatar: Icon(Icons.tune, size: 14.ts),
+                    ),
+                  ),
+
+                  SizedBox(width: 2.ws),
+
+                  // AI 导出按钮
+                  IconButton(
+                    onPressed: () => _copyAiData(context, ref),
+                    icon: Icon(
+                      Icons.smart_toy,
+                      size: 16.ts,
+                      color: Colors.blueGrey,
+                    ),
+                    tooltip: '复制 AI 数据'.tr,
+                    visualDensity: const VisualDensity(
+                      horizontal: -2,
+                      vertical: -2,
+                    ),
+                    padding: EdgeInsets.all(2.ws),
+                    constraints: BoxConstraints(
+                      minWidth: 28.ws,
+                      minHeight: 28.hs,
+                    ),
+                  ),
+                ],
               ),
-
-            _buildTimeShiftButton(
-              icon: Icons.keyboard_arrow_right,
-              tooltip: '下一时辰'.tr,
-              onPressed: () {
-                ref.read(ziweiDateOffsetProvider.notifier).state =
-                    offset + const Duration(hours: 2);
-              },
             ),
-            _buildTimeShiftButton(
-              icon: Icons.keyboard_double_arrow_right,
-              tooltip: '下一日'.tr,
-              onPressed: () {
-                ref.read(ziweiDateOffsetProvider.notifier).state =
-                    offset + const Duration(days: 1);
-              },
-            ),
-
-            const SizedBox(width: 6),
-
-            // 天地人盘下拉菜单
-            PopupMenuButton<TDRpan>(
-              initialValue: tdrPan,
-              tooltip: '切换天地人盘'.tr,
-              onSelected: (value) {
-                ref.read(tdrPanProvider.notifier).state = value;
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: TDRpan.tianPan,
-                  child: Text('天盘'.tr),
-                ),
-                PopupMenuItem(
-                  value: TDRpan.diPan,
-                  child: Text('地盘'.tr),
-                ),
-                PopupMenuItem(
-                  value: TDRpan.renPan,
-                  child: Text('人盘'.tr),
-                ),
-              ],
-              child: Chip(
-                visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                label: Text(
-                  panNames[tdrPan]!,
-                  style: TextStyle(fontSize: 10.ts),
-                ),
-                avatar: Icon(Icons.unfold_more, size: 14.ts),
-              ),
-            ),
-
-            const SizedBox(width: 3),
-
-            PopupMenuButton<ZiweiChartMode>(
-              initialValue: chartMode,
-              tooltip: '切换盘式'.tr,
-              onSelected: (value) {
-                ref.read(ziweiChartModeProvider.notifier).state = value;
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: ZiweiChartMode.sanhe,
-                  child: Text('三合'.tr),
-                ),
-                PopupMenuItem(
-                  value: ZiweiChartMode.sihua,
-                  child: Text('四化'.tr),
-                ),
-                PopupMenuItem(
-                  value: ZiweiChartMode.flying,
-                  child: Text('飞星'.tr),
-                ),
-              ],
-              child: Chip(
-                visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                label: Text(
-                  chartModeNames[chartMode]!,
-                  style: TextStyle(fontSize: 10.ts),
-                ),
-                avatar: Icon(Icons.tune, size: 14.ts),
-              ),
-            ),
-
-            const SizedBox(width: 2),
-
-            // AI 导出按钮
-            IconButton(
-              onPressed: () => _copyAiData(context, ref),
-              icon: Icon(Icons.smart_toy, size: 16.ts, color: Colors.blueGrey),
-              tooltip: '复制 AI 数据'.tr,
-              visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-              padding: const EdgeInsets.all(2),
-              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -229,8 +258,8 @@ class ZiweiToolbarWidget extends ConsumerWidget {
       tooltip: tooltip,
       onPressed: onPressed,
       visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-      padding: const EdgeInsets.all(2),
-      constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+      padding: EdgeInsets.all(2.ws),
+      constraints: BoxConstraints(minWidth: 24.ws, minHeight: 24.hs),
     );
   }
 }
