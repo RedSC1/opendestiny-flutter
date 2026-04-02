@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../bazi_view.dart';
 import '../../../core/l10n.dart';
+import '../../../core/ui_scale.dart';
 
 class BaziTabSwitcher extends ConsumerWidget {
   const BaziTabSwitcher({super.key});
@@ -15,18 +16,18 @@ class BaziTabSwitcher extends ConsumerWidget {
       style: SegmentedButton.styleFrom(
         visualDensity: VisualDensity.compact,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        padding: EdgeInsets.zero,
+        padding: EdgeInsets.symmetric(horizontal: 2.ws, vertical: 1.hs),
       ),
       segments: [
         ButtonSegment(
           value: BaziBottomTab.fortune,
-          label: Text('运'.tr, style: const TextStyle(fontSize: 12)), // 缩短文字
-          icon: const Icon(Icons.trending_up, size: 16),
+          label: Text('运'.tr, style: TextStyle(fontSize: 11.ts)), // 缩短文字
+          icon: Icon(Icons.trending_up, size: 14.ts),
         ),
         ButtonSegment(
           value: BaziBottomTab.taiMingShen,
-          label: Text('胎'.tr, style: const TextStyle(fontSize: 12)), // 缩短文字
-          icon: const Icon(Icons.hub, size: 16),
+          label: Text('胎'.tr, style: TextStyle(fontSize: 11.ts)), // 缩短文字
+          icon: Icon(Icons.hub, size: 14.ts),
         ),
       ],
       selected: {currentTab},

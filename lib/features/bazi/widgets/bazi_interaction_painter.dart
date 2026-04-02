@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:bazi_core/bazi_core.dart';
+import '../../../core/ui_scale.dart';
 
 /// 连线图层：负责绘制天干地支之间的刑冲合害
 class InteractionUIResult {
@@ -30,12 +31,22 @@ class BaziInteractionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // 1. 绘制天干关系 (顶部折线 - 从字顶引出)
-    // 原始 StemCenterY 是 120 (字中心)，上移 15 到字顶 = 105
-    _drawGroupedSteppedLines(canvas, stemInteractions, pillarCenters, 105, true);
+    _drawGroupedSteppedLines(
+      canvas,
+      stemInteractions,
+      pillarCenters,
+      stemCenterY,
+      true,
+    );
 
     // 2. 绘制地支关系 (中部折线 - 从字底引出)
-    // 原始 BranchCenterY 是 155 (字中心)，下移 15 到字底 = 170
-    _drawGroupedSteppedLines(canvas, branchInteractions, pillarCenters, 170, false);
+    _drawGroupedSteppedLines(
+      canvas,
+      branchInteractions,
+      pillarCenters,
+      branchCenterY,
+      false,
+    );
   }
 
   /// 按支柱组合归类绘图，解决重叠问题
@@ -55,7 +66,7 @@ class BaziInteractionPainter extends CustomPainter {
 
     grouped.forEach((key, groupResults) {
       for (int i = 0; i < groupResults.length; i++) {
-        final double offset = i * 14.0; 
+        final double offset = i * 14.0.hs;
         _drawSingleRoundedSteppedLine(
           canvas, 
           groupResults[i], 
@@ -93,7 +104,7 @@ class BaziInteractionPainter extends CustomPainter {
     final spanIndices = (result.pillarIndices.reduce(math.max) - result.pillarIndices.reduce(math.min)).abs();
     
     // 阶梯高度
-    final double levelHeight = 6.0 + (spanIndices * 12.0) + verticalOffset;
+    final double levelHeight = 6.0.hs + (spanIndices * 12.0.hs) + verticalOffset;
     final double zenithY = isTop ? (baseY - levelHeight) : (baseY + levelHeight);
 
     final isRelevant = selectedPillarIdx == null || result.pillarIndices.contains(selectedPillarIdx);
@@ -112,9 +123,9 @@ class BaziInteractionPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
-      ..strokeWidth = isRelevant ? 1.2 : 0.8;
+      ..strokeWidth = isRelevant ? 1.2.ws : 0.8.ws;
 
-    const radius = 6.0;
+    final radius = 6.0.ws;
 
     for (var x in xCoords) {
       final path = Path();
@@ -141,8 +152,8 @@ class BaziInteractionPainter extends CustomPainter {
 
   void _drawLabel(Canvas canvas, InteractionUIResult result, Offset offset, Color color, {double opacity = 1.0}) {
     final text = result.type.display;
-    final textStyle = const TextStyle(
-      fontSize: 8.5, // 缩小字号
+    final textStyle = TextStyle(
+      fontSize: 8.5.ts, // 缩小字号
       color: Colors.white,
       fontWeight: FontWeight.bold,
     );
@@ -155,11 +166,11 @@ class BaziInteractionPainter extends CustomPainter {
 
     final rect = Rect.fromCenter(
       center: offset,
-      width: textPainter.width + 6,
-      height: textPainter.height + 2,
+      width: textPainter.width + 6.ws,
+      height: textPainter.height + 2.hs,
     );
     
-    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(3));
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(3.ws));
     canvas.drawRRect(rrect, Paint()..color = color.withOpacity(0.9));
     
     textPainter.paint(canvas, offset - Offset(textPainter.width / 2, textPainter.height / 2));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bazi_core/bazi_core.dart';
+import '../../core/ui_scale.dart';
 import 'bazi_provider.dart';
 import 'widgets/bazi_header.dart';
 import 'widgets/bazi_chart_board.dart';
@@ -26,6 +27,9 @@ class BaziView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 初始化UI缩放
+    UIScale.init(context);
+
     final baziChart = ref.watch(baziChartProvider);
     final fortuneTable = ref.watch(fortuneTableProvider);
     final currentTab = ref.watch(baziBottomTabProvider);
@@ -39,10 +43,10 @@ class BaziView extends ConsumerWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 16),
+            SizedBox(height: 12.hs),
             // 💡 优化后的顶部 Row：日历信息 + 切换开关
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 14.ws),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,28 +60,65 @@ class BaziView extends ConsumerWidget {
                       appSettings: appSettings,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                ],
+              ),
+            ),
+            if (ref.watch(showProfessionalProvider))
+              Padding(
+                padding: EdgeInsets.only(left: 14.ws, top: 6.hs),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '注：神煞功能暂未进行精确人工校对，结果仅供参考。'.tr,
+                    style: TextStyle(
+                      fontSize: 11.ts,
+                      color: Colors.red.shade300,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            SizedBox(height: 6.hs),
+            // 起运 & 司令信息 + 功能按钮
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14.ws),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildInfoChip('起运'.tr, _formatQiYunDt(fortuneTable.fortune.qiYunDt)),
+                          if (baziChart.siLing != null) ...[
+                          SizedBox(height: 3.hs),
+                          _buildInfoChip('司令'.tr, baziChart.siLing!.gan.display),
+                        ],
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 6.ws),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const BaziTabSwitcher(),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 4.hs),
                       Wrap(
                         alignment: WrapAlignment.end,
-                        spacing: 6,
-                        runSpacing: 6,
+                        spacing: 5.ws,
+                        runSpacing: 5.hs,
                         children: [
                           InkWell(
                             onTap: () {
                               ref.read(showInteractionProvider.notifier).state = !showInteractions;
                             },
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(7.ws),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              padding: EdgeInsets.symmetric(horizontal: 7.ws, vertical: 4.hs),
                               decoration: BoxDecoration(
                                 color: showInteractions ? Colors.indigo.shade50 : Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(7.ws),
                                 border: Border.all(color: showInteractions ? Colors.indigo.shade200 : Colors.grey.shade300),
                               ),
                               child: Row(
@@ -85,15 +126,15 @@ class BaziView extends ConsumerWidget {
                                 children: [
                                   Text('连线图'.tr,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 11.ts,
                                       fontWeight: FontWeight.w500,
                                       color: showInteractions ? Colors.indigo.shade800 : Colors.grey.shade800
                                     )
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: 3.ws),
                                   Icon(
                                     Icons.hub_outlined,
-                                    size: 15,
+                                    size: 14.ts,
                                     color: showInteractions ? Colors.indigo.shade700 : Colors.grey.shade700
                                   ),
                                 ],
@@ -105,12 +146,12 @@ class BaziView extends ConsumerWidget {
                               ref.read(showProfessionalProvider.notifier).state =
                                   !ref.read(showProfessionalProvider);
                             },
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(7.ws),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              padding: EdgeInsets.symmetric(horizontal: 7.ws, vertical: 4.hs),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(7.ws),
                                 border: Border.all(color: Colors.grey.shade300),
                               ),
                               child: Row(
@@ -118,15 +159,15 @@ class BaziView extends ConsumerWidget {
                                 children: [
                                   Text('专业模式'.tr,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 11.ts,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.grey.shade800
                                     )
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: 3.ws),
                                   Icon(
                                     ref.watch(showProfessionalProvider) ? Icons.unfold_less : Icons.unfold_more,
-                                    size: 15,
+                                    size: 14.ts,
                                     color: Colors.grey.shade700
                                   ),
                                 ],
@@ -140,46 +181,16 @@ class BaziView extends ConsumerWidget {
                 ],
               ),
             ),
-            if (ref.watch(showProfessionalProvider))
-              Padding(
-                padding: const EdgeInsets.only(left: 16, top: 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '注：神煞功能暂未进行精确人工校对，结果仅供参考。'.tr,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.red.shade300,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            const SizedBox(height: 8),
-            // 起运 & 司令信息
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildInfoChip('起运'.tr, _formatQiYunDt(fortuneTable.fortune.qiYunDt)),
-                  if (baziChart.siLing != null) ...[
-                    const SizedBox(height: 4),
-                    _buildInfoChip('司令'.tr, baziChart.siLing!.gan.display),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.hs),
             BaziChartBoard(
               chart: baziChart,
               table: fortuneTable,
               currentTab: currentTab,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.hs),
             // 💡 主盘下方统一直观地显示流年大运板块
             FortuneFlowBoard(table: fortuneTable, dayMaster: dayGan),
-            const SizedBox(height: 40),
+            SizedBox(height: 40.hs),
           ],
         ),
       ),
@@ -193,14 +204,14 @@ class BaziView extends ConsumerWidget {
       children: [
         Text(
           '$label: ',
-          style: const TextStyle(fontSize: 11, color: Colors.grey),
+          style: TextStyle(fontSize: 10.ts, color: Colors.grey),
         ),
         Flexible(
           child: Text(
             value,
             softWrap: true,
-            style: const TextStyle(
-              fontSize: 11,
+            style: TextStyle(
+              fontSize: 10.ts,
               fontWeight: FontWeight.bold,
               color: Colors.blueGrey,
             ),

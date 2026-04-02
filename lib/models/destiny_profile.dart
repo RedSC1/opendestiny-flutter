@@ -518,7 +518,53 @@ class ZiweiAnimationOptions {
       Object.hash(enableFlyingStarHighlightFrame, enableFlyingStarArrow);
 }
 
-enum ZiweiCustomProfileType { siHua, brightness }
+class ZiweiModeDisplayOptions {
+  final bool showCenterBazi;
+  final ZiweiAnimationOptions animation;
+
+  const ZiweiModeDisplayOptions({
+    this.showCenterBazi = true,
+    this.animation = const ZiweiAnimationOptions(),
+  });
+
+  ZiweiModeDisplayOptions copyWith({
+    bool? showCenterBazi,
+    ZiweiAnimationOptions? animation,
+  }) {
+    return ZiweiModeDisplayOptions(
+      showCenterBazi: showCenterBazi ?? this.showCenterBazi,
+      animation: animation ?? this.animation,
+    );
+  }
+
+  factory ZiweiModeDisplayOptions.fromJson(Map<String, dynamic> json) {
+    return ZiweiModeDisplayOptions(
+      showCenterBazi: json['showCenterBazi'] as bool? ?? true,
+      animation: json['animation'] == null
+          ? const ZiweiAnimationOptions()
+          : ZiweiAnimationOptions.fromJson(
+              json['animation'] as Map<String, dynamic>,
+            ),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'showCenterBazi': showCenterBazi,
+    'animation': animation.toJson(),
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ZiweiModeDisplayOptions &&
+          other.showCenterBazi == showCenterBazi &&
+          other.animation == animation;
+
+  @override
+  int get hashCode => Object.hash(showCenterBazi, animation);
+}
+
+enum ZiweiCustomProfileType { siHua, brightness, stars }
 
 class ZiweiCustomProfile {
   final String id;
@@ -588,6 +634,8 @@ enum ZiweiSiHuaMode { builtin, custom }
 
 enum ZiweiBrightnessMode { builtin, custom }
 
+enum ZiweiStarsMode { builtin, custom }
+
 @freezed
 class ZiweiOptions with _$ZiweiOptions {
   const factory ZiweiOptions({
@@ -604,6 +652,16 @@ class ZiweiOptions with _$ZiweiOptions {
     @Default('') String customBrightnessJson,
     @Default(<ZiweiCustomProfile>[]) List<ZiweiCustomProfile> brightnessProfiles,
     @Default('') String activeBrightnessProfileId,
+    @Default(ZiweiStarsMode.builtin) ZiweiStarsMode starsMode,
+    @Default('') String customStarsJson,
+    @Default(<ZiweiCustomProfile>[]) List<ZiweiCustomProfile> starsProfiles,
+    @Default('') String activeStarsProfileId,
+    @Default(ZiweiModeDisplayOptions(showCenterBazi: false))
+    ZiweiModeDisplayOptions sihuaDisplay,
+    @Default(ZiweiModeDisplayOptions()) ZiweiModeDisplayOptions flyingDisplay,
+    @Default(true) bool showCenterBazi,
+    @Default(false) bool hideCenterBirthInfo,
+    @Default(true) bool enableHistorical,
     @Default(ZiweiFlowStarDisplayOptions())
     ZiweiFlowStarDisplayOptions flowStarDisplay,
     @Default(ZiweiAnimationOptions()) ZiweiAnimationOptions animation,

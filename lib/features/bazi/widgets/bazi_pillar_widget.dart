@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bazi_core/bazi_core.dart';
+import '../../../core/ui_scale.dart';
 import '../bazi_ui_utils.dart';
 import '../../../core/l10n.dart';
 
@@ -15,6 +16,7 @@ class BaziPillarWidget extends StatelessWidget {
   final bool showInteraction;
   final EarthPalaceAlgorithm earthPalaceAlgorithm;
   final List<String> shenShas;
+  final double visualScale;
 
   const BaziPillarWidget({
     super.key,
@@ -28,10 +30,13 @@ class BaziPillarWidget extends StatelessWidget {
     this.showInteraction = false,
     this.earthPalaceAlgorithm = EarthPalaceAlgorithm.fireEarth,
     this.shenShas = const [],
+    this.visualScale = 1.0,
   });
 
   @override
   Widget build(BuildContext context) {
+    double s(num value) => value * visualScale;
+
     final stemWx = BaziTable.getWuXingOfGan(gz.gan);
     final branchWx = BaziTable.getWuXingOfZhi(gz.zhi);
 
@@ -51,13 +56,13 @@ class BaziPillarWidget extends StatelessWidget {
         children: [
           // 1. 顶部标签 (如：年柱) - 移到最顶部
           SizedBox(
-            height: 20,
+            height: s(20.hs),
             child: Align(
               alignment: Alignment.center,
               child: Text(
                 label.tr,
-                style: const TextStyle(
-                  fontSize: 12,
+                style: TextStyle(
+                  fontSize: s(12.ts),
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,
                 ),
@@ -67,7 +72,7 @@ class BaziPillarWidget extends StatelessWidget {
 
           // 2. 主十神
           SizedBox(
-            height: 20,
+            height: s(20.hs),
             child: Align(
               alignment: Alignment.center,
               child: FittedBox(
@@ -76,10 +81,10 @@ class BaziPillarWidget extends StatelessWidget {
                   isDayMaster
                       ? '日主'.tr
                       : Relationship.getShiShen(dayMaster, gz.gan).display,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: s(13.ts),
                   ),
                 ),
               ),
@@ -87,11 +92,11 @@ class BaziPillarWidget extends StatelessWidget {
           ),
 
           // 3. 交互图顶部留白 (60px) - 【核心修改：挪到标题下方】
-          if (showInteraction) const SizedBox(height: 60),
+          if (showInteraction) SizedBox(height: s(60.hs)),
 
           // 3. 干支大字行 - 增加行高到 75
           SizedBox(
-            height: 75,
+            height: s(75.hs),
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
@@ -102,17 +107,17 @@ class BaziPillarWidget extends StatelessWidget {
                     Text(
                       gz.gan.display,
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: s(30.ts),
                         height: 1.0,
                         fontWeight: FontWeight.bold,
                         color: BaziUIUtils.getWuXingColor(stemWx),
                       ),
                     ),
-                    const SizedBox(height: 5), // 拉开干支间距
+                    SizedBox(height: s(5.hs)), // 拉开干支间距
                     Text(
                       gz.zhi.display,
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: s(30.ts),
                         height: 1.0,
                         fontWeight: FontWeight.bold,
                         color: BaziUIUtils.getWuXingColor(branchWx),
@@ -124,31 +129,31 @@ class BaziPillarWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: s(10.hs)),
 
           // 4. 交互图中部留白 (80px)
-          if (showInteraction) const SizedBox(height: 80),
+          if (showInteraction) SizedBox(height: s(80.hs)),
 
           // 5. 藏干区域 (固定 3 个高度为 32 的槽位 = 96px，确保下方绝对对齐)
           if (showCangGan) ...[
             SizedBox(
-              height: 96,
+              height: s(96.hs),
               child: Column(
                 children: List.generate(3, (index) {
                   final cgs = BaziTable.getCangGan(gz.zhi);
                   if (index >= cgs.length) {
-                    return const SizedBox(height: 32); // 空槽位占位
+                    return SizedBox(height: s(32.hs)); // 空槽位占位
                   }
                   final gan = cgs[index];
                   return SizedBox(
-                    height: 32,
+                    height: s(32.hs),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           gan.display,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: s(14.ts),
                             height: 1.1,
                             fontWeight: FontWeight.w600,
                             color: BaziUIUtils.getWuXingColor(
@@ -157,14 +162,14 @@ class BaziPillarWidget extends StatelessWidget {
                           ),
                         ),
                         SizedBox(
-                          height: 14,
+                          height: s(14.hs),
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
                               Relationship.getShiShen(dayMaster, gan).display,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.grey,
-                                fontSize: 10,
+                                fontSize: s(10.ts),
                               ),
                             ),
                           ),
@@ -180,13 +185,13 @@ class BaziPillarWidget extends StatelessWidget {
           // --- 专业模块 (星运、自坐、空亡、纳音) ---
           if (showProfessional) ...[
             SizedBox(
-              height: 20,
+              height: s(20.hs),
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
                   xingYun.display,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: s(12.ts),
                     color: BaziUIUtils.getWuXingColor(branchWx),
                     fontWeight: FontWeight.w600,
                   ),
@@ -194,13 +199,13 @@ class BaziPillarWidget extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: 20,
+              height: s(20.hs),
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
                   ziZuo.display,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: s(12.ts),
                     color: BaziUIUtils.getWuXingColor(branchWx),
                     fontWeight: FontWeight.w600,
                   ),
@@ -208,7 +213,7 @@ class BaziPillarWidget extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: 20,
+              height: s(20.hs),
               child: Align(
                 alignment: Alignment.center,
                 child: Row(
@@ -218,7 +223,7 @@ class BaziPillarWidget extends StatelessWidget {
                         (zhi) => Text(
                           zhi.display,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: s(12.ts),
                             color: BaziUIUtils.getWuXingColor(
                               BaziTable.getWuXingOfZhi(zhi),
                             ),
@@ -231,7 +236,7 @@ class BaziPillarWidget extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: 20,
+              height: s(20.hs),
               child: Align(
                 alignment: Alignment.center,
                 child: FittedBox(
@@ -239,7 +244,7 @@ class BaziPillarWidget extends StatelessWidget {
                   child: Text(
                     nayin.tr,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: s(12.ts),
                       color: BaziUIUtils.getWuXingColor(
                         NayinHelper.getNayinWuXing(gz),
                       ),
@@ -249,7 +254,7 @@ class BaziPillarWidget extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: s(10.hs)),
 
             // 神煞列表 (底部无限延伸块)
             if (shenShas.isNotEmpty) ...[
@@ -257,16 +262,16 @@ class BaziPillarWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: shenShas.map((ss) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 1),
+                    padding: EdgeInsets.symmetric(vertical: s(1.hs)),
                     child: SizedBox(
-                      width: width - 4, // 留一点边距
+                      width: width - s(4.ws), // 留一点边距
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
                           ss.tr,
                           maxLines: 1,
-                          style: const TextStyle(
-                            fontSize: 10.5,
+                          style: TextStyle(
+                            fontSize: s(10.5.ts),
                             color: Colors.black87,
                             fontWeight: FontWeight.w600,
                           ),
@@ -276,7 +281,7 @@ class BaziPillarWidget extends StatelessWidget {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: s(10.hs)),
             ],
           ],
         ],

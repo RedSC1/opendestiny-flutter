@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bazi_core/bazi_core.dart';
 
+import '../../core/ui_scale.dart';
 import '../../core/l10n.dart';
 import '../../models/destiny_profile.dart';
 import '../../providers/input_provider.dart';
-import '../bazi/bazi_view.dart';
+import '../bazi/responsive_bazi_view.dart';
 import '../ziwei/ui/ziwei_view.dart';
 import '../settings/settings_view.dart';
 import '../../data/cities.dart';
@@ -17,14 +18,18 @@ class ProfileView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    UIScale.init(context);
+
     final currentIndex = ref.watch(navigationIndexProvider);
     final profile = ref.watch(inputNotifierProvider);
     final currentCase = ref.watch(currentCaseProvider);
     final birthInput = profile.birthInput;
+    final appBarScale = UIScale.scale.clamp(0.9, 1.0);
+    final navScale = UIScale.scale.clamp(0.92, 1.0);
 
     final List<Widget> pages = [
       _buildEditForm(context, ref, profile, currentCase, birthInput),
-      const BaziView(),
+      const ResponsiveBaziView(),
       const ZiweiView(),
       const SettingsView(),
     ];
@@ -33,9 +38,12 @@ class ProfileView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(titles[currentIndex]),
+        title: Text(
+          titles[currentIndex],
+          style: TextStyle(fontSize: 18 * appBarScale),
+        ),
         centerTitle: true,
-        toolbarHeight: 36,
+        toolbarHeight: 36 * appBarScale,
         scrolledUnderElevation: 0,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
@@ -43,6 +51,9 @@ class ProfileView extends ConsumerWidget {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         type: BottomNavigationBarType.fixed,
+        iconSize: 24 * navScale,
+        selectedFontSize: 12 * navScale,
+        unselectedFontSize: 12 * navScale,
         onTap: (index) =>
             ref.read(navigationIndexProvider.notifier).state = index,
         items: [
@@ -788,9 +799,12 @@ class _CityPickerDialog extends StatefulWidget {
   State<_CityPickerDialog> createState() => _CityPickerDialogState();
 }
 
+enum _CityPickerStep { province, city, district }
+
 class _CityPickerDialogState extends State<_CityPickerDialog> {
   int? _provinceId;
   int? _cityId;
+  _CityPickerStep _compactStep = _CityPickerStep.province;
 
   List<AreaData> get _provinces => areas.where((e) => e.deep == 0).toList();
 
@@ -822,113 +836,244 @@ class _CityPickerDialogState extends State<_CityPickerDialog> {
     final provinces = _provinces;
     final citiesOfProvince = _cities;
     final districtsOfCity = _districts;
+    final screenSize = MediaQuery.of(context).size;
+    final isCompact = screenSize.width < 560;
+    final dialogWidth = isCompact
+        ? (screenSize.width - 48).clamp(280.0, 380.0).toDouble()
+        : 720.0;
+    final dialogHeight = isCompact
+        ? (screenSize.height * 0.72).clamp(360.0, 520.0).toDouble()
+        : 420.0;
 
     return AlertDialog(
       title: Text('选择城市'.tr),
       content: SizedBox(
-        width: 720,
-        height: 420,
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    '省'.tr,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: provinces.length,
-                      itemBuilder: (context, index) {
-                        final item = provinces[index];
-                        final selected = item.id == _provinceId;
-                        return ListTile(
-                          dense: true,
-                          selected: selected,
-                          title: Text(item.name),
-                          onTap: () {
-                            setState(() {
-                              _provinceId = item.id;
-                              final nextCities = _cities;
-                              _cityId = nextCities.isNotEmpty
-                                  ? nextCities.first.id
-                                  : null;
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
+        width: dialogWidth,
+        height: dialogHeight,
+        child: isCompact
+            ? _buildCompactPicker(
+                context,
+                provinces,
+                citiesOfProvince,
+                districtsOfCity,
+              )
+            : _buildWidePicker(
+                context,
+                provinces,
+                citiesOfProvince,
+                districtsOfCity,
               ),
-            ),
-            const VerticalDivider(),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    '市'.tr,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: citiesOfProvince.length,
-                      itemBuilder: (context, index) {
-                        final item = citiesOfProvince[index];
-                        final selected = item.id == _cityId;
-                        return ListTile(
-                          dense: true,
-                          selected: selected,
-                          title: Text(item.name),
-                          onTap: () {
-                            setState(() {
-                              _cityId = item.id;
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const VerticalDivider(),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    '区'.tr,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: districtsOfCity.length,
-                      itemBuilder: (context, index) {
-                        final item = districtsOfCity[index];
-                        return ListTile(
-                          dense: true,
-                          title: Text(item.name),
-                          subtitle: Text(
-                            '${item.longitude.toStringAsFixed(2)}, ${item.latitude.toStringAsFixed(2)}',
-                          ),
-                          onTap: () => Navigator.pop(context, item),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
+  }
+
+  Widget _buildWidePicker(
+    BuildContext context,
+    List<AreaData> provinces,
+    List<AreaData> citiesOfProvince,
+    List<AreaData> districtsOfCity,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildSection(
+            title: '省'.tr,
+            child: ListView.builder(
+              itemCount: provinces.length,
+              itemBuilder: (context, index) {
+                final item = provinces[index];
+                final selected = item.id == _provinceId;
+                return ListTile(
+                  dense: true,
+                  selected: selected,
+                  title: Text(
+                    item.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onTap: () => _selectProvince(item.id),
+                );
+              },
+            ),
+          ),
+        ),
+        const VerticalDivider(),
+        Expanded(
+          child: _buildSection(
+            title: '市'.tr,
+            child: ListView.builder(
+              itemCount: citiesOfProvince.length,
+              itemBuilder: (context, index) {
+                final item = citiesOfProvince[index];
+                final selected = item.id == _cityId;
+                return ListTile(
+                  dense: true,
+                  selected: selected,
+                  title: Text(
+                    item.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onTap: () => _selectCity(item.id),
+                );
+              },
+            ),
+          ),
+        ),
+        const VerticalDivider(),
+        Expanded(
+          child: _buildSection(
+            title: '区'.tr,
+            child: ListView.builder(
+              itemCount: districtsOfCity.length,
+              itemBuilder: (context, index) {
+                final item = districtsOfCity[index];
+                return _buildDistrictTile(context, item, dense: true);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCompactPicker(
+    BuildContext context,
+    List<AreaData> provinces,
+    List<AreaData> citiesOfProvince,
+    List<AreaData> districtsOfCity,
+  ) {
+    Widget currentList;
+    switch (_compactStep) {
+      case _CityPickerStep.province:
+        currentList = ListView.builder(
+          itemCount: provinces.length,
+          itemBuilder: (context, index) {
+            final item = provinces[index];
+            final selected = item.id == _provinceId;
+            return ListTile(
+              selected: selected,
+              title: Text(
+                item.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _selectProvince(item.id, moveNext: true),
+            );
+          },
+        );
+      case _CityPickerStep.city:
+        currentList = ListView.builder(
+          itemCount: citiesOfProvince.length,
+          itemBuilder: (context, index) {
+            final item = citiesOfProvince[index];
+            final selected = item.id == _cityId;
+            return ListTile(
+              selected: selected,
+              title: Text(
+                item.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _selectCity(item.id, moveNext: true),
+            );
+          },
+        );
+      case _CityPickerStep.district:
+        currentList = ListView.builder(
+          itemCount: districtsOfCity.length,
+          itemBuilder: (context, index) {
+            final item = districtsOfCity[index];
+            return _buildDistrictTile(context, item, dense: false);
+          },
+        );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SegmentedButton<_CityPickerStep>(
+          segments: [
+            ButtonSegment(
+              value: _CityPickerStep.province,
+              label: Text('省'.tr),
+            ),
+            ButtonSegment(
+              value: _CityPickerStep.city,
+              label: Text('市'.tr),
+            ),
+            ButtonSegment(
+              value: _CityPickerStep.district,
+              label: Text('区'.tr),
+            ),
+          ],
+          selected: {_compactStep},
+          onSelectionChanged: (selection) {
+            setState(() {
+              _compactStep = selection.first;
+            });
+          },
+        ),
+        const SizedBox(height: 12),
+        Expanded(child: currentList),
+      ],
+    );
+  }
+
+  Widget _buildSection({required String title, required Widget child}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Expanded(child: child),
+      ],
+    );
+  }
+
+  Widget _buildDistrictTile(
+    BuildContext context,
+    AreaData item, {
+    required bool dense,
+  }) {
+    return ListTile(
+      dense: dense,
+      title: Text(
+        item.name,
+        maxLines: dense ? 2 : 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        '${item.longitude.toStringAsFixed(2)}, ${item.latitude.toStringAsFixed(2)}',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      onTap: () => Navigator.pop(context, item),
+    );
+  }
+
+  void _selectProvince(int provinceId, {bool moveNext = false}) {
+    setState(() {
+      _provinceId = provinceId;
+      final nextCities = _cities;
+      _cityId = nextCities.isNotEmpty ? nextCities.first.id : null;
+      if (moveNext) {
+        _compactStep = _CityPickerStep.city;
+      }
+    });
+  }
+
+  void _selectCity(int cityId, {bool moveNext = false}) {
+    setState(() {
+      _cityId = cityId;
+      if (moveNext) {
+        _compactStep = _CityPickerStep.district;
+      }
+    });
   }
 }

@@ -1156,6 +1156,38 @@ extension StringL10n on String {
       AppLanguage.en: 'Show or hide based on preference',
       AppLanguage.zhTW: '按個人習慣決定是否顯示',
     },
+    '中宫显示八字': {
+      AppLanguage.en: 'Show Bazi In Center',
+      AppLanguage.zhTW: '中宮顯示八字',
+    },
+    '三合盘设置': {
+      AppLanguage.en: 'Sanhe Chart Settings',
+      AppLanguage.zhTW: '三合盤設置',
+    },
+    '四化盘设置': {
+      AppLanguage.en: 'Sihua Chart Settings',
+      AppLanguage.zhTW: '四化盤設置',
+    },
+    '飞星盘设置': {
+      AppLanguage.en: 'Flying Chart Settings',
+      AppLanguage.zhTW: '飛星盤設置',
+    },
+    '隐藏生辰信息': {
+      AppLanguage.en: 'Hide Birth Info',
+      AppLanguage.zhTW: '隱藏生辰信息',
+    },
+    '隐藏公历、真太阳时、农历': {
+      AppLanguage.en: 'Hide solar, true solar time and lunar lines',
+      AppLanguage.zhTW: '隱藏公曆、真太陽時、農曆',
+    },
+    '历史历法保护': {
+      AppLanguage.en: 'Historical Calendar Protection',
+      AppLanguage.zhTW: '歷史曆法保護',
+    },
+    '历史红区时熔断流月及以下层级': {
+      AppLanguage.en: 'Disable month/day/hour flow in historical red zones',
+      AppLanguage.zhTW: '歷史紅區時熔斷流月及以下層級',
+    },
     '一岁一宫顺行': {
       AppLanguage.en: 'One palace per year (Forward)',
       AppLanguage.zhTW: '一歲一宮順行',

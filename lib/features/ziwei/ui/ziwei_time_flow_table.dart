@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ziwei_core/ziwei_core.dart';
 import 'package:ziwei_core/src/models/timeline_node.dart';
+import '../../../core/ui_scale.dart';
 import '../providers/ziwei_providers.dart';
 import '../../../core/l10n.dart';
 import '../../../core/ziwei_l10n.dart';
@@ -15,6 +16,9 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 初始化UI缩放
+    UIScale.init(context);
+
     final state = ref.watch(ziweiUIManagerProvider);
     final manager = ref.read(ziweiUIManagerProvider.notifier);
 
@@ -129,9 +133,9 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       manifest.status.note.tr,
-                      style: const TextStyle(
-                        fontSize: 10, 
-                        color: Colors.orange, 
+                      style: TextStyle(
+                        fontSize: 10.ts,
+                        color: Colors.orange,
                         fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -143,17 +147,17 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
                 if (state.currentDecade != null)
                   TextButton.icon(
                     onPressed: () => manager.resetToOrigin(),
-                    icon: const Icon(Icons.refresh, size: 12),
+                    icon: Icon(Icons.refresh, size: 12.ts),
                     label: Text(
-                      '回到本命盘'.tr, 
-                      style: const TextStyle(
-                        fontSize: 10, 
+                      '回到本命盘'.tr,
+                      style: TextStyle(
+                        fontSize: 10.ts,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     style: TextButton.styleFrom(
                       foregroundColor: ZiweiClassicTheme.palaceNameColor,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: EdgeInsets.symmetric(horizontal: 8.ws),
                     ),
                   ),
               ],

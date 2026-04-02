@@ -1,13 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:ziwei_core/ziwei_core.dart';
-import 'dart:math' as math;
+
 import 'ziwei_classic_theme.dart';
 
 class _ArrowTask {
   final bool isCentrifugal;
   final SiHuaType sihuaType;
 
-  _ArrowTask({required this.isCentrifugal, required this.sihuaType});
+  const _ArrowTask({required this.isCentrifugal, required this.sihuaType});
 }
 
 class _PalaceBoundary {
@@ -15,33 +17,36 @@ class _PalaceBoundary {
   final Offset innerAnchor;
   final Offset slideTangent;
 
-  _PalaceBoundary({
+  const _PalaceBoundary({
     required this.outerAnchor,
     required this.innerAnchor,
     required this.slideTangent,
   });
 }
 
-/// 盘面级别的自化箭头绘制器 (离心向外，向心穿心向内)
+/// 三合盘 / 飞星盘共用的自化箭头层
+/// 这里只按引擎给出的 selfSiHua / centripetalSiHua 直接路由渲染，
+/// 不做额外业务判定，避免前端再次“改写规则”。
 class ZiweiSihuaArrowPainter extends CustomPainter {
   final ZiWeiPlate plate;
-  final double edgeMargin; // 盘面外部留白
+  final double edgeMargin;
 
-  ZiweiSihuaArrowPainter({required this.plate, required this.edgeMargin});
+  const ZiweiSihuaArrowPainter({
+    required this.plate,
+    required this.edgeMargin,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
 
-    final double innerWidth = size.width - (edgeMargin * 2);
-    final double innerHeight = size.height - (edgeMargin * 2);
+    final innerWidth = size.width - (edgeMargin * 2);
+    final innerHeight = size.height - (edgeMargin * 2);
+    final cellW = innerWidth / 4;
+    final cellH = innerHeight / 4;
 
-    final double cellW = innerWidth / 4;
-    final double cellH = innerHeight / 4;
-
-    // 1. 收集和路由渲染任务
-    Map<DiZhi, List<_ArrowTask>> renderTasks = {
-      for (var dz in DiZhi.values) dz: [],
+    final renderTasks = <DiZhi, List<_ArrowTask>>{
+      for (final dz in DiZhi.values) dz: [],
     };
 
     for (int i = 0; i < 12; i++) {
@@ -50,77 +55,65 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
 
       for (final starList in palace.stars.values) {
         for (final star in starList) {
-          if (star is StaticStar) {
-            if (star.selfSiHua != null) {
-              // 离心 (本宫触发，向外射出)
-              renderTasks[diZhi]!.add(
-                _ArrowTask(isCentrifugal: true, sihuaType: star.selfSiHua!),
-              );
-            }
+          if (star is! StaticStar) continue;
 
-            if (star.centripetalSiHua != null) {
-              // 向心 (对宫触发，从对宫射向本宫)
-              final DiZhi oppDiZhi = DiZhi.values[(i + 6) % 12];
-              renderTasks[oppDiZhi]!.add(
-                _ArrowTask(
-                  isCentrifugal: false,
-                  sihuaType: star.centripetalSiHua!,
-                ),
-              );
-            }
+          if (star.selfSiHua != null) {
+            renderTasks[diZhi]!.add(
+              _ArrowTask(
+                isCentrifugal: true,
+                sihuaType: star.selfSiHua!,
+              ),
+            );
+          }
+
+          if (star.centripetalSiHua != null) {
+            final oppositeDiZhi = DiZhi.values[(i + 6) % 12];
+            renderTasks[oppositeDiZhi]!.add(
+              _ArrowTask(
+                isCentrifugal: false,
+                sihuaType: star.centripetalSiHua!,
+              ),
+            );
           }
         }
       }
     }
 
-    // 2. 逐个宫位边缘进行渲染
     for (int i = 0; i < 12; i++) {
       final diZhi = DiZhi.values[i];
       final tasks = renderTasks[diZhi]!;
       if (tasks.isEmpty) continue;
 
-      final Rect cellRect = _getCellRect(
-        diZhi,
-        cellW,
-        cellH,
-      ).translate(edgeMargin, edgeMargin);
+      final cellRect = _getCellRect(diZhi, cellW, cellH).translate(
+        edgeMargin,
+        edgeMargin,
+      );
+      final oppositeDiZhi = DiZhi.values[(diZhi.index + 6) % 12];
+      final oppositeRect = _getCellRect(oppositeDiZhi, cellW, cellH).translate(
+        edgeMargin,
+        edgeMargin,
+      );
 
-      final DiZhi oppDiZhi = DiZhi.values[(diZhi.index + 6) % 12];
-      final Rect oppRect = _getCellRect(
-        oppDiZhi,
-        cellW,
-        cellH,
-      ).translate(edgeMargin, edgeMargin);
+      final outerDir = _normalize(cellRect.center - oppositeRect.center);
+      final boundary = _getBoundary(diZhi, cellRect);
 
-      // 计算真实对宫连线的方向 (射击朝向)
-      final Offset center = cellRect.center;
-      final Offset oppCenter = oppRect.center;
-      final Offset outerDir = _normalize(center - oppCenter);
+      var centrifugalCount = 0;
+      var centripetalCount = 0;
 
-      // 获取当前宫位的标准边框和滑动切线向量
-      final _PalaceBoundary boundary = _getBoundary(diZhi, cellRect);
-
-      int centrifugalCount = 0;
-      int centripetalCount = 0;
-
-      for (int k = 0; k < tasks.length; k++) {
-        final task = tasks[k];
-        final int offsetIndex = task.isCentrifugal
+      for (final task in tasks) {
+        final offsetIndex = task.isCentrifugal
             ? centrifugalCount++
             : centripetalCount++;
-
         _drawArrow(
           canvas: canvas,
           boundary: boundary,
-          outerDir: outerNormal(outerDir),
+          outerDir: outerDir,
           task: task,
           offsetIndex: offsetIndex,
         );
       }
     }
   }
-
-  Offset outerNormal(Offset dir) => dir;
 
   void _drawArrow({
     required Canvas canvas,
@@ -129,50 +122,38 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
     required _ArrowTask task,
     required int offsetIndex,
   }) {
-    // 调小箭头整体尺寸，避免过度占据空间
-    final double arrowLength = 10.0;
-    final double strokeWidth = 1.5;
-    final double arrowHeadLength = 4.5;
+    const arrowLength = 10.0;
+    const strokeWidth = 1.5;
+    const arrowHeadLength = 4.5;
+    final shiftAmount = _getShiftAmount(offsetIndex, 8.0);
 
-    // 根据索引决定在边线上滑动排开的偏移行程
-    final double shiftAmount = _getShiftAmount(offsetIndex, 8.0);
-
-    Offset start, end;
+    late final Offset start;
+    late final Offset end;
 
     if (task.isCentrifugal) {
-      // 离心 (向外)：以边框外侧的绝对中心出发
-      final Offset anchor =
-          boundary.outerAnchor + (boundary.slideTangent * shiftAmount);
-      final Offset dir = outerDir;
-
-      start = anchor - (dir * 2.0); // 稍微伸进内部一点点起步
-      end = anchor + (dir * arrowLength);
+      final anchor = boundary.outerAnchor + (boundary.slideTangent * shiftAmount);
+      start = anchor - (outerDir * 2.0);
+      end = anchor + (outerDir * arrowLength);
     } else {
-      // 向心 (向里)：以边框内侧的绝对中心出发，斜指对宫靶心
-      final Offset anchor =
-          boundary.innerAnchor + (boundary.slideTangent * shiftAmount);
-      final Offset dir = -outerDir;
-
+      final anchor = boundary.innerAnchor + (boundary.slideTangent * shiftAmount);
+      final dir = -outerDir;
       start = anchor - (dir * 2.0);
       end = anchor + (dir * arrowLength);
     }
 
-    // 绘制
-    final Color arrowColor = ZiweiClassicTheme.getSihuaColor(task.sihuaType);
-    final Paint paint = Paint()
-      ..color = arrowColor
+    final paint = Paint()
+      ..color = ZiweiClassicTheme.getSihuaColor(task.sihuaType)
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke;
 
     canvas.drawLine(start, end, paint);
-
     _drawArrowHead(canvas, start, end, paint, arrowHeadLength);
   }
 
   double _getShiftAmount(int index, double baseStep) {
     if (index == 0) return 0;
-    int factor = ((index + 1) ~/ 2);
-    if (index % 2 == 0) factor = -factor;
+    var factor = ((index + 1) ~/ 2);
+    if (index.isEven) factor = -factor;
     return factor * baseStep;
   }
 
@@ -183,25 +164,24 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
     Paint paint,
     double headLength,
   ) {
-    final double headAngle = math.pi / 6;
+    const headAngle = math.pi / 6;
+    final angle = math.atan2(end.dy - start.dy, end.dx - start.dx);
 
-    final double angle = math.atan2(end.dy - start.dy, end.dx - start.dx);
-
-    final Offset leftTip = Offset(
+    final leftTip = Offset(
       end.dx - headLength * math.cos(angle - headAngle),
       end.dy - headLength * math.sin(angle - headAngle),
     );
-    final Offset rightTip = Offset(
+    final rightTip = Offset(
       end.dx - headLength * math.cos(angle + headAngle),
       end.dy - headLength * math.sin(angle + headAngle),
     );
 
-    final Path path = Path()
+    final path = Path()
       ..moveTo(leftTip.dx, leftTip.dy)
       ..lineTo(end.dx, end.dy)
       ..lineTo(rightTip.dx, rightTip.dy);
 
-    final Paint headPaint = Paint()
+    final headPaint = Paint()
       ..color = paint.color
       ..strokeWidth = paint.strokeWidth
       ..style = PaintingStyle.stroke
@@ -213,7 +193,6 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
   _PalaceBoundary _getBoundary(DiZhi diZhi, Rect rect) {
     final c = rect.center;
 
-    // Corner tanget: perpendicular to the corner diagonal to slide along the corner fan
     Offset tg(double dx, double dy) {
       final n = Offset(dx, dy);
       final l = n.distance;
@@ -232,7 +211,7 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
         return _PalaceBoundary(
           outerAnchor: Offset(c.dx, rect.top),
           innerAnchor: Offset(c.dx, rect.bottom),
-          slideTangent: const Offset(1, 0), // 沿水平边界平移避让
+          slideTangent: const Offset(1, 0),
         );
       case DiZhi.shen:
         return _PalaceBoundary(
@@ -245,7 +224,7 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
         return _PalaceBoundary(
           outerAnchor: Offset(rect.right, c.dy),
           innerAnchor: Offset(rect.left, c.dy),
-          slideTangent: const Offset(0, 1), // 沿垂直边界平移避让
+          slideTangent: const Offset(0, 1),
         );
       case DiZhi.hai:
         return _PalaceBoundary(
@@ -258,7 +237,7 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
         return _PalaceBoundary(
           outerAnchor: Offset(c.dx, rect.bottom),
           innerAnchor: Offset(c.dx, rect.top),
-          slideTangent: const Offset(1, 0), // 沿水平边界平移避让
+          slideTangent: const Offset(1, 0),
         );
       case DiZhi.yin:
         return _PalaceBoundary(
@@ -271,79 +250,48 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
         return _PalaceBoundary(
           outerAnchor: Offset(rect.left, c.dy),
           innerAnchor: Offset(rect.right, c.dy),
-          slideTangent: const Offset(0, 1), // 沿垂直边界平移避让
+          slideTangent: const Offset(0, 1),
         );
     }
   }
 
   Offset _normalize(Offset v) {
-    final double l = v.distance;
+    final l = v.distance;
     if (l == 0) return v;
     return Offset(v.dx / l, v.dy / l);
   }
 
   Rect _getCellRect(DiZhi diZhi, double cellW, double cellH) {
-    int col = 0;
-    int row = 0;
-
     switch (diZhi) {
       case DiZhi.si:
-        col = 0;
-        row = 0;
-        break;
+        return Rect.fromLTWH(0, 0, cellW, cellH);
       case DiZhi.wu:
-        col = 1;
-        row = 0;
-        break;
+        return Rect.fromLTWH(cellW, 0, cellW, cellH);
       case DiZhi.wei:
-        col = 2;
-        row = 0;
-        break;
+        return Rect.fromLTWH(cellW * 2, 0, cellW, cellH);
       case DiZhi.shen:
-        col = 3;
-        row = 0;
-        break;
-
+        return Rect.fromLTWH(cellW * 3, 0, cellW, cellH);
       case DiZhi.chen:
-        col = 0;
-        row = 1;
-        break;
+        return Rect.fromLTWH(0, cellH, cellW, cellH);
       case DiZhi.you:
-        col = 3;
-        row = 1;
-        break;
-
+        return Rect.fromLTWH(cellW * 3, cellH, cellW, cellH);
       case DiZhi.mao:
-        col = 0;
-        row = 2;
-        break;
+        return Rect.fromLTWH(0, cellH * 2, cellW, cellH);
       case DiZhi.xu:
-        col = 3;
-        row = 2;
-        break;
-
+        return Rect.fromLTWH(cellW * 3, cellH * 2, cellW, cellH);
       case DiZhi.yin:
-        col = 0;
-        row = 3;
-        break;
+        return Rect.fromLTWH(0, cellH * 3, cellW, cellH);
       case DiZhi.chou:
-        col = 1;
-        row = 3;
-        break;
+        return Rect.fromLTWH(cellW, cellH * 3, cellW, cellH);
       case DiZhi.zi:
-        col = 2;
-        row = 3;
-        break;
+        return Rect.fromLTWH(cellW * 2, cellH * 3, cellW, cellH);
       case DiZhi.hai:
-        col = 3;
-        row = 3;
-        break;
+        return Rect.fromLTWH(cellW * 3, cellH * 3, cellW, cellH);
     }
-    return Rect.fromLTWH(col * cellW, row * cellH, cellW, cellH);
   }
 
   @override
-  bool shouldRepaint(ZiweiSihuaArrowPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant ZiweiSihuaArrowPainter oldDelegate) {
+    return oldDelegate.plate != plate || oldDelegate.edgeMargin != edgeMargin;
   }
 }

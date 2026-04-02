@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ziwei_core/ziwei_core.dart';
+import '../../../core/ui_scale.dart';
 import '../../../providers/input_provider.dart';
 import '../providers/ziwei_providers.dart';
 import 'ziwei_classic_theme.dart';
@@ -15,6 +16,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/app_version.dart';
 
 class CenterInfoWidget extends ConsumerWidget {
+  static const double _centerScale = 1.1;
+
   final ZiweiUIState state;
 
   const CenterInfoWidget({super.key, required this.state});
@@ -65,6 +68,11 @@ class CenterInfoWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 初始化UI缩放
+    UIScale.init(context);
+    double s(num value) => value * _centerScale;
+    final chartMode = ref.watch(ziweiChartModeProvider);
+
     final plate = state.plate;
     final date = state.date;
     final bazi = date.bazi;
@@ -77,6 +85,13 @@ class CenterInfoWidget extends ConsumerWidget {
         : '匿名'.tr;
     final appSettings = ref.watch(appSettingsProvider);
     final useTrueSolar = appSettings.useTrueSolarTime;
+    final ziweiOptions = appSettings.ziweiOptions;
+    final hideCenterBirthInfo = ziweiOptions.hideCenterBirthInfo;
+    final showCenterBazi = switch (chartMode) {
+      ZiweiChartMode.sanhe => ziweiOptions.showCenterBazi,
+      ZiweiChartMode.sihua => ziweiOptions.sihuaDisplay.showCenterBazi,
+      ZiweiChartMode.flying => ziweiOptions.flyingDisplay.showCenterBazi,
+    };
 
     final fortuneTable = ref.watch(fortuneTableProvider);
 
@@ -97,7 +112,8 @@ class CenterInfoWidget extends ConsumerWidget {
         alignment: Alignment.center,
         children: [
           // 连线层：位于文字背景
-          if (state.selectedPalaceIndex != null)
+          if (chartMode == ZiweiChartMode.sanhe &&
+              state.selectedPalaceIndex != null)
             Positioned.fill(
               child: CustomPaint(
                 painter: ZiweiCenterConnectionPainter(
@@ -108,7 +124,10 @@ class CenterInfoWidget extends ConsumerWidget {
 
           // 信息内容层
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            padding: EdgeInsets.symmetric(
+              horizontal: s(4),
+              vertical: s(1),
+            ),
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Column(
@@ -118,22 +137,24 @@ class CenterInfoWidget extends ConsumerWidget {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // 顶部留空，让Logo整体下移
+                      SizedBox(height: s(16)),
                       // App图片Logo (SVG)
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
                           SvgPicture.asset(
                             'assets/images/logo.svg',
-                            height: 16,
+                            height: s(16),
                           ),
                           // 右下角标注版本号
                           Positioned(
-                            right: -22,
-                            bottom: -2,
+                            right: s(-22),
+                            bottom: s(-2),
                             child: Text(
                               AppVersion.current,
-                              style: const TextStyle(
-                                fontSize: 8,
+                              style: TextStyle(
+                                fontSize: s(8.ts),
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -141,60 +162,70 @@ class CenterInfoWidget extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: s(4)),
                       // 第一行：姓名 阴阳性别 五行局 (黑色稳重版)
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
                           '$displayName     $yinYangGender     ${plate.elementBureau.label.tr}',
-                          style: const TextStyle(
-                            fontSize: 12, // 缩小避免溢出
+                          style: TextStyle(
+                            fontSize: s(12.ts),
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: s(2)),
                       // 时间组
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          '${'公历'.tr}: ${_formatAstroDate(date.solar)}',
-                          style: const TextStyle(
-                            fontSize: 10, // 缩小避免溢出
-                            color: ZiweiClassicTheme.minorStarColor,
-                          ),
-                        ),
-                      ),
-                      if (useTrueSolar && date.trueSolarTime != null)
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            '${'真太阳'.tr}: ${_formatAstroDate(date.trueSolarTime!)}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: ZiweiClassicTheme.minorStarColor,
+                      Visibility(
+                        visible: !hideCenterBirthInfo,
+                        maintainState: true,
+                        maintainAnimation: true,
+                        maintainSize: true,
+                        child: Column(
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                '${'公历'.tr}: ${_formatAstroDate(date.solar)}',
+                                style: TextStyle(
+                                  fontSize: s(10.ts),
+                                  color: ZiweiClassicTheme.minorStarColor,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          '${'农历'.tr}: ${bazi.year.display}年 ${date.lunar.monthNameStr}月${_formatLunarDay(date.lunar.day)} ${bazi.time.zhi.display}时',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: ZiweiClassicTheme.minorStarColor,
-                          ),
+                            if (useTrueSolar && date.trueSolarTime != null)
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '${'真太阳'.tr}: ${_formatAstroDate(date.trueSolarTime!)}',
+                                  style: TextStyle(
+                                    fontSize: s(10.ts),
+                                    color: ZiweiClassicTheme.minorStarColor,
+                                  ),
+                                ),
+                              ),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                '${'农历'.tr}: ${bazi.year.display}年 ${date.lunar.monthNameStr}月${_formatLunarDay(date.lunar.day)} ${bazi.time.zhi.display}时',
+                                style: TextStyle(
+                                  fontSize: s(10.ts),
+                                  color: ZiweiClassicTheme.minorStarColor,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: s(2)),
                       // 命主身主
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
                           '${'命主'.tr}: ${(plate.mingZhu ?? "").nodeDisplay}   ${'身主'.tr}: ${(plate.shenZhu ?? "").nodeDisplay}',
-                          style: const TextStyle(
-                            fontSize: 10,
+                          style: TextStyle(
+                            fontSize: s(10.ts),
                             fontWeight: FontWeight.bold,
                             color: ZiweiClassicTheme.decadeAgeColor,
                           ),
@@ -203,25 +234,35 @@ class CenterInfoWidget extends ConsumerWidget {
                     ],
                   ),
 
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4),
-                    child: Divider(height: 1, thickness: 0.5),
-                  ),
+                  Visibility(
+                    visible: showCenterBazi,
+                    maintainState: true,
+                    maintainAnimation: true,
+                    maintainSize: true,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: s(4)),
+                          child: const Divider(height: 1, thickness: 0.5),
+                        ),
 
-                  // --- 底部八字展示区 ---
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: _buildProfessionalBazi(bazi, fortuneTable),
-                  ),
-                  const SizedBox(height: 4),
-                  // 作者署名 (极其低调)
-                  const Text(
-                    'Authored by RedSC1',
-                    style: TextStyle(
-                      fontSize: 8,
-                      color: Colors.black26,
-                      fontStyle: FontStyle.italic,
-                      letterSpacing: 0.5,
+                        // --- 底部八字展示区 ---
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: _buildProfessionalBazi(bazi, fortuneTable),
+                        ),
+                        SizedBox(height: s(4)),
+                        // 作者署名 (极其低调)
+                        Text(
+                          'Authored by RedSC1',
+                          style: TextStyle(
+                            fontSize: s(8.ts),
+                            color: Colors.black26,
+                            fontStyle: FontStyle.italic,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -292,25 +333,25 @@ class CenterInfoWidget extends ConsumerWidget {
         final stemWx = BaziTable.getWuXingOfGan(p.gz.gan);
         final branchWx = BaziTable.getWuXingOfZhi(p.gz.zhi);
         return Container(
-          width: 25, // 控制柱间距
-          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: 27.5, // 控制柱间距
+          margin: const EdgeInsets.symmetric(horizontal: 4.4),
           child: Column(
             children: [
               Text(
                 p.tg,
                 style: TextStyle(
-                  fontSize: 8.5,
+                  fontSize: 9.35.ts,
                   fontWeight: FontWeight.bold,
                   color: p.label == '日'.tr
                       ? Colors.black54
                       : BaziUIUtils.getWuXingColor(stemWx),
                 ),
               ),
-              const SizedBox(height: 1),
+              const SizedBox(height: 1.1),
               Text(
                 p.gz.gan.display,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 15.4.ts,
                   fontWeight: FontWeight.bold,
                   height: 1.1,
                   color: BaziUIUtils.getWuXingColor(stemWx),
@@ -319,7 +360,7 @@ class CenterInfoWidget extends ConsumerWidget {
               Text(
                 p.gz.zhi.display,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 15.4.ts,
                   fontWeight: FontWeight.bold,
                   height: 1.1,
                   color: BaziUIUtils.getWuXingColor(branchWx),
@@ -328,7 +369,7 @@ class CenterInfoWidget extends ConsumerWidget {
               Text(
                 p.btnTg,
                 style: TextStyle(
-                  fontSize: 8.5,
+                  fontSize: 9.35.ts,
                   fontWeight: FontWeight.bold,
                   color: BaziUIUtils.getWuXingColor(p.btnTgWx),
                 ),
@@ -349,23 +390,23 @@ class CenterInfoWidget extends ConsumerWidget {
         final branchWx = BaziTable.getWuXingOfZhi(d.ganZhi.zhi);
 
         return Container(
-          width: 20, // 略微加宽以容纳4位数年份
-          margin: const EdgeInsets.symmetric(horizontal: 1.5),
+          width: 24, // 略微加宽以容纳4位数年份
+          margin: const EdgeInsets.symmetric(horizontal: 1.65),
           child: Column(
             children: [
               Text(
                 '${d.startAge}',
-                style: const TextStyle(
-                  fontSize: 9,
+                style: TextStyle(
+                  fontSize: 9.9.ts,
                   color: Colors.grey,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 1),
+              const SizedBox(height: 1.1),
               Text(
                 d.ganZhi.gan.display,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13.2.ts,
                   fontWeight: FontWeight.w600,
                   height: 1.0,
                   color: BaziUIUtils.getWuXingColor(stemWx),
@@ -374,16 +415,20 @@ class CenterInfoWidget extends ConsumerWidget {
               Text(
                 d.ganZhi.zhi.display,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13.2.ts,
                   fontWeight: FontWeight.w600,
                   height: 1.0,
                   color: BaziUIUtils.getWuXingColor(branchWx),
                 ),
               ),
-              const SizedBox(height: 1),
-              Text(
-                '${d.startTime.year}',
-                style: const TextStyle(fontSize: 8, color: Colors.black38),
+              const SizedBox(height: 1.1),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '${d.startTime.year}',
+                  softWrap: false,
+                  style: TextStyle(fontSize: 8.8.ts, color: Colors.black38),
+                ),
               ),
             ],
           ),
@@ -393,7 +438,7 @@ class CenterInfoWidget extends ConsumerWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [baziRow, const SizedBox(height: 6), dayunRow],
+      children: [baziRow, const SizedBox(height: 6.6), dayunRow],
     );
   }
 }

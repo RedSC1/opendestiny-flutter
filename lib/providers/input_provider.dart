@@ -527,6 +527,8 @@ class InputNotifier extends _$InputNotifier {
     var activeSiHuaProfileId = options.activeSiHuaProfileId;
     var brightnessProfiles = options.brightnessProfiles;
     var activeBrightnessProfileId = options.activeBrightnessProfileId;
+    var starsProfiles = options.starsProfiles;
+    var activeStarsProfileId = options.activeStarsProfileId;
 
     if (siHuaProfiles.isEmpty && options.customSiHuaJson.trim().isNotEmpty) {
       final now = DateTime.now();
@@ -563,12 +565,30 @@ class InputNotifier extends _$InputNotifier {
       activeBrightnessProfileId = brightnessProfiles.first.id;
     }
 
+    if (starsProfiles.isEmpty && options.customStarsJson.trim().isNotEmpty) {
+      final now = DateTime.now();
+      final profile = ZiweiCustomProfile(
+        id: 'stars_migrated_${now.microsecondsSinceEpoch}',
+        name: '迁移星曜流派',
+        json: options.customStarsJson,
+        createdAt: now,
+        updatedAt: now,
+      );
+      starsProfiles = [profile];
+      activeStarsProfileId = profile.id;
+    } else if (starsProfiles.isNotEmpty &&
+        starsProfiles.every((profile) => profile.id != activeStarsProfileId)) {
+      activeStarsProfileId = starsProfiles.first.id;
+    }
+
     return settings.copyWith(
       ziweiOptions: options.copyWith(
         siHuaProfiles: siHuaProfiles,
         activeSiHuaProfileId: activeSiHuaProfileId,
         brightnessProfiles: brightnessProfiles,
         activeBrightnessProfileId: activeBrightnessProfileId,
+        starsProfiles: starsProfiles,
+        activeStarsProfileId: activeStarsProfileId,
       ),
     );
   }
@@ -579,7 +599,9 @@ class InputNotifier extends _$InputNotifier {
   ) {
     return type == ZiweiCustomProfileType.siHua
         ? options.siHuaProfiles
-        : options.brightnessProfiles;
+        : type == ZiweiCustomProfileType.brightness
+        ? options.brightnessProfiles
+        : options.starsProfiles;
   }
 
   String _activeProfileIdForType(
@@ -588,7 +610,9 @@ class InputNotifier extends _$InputNotifier {
   ) {
     return type == ZiweiCustomProfileType.siHua
         ? options.activeSiHuaProfileId
-        : options.activeBrightnessProfileId;
+        : type == ZiweiCustomProfileType.brightness
+        ? options.activeBrightnessProfileId
+        : options.activeStarsProfileId;
   }
 
   bool _isProtectedZiweiCustomProfile(
@@ -601,10 +625,16 @@ class InputNotifier extends _$InputNotifier {
   Set<String> _protectedProfileNamesForType(ZiweiCustomProfileType type) {
     return type == ZiweiCustomProfileType.siHua
         ? const {'默认四化流派', '默認四化流派', 'Default SiHua Profile'}
-        : const {
+        : type == ZiweiCustomProfileType.brightness
+        ? const {
             '默认亮度流派',
             '默認亮度流派',
             'Default Brightness Profile',
+          }
+        : const {
+            '默认星曜流派',
+            '默認星曜流派',
+            'Default Stars Profile',
           };
   }
 
@@ -620,10 +650,16 @@ class InputNotifier extends _$InputNotifier {
         activeSiHuaProfileId: activeId ?? options.activeSiHuaProfileId,
       );
     }
+    if (type == ZiweiCustomProfileType.brightness) {
+      return options.copyWith(
+        brightnessProfiles: profiles ?? options.brightnessProfiles,
+        activeBrightnessProfileId:
+            activeId ?? options.activeBrightnessProfileId,
+      );
+    }
     return options.copyWith(
-      brightnessProfiles: profiles ?? options.brightnessProfiles,
-      activeBrightnessProfileId:
-          activeId ?? options.activeBrightnessProfileId,
+      starsProfiles: profiles ?? options.starsProfiles,
+      activeStarsProfileId: activeId ?? options.activeStarsProfileId,
     );
   }
 

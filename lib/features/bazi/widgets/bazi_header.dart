@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bazi_core/bazi_core.dart';
+import '../../../core/ui_scale.dart';
 import '../../../core/l10n.dart';
 import '../../../core/bazi_ai_exporter.dart';
 import '../../../models/destiny_profile.dart';
@@ -24,24 +25,25 @@ class BaziHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMale = chart.gender == Gender.male;
+
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: EdgeInsets.symmetric(horizontal: 7.ws, vertical: 3.5.hs),
           decoration: BoxDecoration(
             color: isMale ? Colors.blue : Colors.red,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(3.5.ws),
           ),
           child: Text(
             isMale ? '乾造'.tr : '坤造'.tr,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 12,
+              fontSize: 11.ts,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 7.ws),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,20 +51,20 @@ class BaziHeader extends StatelessWidget {
             children: [
               Text(
                 '${'公历'.tr}：${chart.time.bjClt}',
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: 12.ts),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
                 '${'农历'.tr}：${chart.lunarDate}',
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
+                style: TextStyle(fontSize: 12.ts, color: Colors.black54),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               if (showTrueSolarTime)
                 Text(
                   '${'真太阳时'.tr}：${chart.time.solarTime.trueSolarTime}',
-                  style: const TextStyle(fontSize: 14, color: Colors.deepPurple),
+                  style: TextStyle(fontSize: 11.ts, color: Colors.deepPurple),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -85,9 +87,11 @@ class BaziHeader extends StatelessWidget {
               ),
             );
           },
-          icon: const Icon(Icons.smart_toy, color: Colors.blueGrey),
+          icon: Icon(Icons.smart_toy, color: Colors.blueGrey, size: 18.ts),
           tooltip: '复制 AI 命盘 JSON'.tr,
           visualDensity: VisualDensity.compact,
+          constraints: BoxConstraints(minWidth: 28.ws, minHeight: 28.hs),
+          padding: EdgeInsets.zero,
         ),
       ],
     );

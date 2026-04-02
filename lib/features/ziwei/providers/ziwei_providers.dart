@@ -13,6 +13,12 @@ part 'ziwei_providers.freezed.dart';
 final tdrPanProvider = StateProvider<TDRpan>((ref) => TDRpan.tianPan);
 final ziweiDateOffsetProvider = StateProvider<Duration>((ref) => Duration.zero);
 
+enum ZiweiChartMode { sanhe, sihua, flying }
+
+final ziweiChartModeProvider = StateProvider<ZiweiChartMode>(
+  (ref) => ZiweiChartMode.sanhe,
+);
+
 String _resolveActiveSiHuaJson(ZiweiOptions options) {
   if (options.siHuaProfiles.isNotEmpty) {
     final active = options.siHuaProfiles
@@ -33,6 +39,16 @@ String _resolveActiveBrightnessJson(ZiweiOptions options) {
   return options.customBrightnessJson;
 }
 
+String _resolveActiveStarsJson(ZiweiOptions options) {
+  if (options.starsProfiles.isNotEmpty) {
+    final active = options.starsProfiles
+        .where((profile) => profile.id == options.activeStarsProfileId)
+        .firstOrNull;
+    return (active ?? options.starsProfiles.first).json;
+  }
+  return options.customStarsJson;
+}
+
 /// 1. 负责把 UI 层的 [ZiweiOptions] 转译为底层的 [ZiweiRuleset]
 @riverpod
 ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
@@ -40,6 +56,7 @@ ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
   final options = profile.ziweiOptions;
   final defaultRuleset = ConfigLoader.getDefault();
   final activeSiHuaJson = _resolveActiveSiHuaJson(options);
+  final activeStarsJson = _resolveActiveStarsJson(options);
   final activeBrightnessJson = _resolveActiveBrightnessJson(options);
   final siHuaRuleset =
       options.siHuaMode == ZiweiSiHuaMode.custom && activeSiHuaJson.trim().isNotEmpty
@@ -48,14 +65,22 @@ ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
           sihuaJson: activeSiHuaJson,
         )
       : defaultRuleset;
+  final starRuleset =
+      options.starsMode == ZiweiStarsMode.custom &&
+          activeStarsJson.trim().isNotEmpty
+      ? ConfigLoader.overrideWith(
+          siHuaRuleset,
+          starsJson: activeStarsJson,
+        )
+      : siHuaRuleset;
   final baseRuleset =
       options.brightnessMode == ZiweiBrightnessMode.custom &&
           activeBrightnessJson.trim().isNotEmpty
       ? ConfigLoader.overrideWith(
-          siHuaRuleset,
+          starRuleset,
           brightnessJson: activeBrightnessJson,
         )
-      : siHuaRuleset;
+      : starRuleset;
 
   return ZiweiRuleset(
     stars: baseRuleset.stars,
@@ -70,7 +95,7 @@ ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
       siHuaBasedOn: options.siHuaBasedOn,
       childhoodRule: options.childhoodRule,
       flowLimitBasedOn: options.flowLimitBasedOn,
-      enableHistorical: baseRuleset.calendarOptions.enableHistorical,
+      enableHistorical: options.enableHistorical,
     ),
   );
 }

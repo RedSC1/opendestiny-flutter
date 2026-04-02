@@ -86,6 +86,29 @@ _$ZiweiOptionsImpl _$$ZiweiOptionsImplFromJson(
           .toList() ??
       const <ZiweiCustomProfile>[],
   activeBrightnessProfileId: json['activeBrightnessProfileId'] as String? ?? '',
+  starsMode:
+      $enumDecodeNullable(_$ZiweiStarsModeEnumMap, json['starsMode']) ??
+      ZiweiStarsMode.builtin,
+  customStarsJson: json['customStarsJson'] as String? ?? '',
+  starsProfiles:
+      (json['starsProfiles'] as List<dynamic>?)
+          ?.map((e) => ZiweiCustomProfile.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <ZiweiCustomProfile>[],
+  activeStarsProfileId: json['activeStarsProfileId'] as String? ?? '',
+  sihuaDisplay: json['sihuaDisplay'] == null
+      ? const ZiweiModeDisplayOptions(showCenterBazi: false)
+      : ZiweiModeDisplayOptions.fromJson(
+          json['sihuaDisplay'] as Map<String, dynamic>,
+        ),
+  flyingDisplay: json['flyingDisplay'] == null
+      ? const ZiweiModeDisplayOptions()
+      : ZiweiModeDisplayOptions.fromJson(
+          json['flyingDisplay'] as Map<String, dynamic>,
+        ),
+  showCenterBazi: json['showCenterBazi'] as bool? ?? true,
+  hideCenterBirthInfo: json['hideCenterBirthInfo'] as bool? ?? false,
+  enableHistorical: json['enableHistorical'] as bool? ?? true,
   flowStarDisplay: json['flowStarDisplay'] == null
       ? const ZiweiFlowStarDisplayOptions()
       : ZiweiFlowStarDisplayOptions.fromJson(
@@ -113,6 +136,15 @@ Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
       'customBrightnessJson': instance.customBrightnessJson,
       'brightnessProfiles': instance.brightnessProfiles,
       'activeBrightnessProfileId': instance.activeBrightnessProfileId,
+      'starsMode': _$ZiweiStarsModeEnumMap[instance.starsMode]!,
+      'customStarsJson': instance.customStarsJson,
+      'starsProfiles': instance.starsProfiles,
+      'activeStarsProfileId': instance.activeStarsProfileId,
+      'sihuaDisplay': instance.sihuaDisplay,
+      'flyingDisplay': instance.flyingDisplay,
+      'showCenterBazi': instance.showCenterBazi,
+      'hideCenterBirthInfo': instance.hideCenterBirthInfo,
+      'enableHistorical': instance.enableHistorical,
       'flowStarDisplay': instance.flowStarDisplay,
       'animation': instance.animation,
     };
@@ -138,6 +170,11 @@ const _$ZiweiSiHuaModeEnumMap = {
 const _$ZiweiBrightnessModeEnumMap = {
   ZiweiBrightnessMode.builtin: 'builtin',
   ZiweiBrightnessMode.custom: 'custom',
+};
+
+const _$ZiweiStarsModeEnumMap = {
+  ZiweiStarsMode.builtin: 'builtin',
+  ZiweiStarsMode.custom: 'custom',
 };
 
 _$DestinyProfileImpl _$$DestinyProfileImplFromJson(Map<String, dynamic> json) =>

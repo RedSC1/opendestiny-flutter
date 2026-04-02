@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bazi_core/bazi_core.dart';
+import '../../../core/ui_scale.dart';
 import '../bazi_view.dart';
 import 'bazi_pillar_widget.dart';
 import 'bazi_interaction_painter.dart';
@@ -37,6 +38,10 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
 
   @override
   Widget build(BuildContext context) {
+    const double chartVisualScale = 0.85;
+
+    UIScale.init(context);
+
     final selD = ref.watch(selDecadeIdxProvider);
     final selY = ref.watch(selYearIdxProvider);
     final selM = ref.watch(selMonthIdxProvider);
@@ -129,9 +134,12 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
       math.min(1.0, (totalPillarsCount - 4) / 5.0),
     );
     final curve = math.cos(normalized * (math.pi / 2));
-    final double pWidth = isEn ? 70.0 : (41.0 + (47.0 - 41.0) * curve);
-    final double gap = 4.0 + (8.0 - 4.0) * curve;
-    final double elasticMargin = 4.0 + (28.0 - 4.0) * curve;
+    final double pWidth =
+        (isEn ? 70.0 : (41.0 + (47.0 - 41.0) * curve)).ws * chartVisualScale;
+    final double gap =
+        (4.0 + (8.0 - 4.0) * curve).ws * chartVisualScale;
+    final double elasticMargin =
+        (4.0 + (28.0 - 4.0) * curve).ws * chartVisualScale;
 
     final List<({PillarType type, GanZhi gz})> allPillarData = [];
 
@@ -148,6 +156,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
         gz: gz,
         dayMaster: dayMaster,
         width: pWidth,
+        visualScale: chartVisualScale,
         showProfessional: _showProfessional,
         showInteraction: _showInteraction,
         isDayMaster: type == PillarType.day,
@@ -240,12 +249,16 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
       stemInteractions = _mapToUI(rawStems, stems);
       branchInteractions = _mapToUI(rawBranches, branches);
 
-      double currentX = (_showProfessional ? 32.0 : 0.0) + elasticMargin;
+      double currentX =
+          (_showProfessional ? 32.0.ws * chartVisualScale : 0.0) +
+          elasticMargin;
       for (int i = 0; i < leftPillarsWidgets.length; i++) {
         pillarCenters.add(currentX + pWidth / 2);
         currentX += pWidth + gap;
       }
-      if (leftPillarsWidgets.isNotEmpty) currentX += 1 + gap;
+      if (leftPillarsWidgets.isNotEmpty) {
+        currentX += (1.ws * chartVisualScale) + gap;
+      }
       for (int i = 0; i < originalPillarsWidgets.length; i++) {
         pillarCenters.add(currentX + pWidth / 2);
         currentX += pWidth + gap;
@@ -253,10 +266,10 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.symmetric(vertical: 12.hs),
       decoration: BoxDecoration(
         color: const Color(0xFFFBFBFB),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.ws),
         border: Border.all(color: Colors.grey.shade100),
       ),
       child: LayoutBuilder(
@@ -275,14 +288,19 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (_showProfessional)
-                        _buildProfessionalLegend(_showInteraction),
+                        _buildProfessionalLegend(
+                          _showInteraction,
+                          chartVisualScale,
+                        ),
                       SizedBox(width: elasticMargin),
                       ..._buildPillarListWithSpacing(leftPillarsWidgets, gap),
                       if (leftPillarsWidgets.isNotEmpty) ...[
                         SizedBox(width: gap),
                         Container(
-                          width: 1,
-                          height: 160 + (_showInteraction ? 140 : 0),
+                          width: 1.ws,
+                          height:
+                              (160.hs + (_showInteraction ? 140.hs : 0)) *
+                              chartVisualScale,
                           color: Colors.grey.shade300,
                         ),
                         SizedBox(width: gap),
@@ -291,7 +309,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
                         originalPillarsWidgets,
                         gap,
                       ),
-                      SizedBox(width: elasticMargin + 4),
+                      SizedBox(width: elasticMargin + 4.ws),
                     ],
                   ),
                   if (_showInteraction)
@@ -301,14 +319,15 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
                           pillarCenters.isNotEmpty
                               ? pillarCenters.last + pWidth
                               : 0,
-                          500,
+                          500.hs * chartVisualScale,
                         ),
                         painter: BaziInteractionPainter(
                           stemInteractions: stemInteractions,
                           branchInteractions: branchInteractions,
                           pillarCenters: pillarCenters,
-                          stemCenterY: 105,
-                          branchCenterY: 170, // 修改为从字符引出
+                          stemCenterY: 105.hs * chartVisualScale,
+                          branchCenterY:
+                              170.hs * chartVisualScale, // 修改为从字符引出
                           selectedPillarIdx: selectedPillarIdx,
                         ),
                       ),
@@ -322,9 +341,11 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     );
   }
 
-  Widget _buildProfessionalLegend(bool showInteraction) {
+  Widget _buildProfessionalLegend(bool showInteraction, double visualScale) {
+    double s(num value) => value * visualScale;
+
     return SizedBox(
-      width: 32,
+      width: s(32.ws),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,23 +353,23 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
           // 计算偏移逻辑：标签(20)+十神(20)+交互留白(60)+天干地支(75)+间距(10)+中间连线层(80)+藏干高度(96)
           SizedBox(
             height:
-                20 +
-                20 +
-                (showInteraction ? 60 : 0) +
-                75 +
-                10 +
-                (showInteraction ? 80 : 0) +
-                96,
+                s(20.hs) +
+                s(20.hs) +
+                (showInteraction ? s(60.hs) : 0) +
+                s(75.hs) +
+                s(10.hs) +
+                (showInteraction ? s(80.hs) : 0) +
+                s(96.hs),
           ),
           for (var label in ['星运', '自坐', '空亡', '纳音'])
             SizedBox(
-              height: 20,
+              height: s(20.hs),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   label.tr,
-                  style: const TextStyle(
-                    fontSize: 10,
+                  style: TextStyle(
+                    fontSize: s(10.ts),
                     color: Colors.black54,
                     fontWeight: FontWeight.w500,
                   ),

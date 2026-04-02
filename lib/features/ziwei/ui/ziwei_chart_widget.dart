@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ziwei_core/ziwei_core.dart';
+import '../../../core/ui_scale.dart';
 import '../../../providers/input_provider.dart';
 import '../providers/ziwei_providers.dart';
 import 'center_info_widget.dart';
 import 'palace_cell_widget.dart';
 import 'ziwei_flying_star_painter.dart';
+import 'ziwei_sihua_mode_arrow_painter.dart';
 import 'ziwei_sihua_arrow_painter.dart';
 
 class ZiweiChartWidget extends ConsumerStatefulWidget {
@@ -19,19 +21,28 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
   final GlobalKey _chartRootKey = GlobalKey();
   final Map<int, Rect> _ganRects = {};
   final Map<String, Rect> _flyingTargetRects = {};
+  final Map<String, Rect> _sihuaStarRects = {};
+  final Map<String, Rect> _sihuaBadgeRects = {};
+  bool _refreshScheduled = false;
+  Object? _lastPlateToken;
+  ZiweiChartMode? _lastChartMode;
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(ziweiUIManagerProvider);
+    final chartMode = ref.watch(ziweiChartModeProvider);
+    _resetGeometryCacheIfNeeded(state, chartMode);
     final enableFlyingStarArrow = ref.watch(
       inputNotifierProvider.select(
         (profile) => profile.ziweiOptions.animation.enableFlyingStarArrow,
       ),
     );
-    final flyingTargets = enableFlyingStarArrow
+    final effectiveFlyingArrowEnabled = enableFlyingStarArrow;
+    final flyingTargets = effectiveFlyingArrowEnabled
         ? _selectedPalaceFlyingTargets(state)
         : const <String, SiHuaType>{};
-    final sourceRect = !enableFlyingStarArrow || state.selectedPalaceIndex == null
+    final sourceRect =
+        !effectiveFlyingArrowEnabled || state.selectedPalaceIndex == null
         ? null
         : _ganRects[state.selectedPalaceIndex!];
     final arrowTargets = flyingTargets.entries
@@ -45,10 +56,14 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        // 初始化缩放
+        UIScale.init(context);
+
         const double edgeMargin = 12.0;
         final width = constraints.maxWidth - (edgeMargin * 2);
         final cellWidth = width / 4;
-        final cellHeight = cellWidth * 1.05;
+        // 固定宽高比 1.4，宫格大小随屏幕宽度自然缩放
+        final cellHeight = cellWidth * 1.2;
 
         final positions = {
           DiZhi.si: const Offset(0, 0),
@@ -88,6 +103,8 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
                     chartRootKey: _chartRootKey,
                     onGanRectChanged: _updateGanRect,
                     onFlyingTargetRectChanged: _updateFlyingTargetRect,
+                    onSihuaStarRectChanged: _updateSihuaStarRect,
+                    onSihuaBadgeRectChanged: _updateSihuaBadgeRect,
                   ),
                 );
               }),
@@ -98,17 +115,37 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
                 height: cellHeight * 2,
                 child: CenterInfoWidget(state: state),
               ),
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: ZiweiSihuaArrowPainter(
-                      plate: state.plate,
-                      edgeMargin: edgeMargin,
+              if (chartMode == ZiweiChartMode.sanhe ||
+                  chartMode == ZiweiChartMode.flying)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      painter: ZiweiSihuaArrowPainter(
+                        plate: state.plate,
+                        edgeMargin: edgeMargin,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              if (sourceRect != null && arrowTargets.isNotEmpty)
+              if (chartMode == ZiweiChartMode.sihua)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      painter: ZiweiSihuaModeArrowPainter(
+                        plate: state.plate,
+                        edgeMargin: edgeMargin,
+                        starRects: _sihuaStarRects,
+                        badgeRects: _sihuaBadgeRects,
+                      ),
+                    ),
+                  ),
+                ),
+              if (effectiveFlyingArrowEnabled &&
+                  (chartMode == ZiweiChartMode.sanhe ||
+                      chartMode == ZiweiChartMode.sihua ||
+                      chartMode == ZiweiChartMode.flying) &&
+                  sourceRect != null &&
+                  arrowTargets.isNotEmpty)
                 Positioned.fill(
                   child: IgnorePointer(
                     child: CustomPaint(
@@ -143,10 +180,35 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
     };
   }
 
+  void _resetGeometryCacheIfNeeded(
+    ZiweiUIState state,
+    ZiweiChartMode chartMode,
+  ) {
+    final plateToken = Object.hash(
+      state.plate.hashCode,
+      state.currentDecade?.decadeIndex,
+      state.currentYear?.hashCode,
+      state.currentMonth?.hashCode,
+      state.currentDay?.hashCode,
+      state.currentHour?.hashCode,
+    );
+
+    if (_lastPlateToken == plateToken && _lastChartMode == chartMode) {
+      return;
+    }
+
+    _lastPlateToken = plateToken;
+    _lastChartMode = chartMode;
+    _ganRects.clear();
+    _flyingTargetRects.clear();
+    _sihuaStarRects.clear();
+    _sihuaBadgeRects.clear();
+  }
+
   void _updateGanRect(int palaceIndex, Rect? rect) {
     if (rect == null) {
-      if (_ganRects.remove(palaceIndex) != null && mounted) {
-        setState(() {});
+      if (_ganRects.remove(palaceIndex) != null) {
+        _scheduleRefresh();
       }
       return;
     }
@@ -155,13 +217,13 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
     if (_rectEquals(oldRect, rect)) return;
 
     _ganRects[palaceIndex] = rect;
-    if (mounted) setState(() {});
+    _scheduleRefresh();
   }
 
   void _updateFlyingTargetRect(String starKey, Rect? rect) {
     if (rect == null) {
-      if (_flyingTargetRects.remove(starKey) != null && mounted) {
-        setState(() {});
+      if (_flyingTargetRects.remove(starKey) != null) {
+        _scheduleRefresh();
       }
       return;
     }
@@ -170,7 +232,47 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
     if (_rectEquals(oldRect, rect)) return;
 
     _flyingTargetRects[starKey] = rect;
-    if (mounted) setState(() {});
+    _scheduleRefresh();
+  }
+
+  void _updateSihuaStarRect(String starPlacementKey, Rect? rect) {
+    if (rect == null) {
+      if (_sihuaStarRects.remove(starPlacementKey) != null) {
+        _scheduleRefresh();
+      }
+      return;
+    }
+
+    final oldRect = _sihuaStarRects[starPlacementKey];
+    if (_rectEquals(oldRect, rect)) return;
+
+    _sihuaStarRects[starPlacementKey] = rect;
+    _scheduleRefresh();
+  }
+
+  void _updateSihuaBadgeRect(String badgePlacementKey, Rect? rect) {
+    if (rect == null) {
+      if (_sihuaBadgeRects.remove(badgePlacementKey) != null) {
+        _scheduleRefresh();
+      }
+      return;
+    }
+
+    final oldRect = _sihuaBadgeRects[badgePlacementKey];
+    if (_rectEquals(oldRect, rect)) return;
+
+    _sihuaBadgeRects[badgePlacementKey] = rect;
+    _scheduleRefresh();
+  }
+
+  void _scheduleRefresh() {
+    if (_refreshScheduled) return;
+    _refreshScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshScheduled = false;
+      if (!mounted) return;
+      setState(() {});
+    });
   }
 
   bool _rectEquals(Rect? a, Rect? b) {

@@ -31,12 +31,13 @@
 ## 📱 界面预览 (Screenshots)
 
 <p align="center">
-  <img src="assets/images/screenshot_1.png" width="30%" />
-  <img src="assets/images/screenshot_2.png" width="30%" />
-  <img src="assets/images/screenshot_3.png" width="30%" />
+  <img src="assets/images/screenshot_1.jpg" width="30%" />
+  <img src="assets/images/screenshot_2.jpg" width="30%" />
+  <img src="assets/images/screenshot_3.jpg" width="30%" />
 </p>
 <p align="center">
-  
+  <img src="assets/images/screenshot_4.jpg" width="30%" />
+  <img src="assets/images/screenshot_5.jpg" width="30%" />
 </p>
 
 ---

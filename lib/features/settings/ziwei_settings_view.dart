@@ -199,6 +199,66 @@ class ZiweiSettingsView extends ConsumerWidget {
             ),
 
           const Divider(),
+          _buildSectionTitle('星曜流派'.tr),
+          RadioListTile<ZiweiStarsMode>(
+            title: Text('内置规则'.tr),
+            subtitle: Text('使用系统默认星曜安星规则'.tr),
+            value: ZiweiStarsMode.builtin,
+            groupValue: options.starsMode,
+            onChanged: (val) {
+              if (val != null) {
+                _updateOptions(ref, options.copyWith(starsMode: val));
+              }
+            },
+          ),
+          RadioListTile<ZiweiStarsMode>(
+            title: Text('自定义规则'.tr),
+            subtitle: Text('手动编辑 stars.json 覆盖安星规则'.tr),
+            value: ZiweiStarsMode.custom,
+            groupValue: options.starsMode,
+            onChanged: (val) {
+              if (val != null) {
+                final nextJson = options.customStarsJson.isEmpty
+                    ? _defaultCustomStarsJson()
+                    : options.customStarsJson;
+                _updateOptions(
+                  ref,
+                  _ensureStarsProfiles(
+                    options.copyWith(
+                      starsMode: val,
+                      customStarsJson: nextJson,
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+          if (options.starsMode == ZiweiStarsMode.custom)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: ListTile(
+                  leading: const Icon(Icons.auto_awesome),
+                  title: Text('编辑自定义星曜流派'.tr),
+                  subtitle: Text('进入三级菜单以 JSON 覆盖星曜安星规则'.tr),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => _ZiweiProfileArchivePage(
+                          type: ZiweiCustomProfileType.stars,
+                          title: '自定义星曜流派'.tr,
+                          createDefaultJson: _defaultCustomStarsJson,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+          const Divider(),
           _buildSectionTitle('童限排法'.tr),
           RadioListTile<ChildhoodRole>(
             title: Text('一岁一宫顺行'.tr),
@@ -222,7 +282,17 @@ class ZiweiSettingsView extends ConsumerWidget {
           ),
 
           const Divider(),
-          _buildSectionTitle('流曜显示'.tr),
+          _buildSectionTitle('三合盘设置'.tr),
+          SwitchListTile(
+            title: Text('中宫显示八字'.tr),
+            value: options.showCenterBazi,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(showCenterBazi: value),
+              );
+            },
+          ),
           SwitchListTile(
             title: Text('显示流运博士十二神'.tr),
             value: options.flowStarDisplay.showBoshi12,
@@ -267,6 +337,40 @@ class ZiweiSettingsView extends ConsumerWidget {
           ),
 
           const Divider(),
+          _buildSectionTitle('四化盘设置'.tr),
+          SwitchListTile(
+            title: Text('中宫显示八字'.tr),
+            value: options.sihuaDisplay.showCenterBazi,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  sihuaDisplay: options.sihuaDisplay.copyWith(
+                    showCenterBazi: value,
+                  ),
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
+          _buildSectionTitle('飞星盘设置'.tr),
+          SwitchListTile(
+            title: Text('中宫显示八字'.tr),
+            value: options.flyingDisplay.showCenterBazi,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  flyingDisplay: options.flyingDisplay.copyWith(
+                    showCenterBazi: value,
+                  ),
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
           _buildSectionTitle('动效'.tr),
           SwitchListTile(
             title: Text('启用飞星四化框'.tr),
@@ -296,10 +400,32 @@ class ZiweiSettingsView extends ConsumerWidget {
               );
             },
           ),
+          SwitchListTile(
+            title: Text('隐藏生辰信息'.tr),
+            subtitle: Text('隐藏公历、真太阳时、农历'.tr),
+            value: options.hideCenterBirthInfo,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(hideCenterBirthInfo: value),
+              );
+            },
+          ),
 
           const Divider(),
           _buildSectionTitle('实验性功能 (谨慎修改)'.tr),
 
+          SwitchListTile(
+            title: Text('历史历法保护'.tr),
+            subtitle: Text('历史红区时熔断流月及以下层级'.tr),
+            value: options.enableHistorical,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(enableHistorical: value),
+              );
+            },
+          ),
           ExpansionTile(
             title: Text('更多高级排法设置'.tr),
             leading: const Icon(Icons.science_outlined, color: Colors.orange),
@@ -391,6 +517,12 @@ class ZiweiSettingsView extends ConsumerWidget {
     return const JsonEncoder.withIndent('  ').convert(payload);
   }
 
+  String _defaultCustomStarsJson() {
+    final defaultRuleset = ConfigLoader.getDefault();
+    final payload = defaultRuleset.stars.map(_serializeStaticStarConfig).toList();
+    return const JsonEncoder.withIndent('  ').convert(payload);
+  }
+
   ZiweiOptions _ensureSiHuaProfiles(ZiweiOptions options) {
     if (options.siHuaProfiles.isNotEmpty) return options;
     final now = DateTime.now();
@@ -420,6 +552,22 @@ class ZiweiSettingsView extends ConsumerWidget {
     return options.copyWith(
       brightnessProfiles: [profile],
       activeBrightnessProfileId: profile.id,
+    );
+  }
+
+  ZiweiOptions _ensureStarsProfiles(ZiweiOptions options) {
+    if (options.starsProfiles.isNotEmpty) return options;
+    final now = DateTime.now();
+    final profile = ZiweiCustomProfile(
+      id: 'stars_${now.microsecondsSinceEpoch}',
+      name: '默认星曜流派'.tr,
+      json: options.customStarsJson,
+      createdAt: now,
+      updatedAt: now,
+    );
+    return options.copyWith(
+      starsProfiles: [profile],
+      activeStarsProfileId: profile.id,
     );
   }
 
@@ -465,11 +613,13 @@ bool _isProtectedZiweiProfile(
 ) {
   return (type == ZiweiCustomProfileType.siHua
           ? const {'默认四化流派', '默認四化流派', 'Default SiHua Profile'}
-          : const {
+          : type == ZiweiCustomProfileType.brightness
+          ? const {
               '默认亮度流派',
               '默認亮度流派',
               'Default Brightness Profile',
-            })
+            }
+          : const {'默认星曜流派', '默認星曜流派', 'Default Stars Profile'})
       .contains(profile.name);
 }
 
@@ -489,10 +639,14 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
     final options = ref.watch(appSettingsProvider).ziweiOptions;
     final profiles = type == ZiweiCustomProfileType.siHua
         ? options.siHuaProfiles
-        : options.brightnessProfiles;
+        : type == ZiweiCustomProfileType.brightness
+        ? options.brightnessProfiles
+        : options.starsProfiles;
     final activeId = type == ZiweiCustomProfileType.siHua
         ? options.activeSiHuaProfileId
-        : options.activeBrightnessProfileId;
+        : type == ZiweiCustomProfileType.brightness
+        ? options.activeBrightnessProfileId
+        : options.activeStarsProfileId;
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),
@@ -514,33 +668,7 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
               );
               await Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => type == ZiweiCustomProfileType.siHua
-                      ? _SiHuaProfileEditorPage(
-                          initialJson: profile.json,
-                          readOnly: locked,
-                          onChanged: (json) {
-                            ref
-                                .read(inputNotifierProvider.notifier)
-                                .saveZiweiCustomProfileJson(
-                                  type: type,
-                                  id: profile.id,
-                                  json: json,
-                                );
-                          },
-                        )
-                      : _BrightnessProfileEditorPage(
-                          initialJson: profile.json,
-                          readOnly: locked,
-                          onChanged: (json) {
-                            ref
-                                .read(inputNotifierProvider.notifier)
-                                .saveZiweiCustomProfileJson(
-                                  type: type,
-                                  id: profile.id,
-                                  json: json,
-                                );
-                          },
-                        ),
+                  builder: (_) => _buildProfileEditorPage(ref, profile, locked),
                 ),
               );
             },
@@ -568,13 +696,49 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
             type: type,
             name: type == ZiweiCustomProfileType.siHua
                 ? '新建四化流派'.tr
-                : '新建亮度流派'.tr,
+                : type == ZiweiCustomProfileType.brightness
+                ? '新建亮度流派'.tr
+                : '新建星曜流派'.tr,
             json: createDefaultJson(),
           );
         },
         icon: const Icon(Icons.add),
         label: Text('新建流派'.tr),
       ),
+    );
+  }
+
+  Widget _buildProfileEditorPage(
+    WidgetRef ref,
+    ZiweiCustomProfile profile,
+    bool locked,
+  ) {
+    void onChanged(String json) {
+      ref.read(inputNotifierProvider.notifier).saveZiweiCustomProfileJson(
+        type: type,
+        id: profile.id,
+        json: json,
+      );
+    }
+
+    if (type == ZiweiCustomProfileType.siHua) {
+      return _SiHuaProfileEditorPage(
+        initialJson: profile.json,
+        readOnly: locked,
+        onChanged: onChanged,
+      );
+    }
+    if (type == ZiweiCustomProfileType.brightness) {
+      return _BrightnessProfileEditorPage(
+        initialJson: profile.json,
+        readOnly: locked,
+        onChanged: onChanged,
+      );
+    }
+    return _StarsProfileEditorPage(
+      initialJson: profile.json,
+      readOnly: locked,
+      onChanged: onChanged,
     );
   }
 
@@ -738,6 +902,122 @@ class _ZiweiProfileTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _StarsProfileEditorPage extends StatelessWidget {
+  const _StarsProfileEditorPage({
+    required this.initialJson,
+    required this.readOnly,
+    required this.onChanged,
+  });
+
+  final String initialJson;
+  final bool readOnly;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('编辑自定义星曜流派'.tr)),
+      body: ListView(
+        padding: const EdgeInsets.all(12),
+        children: [
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: _CustomStarsJsonEditor(
+                initialJson: initialJson,
+                readOnly: readOnly,
+                onChanged: onChanged,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CustomStarsJsonEditor extends StatefulWidget {
+  const _CustomStarsJsonEditor({
+    required this.initialJson,
+    required this.readOnly,
+    required this.onChanged,
+  });
+
+  final String initialJson;
+  final bool readOnly;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_CustomStarsJsonEditor> createState() => _CustomStarsJsonEditorState();
+}
+
+class _CustomStarsJsonEditorState extends State<_CustomStarsJsonEditor> {
+  late final TextEditingController _controller;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialJson);
+  }
+
+  @override
+  void didUpdateWidget(covariant _CustomStarsJsonEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialJson != oldWidget.initialJson &&
+        widget.initialJson != _controller.text) {
+      _controller.text = widget.initialJson;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleChanged(String value) {
+    try {
+      final decoded = jsonDecode(value);
+      if (decoded is! List) {
+        throw const FormatException('root must be list');
+      }
+      ConfigLoader.overrideWith(
+        ConfigLoader.getDefault(),
+        starsJson: value,
+      );
+      setState(() {
+        _error = null;
+      });
+      widget.onChanged(value);
+    } catch (_) {
+      setState(() {
+        _error = '星曜 JSON 格式无效'.tr;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      minLines: 16,
+      maxLines: 24,
+      readOnly: widget.readOnly,
+      onChanged: widget.readOnly ? null : _handleChanged,
+      decoration: InputDecoration(
+        hintText:
+            '[\n  {\n    "key": "ziwei",\n    "type": "major",\n    "rule": {\n      "type": "constant",\n      "value": 0\n    }\n  }\n]',
+        border: const OutlineInputBorder(),
+        errorText: _error,
+        alignLabelWithHint: true,
+      ),
+      style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
     );
   }
 }
@@ -1232,6 +1512,68 @@ String _brightnessEntryDisplay(String key) {
     }
   }
   return key.nodeDisplay;
+}
+
+Map<String, dynamic> _serializeStaticStarConfig(StaticStar star) {
+  return {
+    'key': star.key,
+    'type': star.type.name,
+    'rule': _serializeStarRule(star.rule),
+  };
+}
+
+Map<String, dynamic> _serializeStarRule(StarRule rule) {
+  if (rule is AnchorOffsetRule) {
+    return {
+      'type': 'anchor_offset',
+      'anchor': rule.anchorKey,
+      'offset': rule.offset,
+      'direction': _serializeStarDirection(rule.direction),
+      'boundary': rule.boundary.name,
+    };
+  }
+  if (rule is LookupRule) {
+    return {
+      'type': 'lookup',
+      'anchor': rule.anchorKey,
+      'table': Map<String, int>.from(rule.table),
+      'boundary': rule.boundary.name,
+      'offset': rule.offset,
+      'direction': _serializeStarDirection(rule.direction),
+    };
+  }
+  if (rule is LookupShiftRule) {
+    return {
+      'type': 'lookup_offset',
+      'anchor': rule.anchorKey,
+      'shift_anchor': rule.shiftAnchorKey,
+      'table': Map<String, int>.from(rule.table),
+      'boundary': rule.boundary.name,
+      'direction': _serializeStarDirection(rule.direction),
+    };
+  }
+  if (rule is ConstantRule) {
+    return {'type': 'constant', 'value': rule.value};
+  }
+  if (rule is PipelineRule) {
+    return {
+      'type': 'pipeline',
+      'boundary': rule.boundary.name,
+      'steps': rule.steps.map(_serializeStarRule).toList(),
+    };
+  }
+  throw UnsupportedError('Unsupported star rule: ${rule.runtimeType}');
+}
+
+String _serializeStarDirection(StarDirection direction) {
+  switch (direction) {
+    case StarDirection.shun:
+      return 'shun';
+    case StarDirection.ni:
+      return 'ni';
+    case StarDirection.genderShunNi:
+      return 'gender_shun_ni';
+  }
 }
 
 class _BrightnessSectionList extends StatelessWidget {

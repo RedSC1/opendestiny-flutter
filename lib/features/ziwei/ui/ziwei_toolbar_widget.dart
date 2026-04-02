@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ziwei_core/ziwei_core.dart';
+import '../../../core/ui_scale.dart';
 import '../../../core/l10n.dart';
 import '../../../providers/input_provider.dart';
 import '../providers/ziwei_providers.dart';
@@ -12,11 +13,25 @@ class ZiweiToolbarWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 初始化UI缩放
+    UIScale.init(context);
+
     final tdrPan = ref.watch(tdrPanProvider);
+    final chartMode = ref.watch(ziweiChartModeProvider);
     final offset = ref.watch(ziweiDateOffsetProvider);
+    final panNames = {
+      TDRpan.tianPan: '天盘'.tr,
+      TDRpan.diPan: '地盘'.tr,
+      TDRpan.renPan: '人盘'.tr,
+    };
+    final chartModeNames = {
+      ZiweiChartMode.sanhe: '三合'.tr,
+      ZiweiChartMode.sihua: '四化'.tr,
+      ZiweiChartMode.flying: '飞星'.tr,
+    };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -30,126 +45,176 @@ class ZiweiToolbarWidget extends ConsumerWidget {
           ),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // 1. 定盘：时间偏移量控制
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildTimeShiftButton(
-                icon: Icons.keyboard_double_arrow_left,
-                tooltip: '上一日'.tr,
-                onPressed: () {
-                  ref.read(ziweiDateOffsetProvider.notifier).state =
-                      offset - const Duration(days: 1);
-                },
-              ),
-              _buildTimeShiftButton(
-                icon: Icons.keyboard_arrow_left,
-                tooltip: '上一时辰 (2小时)'.tr,
-                onPressed: () {
-                  ref.read(ziweiDateOffsetProvider.notifier).state =
-                      offset - const Duration(hours: 2);
-                },
-              ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 时间偏移控制
+            _buildTimeShiftButton(
+              icon: Icons.keyboard_double_arrow_left,
+              tooltip: '上一日'.tr,
+              onPressed: () {
+                ref.read(ziweiDateOffsetProvider.notifier).state =
+                    offset - const Duration(days: 1);
+              },
+            ),
+            _buildTimeShiftButton(
+              icon: Icons.keyboard_arrow_left,
+              tooltip: '上一时辰'.tr,
+              onPressed: () {
+                ref.read(ziweiDateOffsetProvider.notifier).state =
+                    offset - const Duration(hours: 2);
+              },
+            ),
 
-              // 居中的恢复按钮 (仅在有偏移量时显示)
-              if (offset != Duration.zero)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: ActionChip(
-                    visualDensity: VisualDensity.compact,
-                    label: Text('复原'.tr, style: const TextStyle(fontSize: 10)),
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.errorContainer,
-                    labelStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onErrorContainer,
-                    ),
-                    onPressed: () {
-                      ref.read(ziweiDateOffsetProvider.notifier).state =
-                          Duration.zero;
-                    },
-                  ),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(
-                    '定盘'.tr,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-
-              _buildTimeShiftButton(
-                icon: Icons.keyboard_arrow_right,
-                tooltip: '下一时辰 (2小时)'.tr,
-                onPressed: () {
-                  ref.read(ziweiDateOffsetProvider.notifier).state =
-                      offset + const Duration(hours: 2);
-                },
-              ),
-              _buildTimeShiftButton(
-                icon: Icons.keyboard_double_arrow_right,
-                tooltip: '下一日'.tr,
-                onPressed: () {
-                  ref.read(ziweiDateOffsetProvider.notifier).state =
-                      offset + const Duration(days: 1);
-                },
-              ),
-            ],
-          ),
-
-          // 2. 天地人盘选择器 + AI 导出
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SegmentedButton<TDRpan>(
-                showSelectedIcon: false,
-                style: SegmentedButton.styleFrom(
+            // 恢复按钮或定盘文字
+            if (offset != Duration.zero)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: ActionChip(
                   visualDensity: VisualDensity.compact,
-                  textStyle: const TextStyle(fontSize: 12),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+                  label: Text('复原'.tr, style: TextStyle(fontSize: 9.5.ts)),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.errorContainer,
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                  onPressed: () {
+                    ref.read(ziweiDateOffsetProvider.notifier).state =
+                        Duration.zero;
+                  },
                 ),
-                segments: [
-                  ButtonSegment(value: TDRpan.tianPan, label: Text('天盘'.tr)),
-                  ButtonSegment(value: TDRpan.diPan, label: Text('地盘'.tr)),
-                  ButtonSegment(value: TDRpan.renPan, label: Text('人盘'.tr)),
-                ],
-                selected: {tdrPan},
-                onSelectionChanged: (Set<TDRpan> newSelection) {
-                  ref.read(tdrPanProvider.notifier).state = newSelection.first;
-                },
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Text(
+                  '定盘'.tr,
+                  style: TextStyle(
+                    fontSize: 10.5.ts,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
               ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () {
-                  final plate = ref.read(ziweiUIManagerProvider).plate;
-                  final settings = ref.read(appSettingsProvider);
-                  final json = ZiweiAiExporter.exportToAiJson(
-                    plate,
-                    brightnessMode: settings.ziweiOptions.brightnessMode.name,
-                  );
-                  Clipboard.setData(ClipboardData(text: json));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('已复制紫微 AI 分析数据到剪贴板'.tr),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.smart_toy, color: Colors.blueGrey),
-                tooltip: '复制 AI 分析数据'.tr,
-                visualDensity: VisualDensity.compact,
+
+            _buildTimeShiftButton(
+              icon: Icons.keyboard_arrow_right,
+              tooltip: '下一时辰'.tr,
+              onPressed: () {
+                ref.read(ziweiDateOffsetProvider.notifier).state =
+                    offset + const Duration(hours: 2);
+              },
+            ),
+            _buildTimeShiftButton(
+              icon: Icons.keyboard_double_arrow_right,
+              tooltip: '下一日'.tr,
+              onPressed: () {
+                ref.read(ziweiDateOffsetProvider.notifier).state =
+                    offset + const Duration(days: 1);
+              },
+            ),
+
+            const SizedBox(width: 6),
+
+            // 天地人盘下拉菜单
+            PopupMenuButton<TDRpan>(
+              initialValue: tdrPan,
+              tooltip: '切换天地人盘'.tr,
+              onSelected: (value) {
+                ref.read(tdrPanProvider.notifier).state = value;
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: TDRpan.tianPan,
+                  child: Text('天盘'.tr),
+                ),
+                PopupMenuItem(
+                  value: TDRpan.diPan,
+                  child: Text('地盘'.tr),
+                ),
+                PopupMenuItem(
+                  value: TDRpan.renPan,
+                  child: Text('人盘'.tr),
+                ),
+              ],
+              child: Chip(
+                visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                label: Text(
+                  panNames[tdrPan]!,
+                  style: TextStyle(fontSize: 10.ts),
+                ),
+                avatar: Icon(Icons.unfold_more, size: 14.ts),
               ),
-            ],
-          ),
-        ],
+            ),
+
+            const SizedBox(width: 3),
+
+            PopupMenuButton<ZiweiChartMode>(
+              initialValue: chartMode,
+              tooltip: '切换盘式'.tr,
+              onSelected: (value) {
+                ref.read(ziweiChartModeProvider.notifier).state = value;
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: ZiweiChartMode.sanhe,
+                  child: Text('三合'.tr),
+                ),
+                PopupMenuItem(
+                  value: ZiweiChartMode.sihua,
+                  child: Text('四化'.tr),
+                ),
+                PopupMenuItem(
+                  value: ZiweiChartMode.flying,
+                  child: Text('飞星'.tr),
+                ),
+              ],
+              child: Chip(
+                visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                label: Text(
+                  chartModeNames[chartMode]!,
+                  style: TextStyle(fontSize: 10.ts),
+                ),
+                avatar: Icon(Icons.tune, size: 14.ts),
+              ),
+            ),
+
+            const SizedBox(width: 2),
+
+            // AI 导出按钮
+            IconButton(
+              onPressed: () => _copyAiData(context, ref),
+              icon: Icon(Icons.smart_toy, size: 16.ts, color: Colors.blueGrey),
+              tooltip: '复制 AI 数据'.tr,
+              visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+              padding: const EdgeInsets.all(2),
+              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _copyAiData(BuildContext context, WidgetRef ref) {
+    final plate = ref.read(ziweiUIManagerProvider).plate;
+    final settings = ref.read(appSettingsProvider);
+    final json = ZiweiAiExporter.exportToAiJson(
+      plate,
+      brightnessMode: settings.ziweiOptions.brightnessMode.name,
+    );
+    Clipboard.setData(ClipboardData(text: json));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('已复制紫微 AI 分析数据到剪贴板'.tr),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -160,12 +225,12 @@ class ZiweiToolbarWidget extends ConsumerWidget {
     required VoidCallback onPressed,
   }) {
     return IconButton(
-      icon: Icon(icon, size: 20),
+      icon: Icon(icon, size: 17.ts),
       tooltip: tooltip,
       onPressed: onPressed,
-      visualDensity: VisualDensity.compact,
-      padding: const EdgeInsets.all(4),
-      constraints: const BoxConstraints(), // 移除默认的最小尺寸限制
+      visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+      padding: const EdgeInsets.all(2),
+      constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
     );
   }
 }

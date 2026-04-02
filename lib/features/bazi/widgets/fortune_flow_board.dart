@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bazi_core/bazi_core.dart';
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
+import '../../../core/ui_scale.dart';
 import '../bazi_view.dart';
 import 'fortune_card.dart';
 import '../../../core/l10n.dart';
@@ -250,6 +251,8 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
 }
 
 class _FortuneHList extends StatelessWidget {
+  static const double _listScale = 0.9;
+
   final ScrollController controller;
   final String label;
   final int itemCount;
@@ -264,29 +267,31 @@ class _FortuneHList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double s(num value) => value * _listScale;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: s(20.ws), vertical: s(4.hs)),
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: s(12.5.ts),
               color: Colors.grey,
               fontWeight: FontWeight.w500,
             ),
           ),
         ),
         Container(
-          height: 156,
-          padding: const EdgeInsets.only(bottom: 4),
+          height: s(118.hs),
+          padding: EdgeInsets.only(bottom: s(2.hs)),
           child: Scrollbar(
             controller: controller,
             thumbVisibility: true,
             interactive: true,
-            thickness: 6,
-            radius: const Radius.circular(10),
+            thickness: s(6.ws),
+            radius: Radius.circular(s(10.ws)),
             child: ListView.builder(
               key: ValueKey('${label}_list'),
               controller: controller,
@@ -294,7 +299,7 @@ class _FortuneHList extends StatelessWidget {
               physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics(),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: s(16.ws)),
               itemCount: itemCount,
               itemBuilder: itemBuilder,
             ),
