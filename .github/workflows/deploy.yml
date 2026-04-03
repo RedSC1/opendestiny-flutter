@@ -2,48 +2,70 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    tags:
-      - 'v*' # 只有打上 v1.0.0 这种标签时才发布正式版
+    branches:
+      - main
     paths:
-      - 'site/**' # 如果你改了落地页的代码，也触发更新
-  workflow_dispatch: # 支持在 GitHub 页面上手动点击运行
+      - ".github/workflows/deploy.yml"
+      - "site/**"
+      - "web/**"
+      - "lib/**"
+      - "assets/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # 1. 安装 Flutter 环境
-      - uses: subosito/flutter-action@v2
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
+          cache: true
 
-      # 2. 编译 Flutter Web (应用部署到 /app 路径)
       - name: Build Flutter Web
         run: |
           flutter pub get
           flutter build web --release --base-href "/app/"
 
-
-      # 3. 整理部署目录
-      - name: Prepare Deployment Folder
+      - name: Prepare deployment folder
         run: |
           mkdir -p deployment
-          # 复制落地页静态文件到根目录
           if [ -d "site" ]; then
-            cp -r site/* deployment/
+            cp -r site/. deployment/
           fi
-          # 创建 app 目录并放入 Flutter Web 编译产物
           mkdir -p deployment/app
-          cp -r build/web/* deployment/app/
+          cp -r build/web/. deployment/app/
+          touch deployment/.nojekyll
 
-      # 4. 部署到 gh-pages 分支
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: deployment # 部署这个文件夹下的所有内容
-          branch: gh-pages
+          path: deployment
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
