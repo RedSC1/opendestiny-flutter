@@ -11,11 +11,13 @@ import '../../../providers/input_provider.dart';
 class FortuneFlowBoard extends ConsumerStatefulWidget {
   final FortuneTable table;
   final TianGan dayMaster;
+  final double adaptiveScale;
 
   const FortuneFlowBoard({
     super.key,
     required this.table,
     required this.dayMaster,
+    this.adaptiveScale = 1.0,
   });
 
   @override
@@ -63,218 +65,228 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
         ? now.year - 1
         : now.year;
 
-    return Column(
-      children: [
-        // 1. 大运
-        _FortuneHList(
-          controller: _controllers[0],
-          label: '大运'.tr,
-          itemCount: widget.table.decades.length,
-          itemBuilder: (context, i) {
-            final d = widget.table.decades[i];
-            final bool isCurrentDecade =
-                now.isAfter(d.startTime) && now.isBefore(d.endTime);
-            final isXiaoYun = d.index == 0;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final responsiveScale = _resolveResponsiveScale(constraints.maxWidth);
+        final effectiveScale =
+            (widget.adaptiveScale * responsiveScale).clamp(0.75, 1.0).toDouble();
 
-            // 小运的干支取1岁的流年代入兜底显示，因为每年都会变
-            final displayGz = isXiaoYun
-                ? widget.table.fortune.getXiaoYunByAge(1)
-                : d.ganZhi;
+        return Column(
+          children: [
+            _FortuneHList(
+              controller: _controllers[0],
+              label: '大运'.tr,
+              itemCount: widget.table.decades.length,
+              adaptiveScale: effectiveScale,
+              itemBuilder: (context, i) {
+                final d = widget.table.decades[i];
+                final bool isCurrentDecade =
+                    now.isAfter(d.startTime) && now.isBefore(d.endTime);
+                final isXiaoYun = d.index == 0;
+                final displayGz = isXiaoYun
+                    ? widget.table.fortune.getXiaoYunByAge(1)
+                    : d.ganZhi;
 
-            return FortuneCard(
-              shiShen: isXiaoYun
-                  ? ''
-                  : Relationship.getShiShen(
-                      widget.dayMaster,
-                      displayGz.gan,
-                    ).display,
-              gz: displayGz,
-              top: '${d.startTime.year}',
-              bottom: isXiaoYun
-                  ? '1~${d.endAge}${'岁'.tr}'
-                  : '${d.startAge}${'虚岁'.tr}',
-              isSel: selD == i,
-              isCur: isCurrentDecade,
-              activeCol: Colors.deepPurple,
-              isXiaoYunBlock: isXiaoYun,
-              onTap: () {
-                _toggleSelection(
-                  controller: ref.read(selDecadeIdxProvider.notifier),
-                  index: i,
-                  resetLevel: 1,
+                return FortuneCard(
+                  shiShen: isXiaoYun
+                      ? ''
+                      : Relationship.getShiShen(
+                          widget.dayMaster,
+                          displayGz.gan,
+                        ).display,
+                  gz: displayGz,
+                  top: '${d.startTime.year}',
+                  bottom: isXiaoYun
+                      ? '1~${d.endAge}${'岁'.tr}'
+                      : '${d.startAge}${'虚岁'.tr}',
+                  isSel: selD == i,
+                  isCur: isCurrentDecade,
+                  activeCol: Colors.deepPurple,
+                  isXiaoYunBlock: isXiaoYun,
+                  adaptiveScale: effectiveScale,
+                  onTap: () {
+                    _toggleSelection(
+                      controller: ref.read(selDecadeIdxProvider.notifier),
+                      index: i,
+                      resetLevel: 1,
+                    );
+                  },
                 );
               },
-            );
-          },
-        ),
+            ),
+            if (selD != null)
+              _FortuneHList(
+                controller: _controllers[1],
+                label: '流年小运'.tr,
+                itemCount: widget.table.decades[selD].years.length,
+                adaptiveScale: effectiveScale,
+                itemBuilder: (context, i) {
+                  final y = widget.table.decades[selD].years[i];
+                  final bool isCurrentYear = y.year == currentBaziYear;
+                  final int age = y.year - widget.table.fortune.birthday.year + 1;
+                  final GanZhi xiaoYunGz =
+                      widget.table.fortune.getXiaoYunByAge(age);
 
-        // 2. 流年
-        if (selD != null)
-          _FortuneHList(
-            controller: _controllers[1],
-            label: '流年小运'.tr,
-            itemCount: widget.table.decades[selD].years.length,
-            itemBuilder: (context, i) {
-              final y = widget.table.decades[selD].years[i];
-              final bool isCurrentYear = y.year == currentBaziYear;
-
-              // 无论是否是大运，每年都计算并显示小运干支
-              final int age = y.year - widget.table.fortune.birthday.year + 1;
-              final GanZhi xiaoYunGz = widget.table.fortune.getXiaoYunByAge(
-                age,
-              );
-              final String bottomText = xiaoYunGz.display;
-
-              return FortuneCard(
-                shiShen: Relationship.getShiShen(
-                  widget.dayMaster,
-                  y.ganZhi.gan,
-                ).display,
-                gz: y.ganZhi,
-                top: '${y.year}',
-                bottom: bottomText,
-                isSel: selY == i,
-                isCur: isCurrentYear,
-                activeCol: Colors.orange,
-                onTap: () {
-                  _toggleSelection(
-                    controller: ref.read(selYearIdxProvider.notifier),
-                    index: i,
-                    resetLevel: 2,
+                  return FortuneCard(
+                    shiShen: Relationship.getShiShen(
+                      widget.dayMaster,
+                      y.ganZhi.gan,
+                    ).display,
+                    gz: y.ganZhi,
+                    top: '${y.year}',
+                    bottom: xiaoYunGz.display,
+                    isSel: selY == i,
+                    isCur: isCurrentYear,
+                    activeCol: Colors.orange,
+                    adaptiveScale: effectiveScale,
+                    onTap: () {
+                      _toggleSelection(
+                        controller: ref.read(selYearIdxProvider.notifier),
+                        index: i,
+                        resetLevel: 2,
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-
-        // 3. 流月
-        if (selD != null && selY != null)
-          _FortuneHList(
-            controller: _controllers[2],
-            label: '流月'.tr,
-            itemCount: widget.table.decades[selD].years[selY].months.length,
-            itemBuilder: (context, i) {
-              final m = widget.table.decades[selD].years[selY].months[i];
-              final bool isCurrentMonth =
-                  now.isAfter(m.startTime) && now.isBefore(m.endTime);
-              return FortuneCard(
-                shiShen: Relationship.getShiShen(
-                  widget.dayMaster,
-                  m.ganZhi.gan,
-                ).display,
-                gz: m.ganZhi,
-                top: '${m.startTime.month}月'.tr,
-                bottom: m.jieName.tr,
-                isSel: selM == i,
-                isCur: isCurrentMonth,
-                activeCol: Colors.teal,
-                onTap: () {
-                  _toggleSelection(
-                    controller: ref.read(selMonthIdxProvider.notifier),
-                    index: i,
-                    resetLevel: 3,
+              ),
+            if (selD != null && selY != null)
+              _FortuneHList(
+                controller: _controllers[2],
+                label: '流月'.tr,
+                itemCount: widget.table.decades[selD].years[selY].months.length,
+                adaptiveScale: effectiveScale,
+                itemBuilder: (context, i) {
+                  final m = widget.table.decades[selD].years[selY].months[i];
+                  final bool isCurrentMonth =
+                      now.isAfter(m.startTime) && now.isBefore(m.endTime);
+                  return FortuneCard(
+                    shiShen: Relationship.getShiShen(
+                      widget.dayMaster,
+                      m.ganZhi.gan,
+                    ).display,
+                    gz: m.ganZhi,
+                    top: '${m.startTime.month}月'.tr,
+                    bottom: m.jieName.tr,
+                    isSel: selM == i,
+                    isCur: isCurrentMonth,
+                    activeCol: Colors.teal,
+                    adaptiveScale: effectiveScale,
+                    onTap: () {
+                      _toggleSelection(
+                        controller: ref.read(selMonthIdxProvider.notifier),
+                        index: i,
+                        resetLevel: 3,
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-
-        // 4. 流日
-        if (selD != null && selY != null && selM != null)
-          _FortuneHList(
-            controller: _controllers[3],
-            label: '流日'.tr,
-            itemCount:
-                widget.table.decades[selD].years[selY].months[selM].days.length,
-            itemBuilder: (context, i) {
-              final d =
-                  widget.table.decades[selD].years[selY].months[selM].days[i];
-              final bool isToday =
-                  d.date.year == now.year &&
-                  d.date.month == now.month &&
-                  d.date.day == now.day;
-              return FortuneCard(
-                shiShen: Relationship.getShiShen(
-                  widget.dayMaster,
-                  d.ganZhi.gan,
-                ).display,
-                gz: d.ganZhi,
-                top: '${d.date.day}日'.tr,
-                bottom: '流日'.tr,
-                isSel: selDay == i,
-                isCur: isToday,
-                activeCol: Colors.cyan,
-                onTap: () {
-                  _toggleSelection(
-                    controller: ref.read(selDayIdxProvider.notifier),
-                    index: i,
-                    resetLevel: 4,
+              ),
+            if (selD != null && selY != null && selM != null)
+              _FortuneHList(
+                controller: _controllers[3],
+                label: '流日'.tr,
+                itemCount:
+                    widget.table.decades[selD].years[selY].months[selM].days.length,
+                adaptiveScale: effectiveScale,
+                itemBuilder: (context, i) {
+                  final d =
+                      widget.table.decades[selD].years[selY].months[selM].days[i];
+                  final bool isToday =
+                      d.date.year == now.year &&
+                      d.date.month == now.month &&
+                      d.date.day == now.day;
+                  return FortuneCard(
+                    shiShen: Relationship.getShiShen(
+                      widget.dayMaster,
+                      d.ganZhi.gan,
+                    ).display,
+                    gz: d.ganZhi,
+                    top: '${d.date.day}日'.tr,
+                    bottom: '流日'.tr,
+                    isSel: selDay == i,
+                    isCur: isToday,
+                    activeCol: Colors.cyan,
+                    adaptiveScale: effectiveScale,
+                    onTap: () {
+                      _toggleSelection(
+                        controller: ref.read(selDayIdxProvider.notifier),
+                        index: i,
+                        resetLevel: 4,
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-
-        // 5. 流时
-        if (selD != null && selY != null && selM != null && selDay != null)
-          _FortuneHList(
-            controller: _controllers[4],
-            label: '流时'.tr,
-            itemCount: widget
-                .table
-                .decades[selD]
-                .years[selY]
-                .months[selM]
-                .days[selDay]
-                .hours
-                .length,
-            itemBuilder: (context, i) {
-              final dayObj = widget
-                  .table
-                  .decades[selD]
-                  .years[selY]
-                  .months[selM]
-                  .days[selDay];
-              final h = dayObj.hours[i];
-              final bool isToday =
-                  dayObj.date.year == now.year &&
-                  dayObj.date.month == now.month &&
-                  dayObj.date.day == now.day;
-              bool isCurrentHour = false;
-              if (isToday) {
-                final currentHourIdx = (now.hour + 1) ~/ 2 % 12;
-                if (ratHourMode != RatHourMode.noSplit) {
-                  if (now.hour >= 23)
-                    isCurrentHour = (i == 12);
-                  else
-                    isCurrentHour = (h.hourIndex == currentHourIdx && i < 12);
-                } else {
-                  isCurrentHour = (h.hourIndex == currentHourIdx);
-                }
-              }
-              return FortuneCard(
-                shiShen: Relationship.getShiShen(
-                  widget.dayMaster,
-                  h.ganZhi.gan,
-                ).display,
-                gz: h.ganZhi,
-                top: h.name.tr,
-                bottom: '时辰'.tr,
-                isSel: selH == i,
-                isCur: isCurrentHour,
-                activeCol: Colors.blueGrey,
-                onTap: () {
-                  _toggleSelection(
-                    controller: ref.read(selHourIdxProvider.notifier),
-                    index: i,
-                    resetLevel: 5,
+              ),
+            if (selD != null && selY != null && selM != null && selDay != null)
+              _FortuneHList(
+                controller: _controllers[4],
+                label: '流时'.tr,
+                itemCount: widget
+                    .table
+                    .decades[selD]
+                    .years[selY]
+                    .months[selM]
+                    .days[selDay]
+                    .hours
+                    .length,
+                adaptiveScale: effectiveScale,
+                itemBuilder: (context, i) {
+                  final dayObj = widget
+                      .table
+                      .decades[selD]
+                      .years[selY]
+                      .months[selM]
+                      .days[selDay];
+                  final h = dayObj.hours[i];
+                  final bool isToday =
+                      dayObj.date.year == now.year &&
+                      dayObj.date.month == now.month &&
+                      dayObj.date.day == now.day;
+                  bool isCurrentHour = false;
+                  if (isToday) {
+                    final currentHourIdx = (now.hour + 1) ~/ 2 % 12;
+                    if (ratHourMode != RatHourMode.noSplit) {
+                      if (now.hour >= 23) {
+                        isCurrentHour = (i == 12);
+                      } else {
+                        isCurrentHour =
+                            (h.hourIndex == currentHourIdx && i < 12);
+                      }
+                    } else {
+                      isCurrentHour = (h.hourIndex == currentHourIdx);
+                    }
+                  }
+                  return FortuneCard(
+                    shiShen: Relationship.getShiShen(
+                      widget.dayMaster,
+                      h.ganZhi.gan,
+                    ).display,
+                    gz: h.ganZhi,
+                    top: h.name.tr,
+                    bottom: '时辰'.tr,
+                    isSel: selH == i,
+                    isCur: isCurrentHour,
+                    activeCol: Colors.blueGrey,
+                    adaptiveScale: effectiveScale,
+                    onTap: () {
+                      _toggleSelection(
+                        controller: ref.read(selHourIdxProvider.notifier),
+                        index: i,
+                        resetLevel: 5,
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-      ],
+              ),
+          ],
+        );
+      },
     );
+  }
+
+  double _resolveResponsiveScale(double maxWidth) {
+    if (maxWidth <= 0) return 1.0;
+    return (maxWidth / 420.0).clamp(0.75, 1.0).toDouble();
   }
 }
 
@@ -285,17 +297,19 @@ class _FortuneHList extends StatelessWidget {
   final String label;
   final int itemCount;
   final Widget Function(BuildContext, int) itemBuilder;
+  final double adaptiveScale;
 
   const _FortuneHList({
     required this.controller,
     required this.label,
     required this.itemCount,
     required this.itemBuilder,
+    this.adaptiveScale = 1.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    double s(num value) => value * _listScale;
+    double s(num value) => value * _listScale * adaptiveScale;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

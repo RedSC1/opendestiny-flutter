@@ -1,5 +1,20 @@
 import 'package:flutter/material.dart';
 
+/// 布局等级
+enum LayoutClass {
+  /// 手机竖屏
+  mobilePortrait,
+
+  /// 手机横屏
+  mobileLandscape,
+
+  /// 平板 / 折叠屏展开态 / 中等宽度窗口
+  tablet,
+
+  /// 桌面 / Web 宽屏窗口
+  desktop,
+}
+
 /// 设备类型枚举
 enum DeviceType {
   /// 手机（竖屏或横屏手机）
@@ -14,47 +29,54 @@ enum DeviceType {
 
 /// 设备类型检测工具
 ///
-/// 使用宽高比判断：
-/// - 高/宽 > 1.3：手机竖屏
-/// - 宽/高 > 1.6：手机横屏或桌面横屏（需结合宽度）
-/// - 其他：平板
+/// 主判断使用最短边与宽度，方向只用于区分手机横竖屏。
 class DeviceDetector {
-  /// 根据宽高比和屏幕尺寸判断设备类型
-  static DeviceType detect(BuildContext context) {
+  static LayoutClass detectLayout(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final width = size.width;
     final height = size.height;
-    final aspectRatio = width / height;
+    final shortestSide = size.shortestSide;
+    final isLandscape = width > height;
 
-    // 明显竖屏（手机）
-    if (height > width * 1.3) {
-      return DeviceType.mobile;
-    }
-
-    // 明显横屏
-    if (width > height * 1.5) {
-      // 横屏时按宽度判断是手机还是桌面
-      if (width < 900) {
-        return DeviceType.mobile; // 手机横屏
-      }
-      return DeviceType.desktop; // 桌面横屏
-    }
-
-    // 接近正方形（折叠屏、平板竖屏等）
-    // 按最短边判断
-    final shortestSide = width < height ? width : height;
     if (shortestSide < 600) {
-      return DeviceType.mobile;
-    } else if (shortestSide < 1000) {
-      return DeviceType.tablet;
-    } else {
-      return DeviceType.desktop;
+      return isLandscape
+          ? LayoutClass.mobileLandscape
+          : LayoutClass.mobilePortrait;
+    }
+
+    if (width >= 1100) {
+      return LayoutClass.desktop;
+    }
+
+    return LayoutClass.tablet;
+  }
+
+  /// 根据布局等级映射到设备类型
+  static DeviceType detect(BuildContext context) {
+    switch (detectLayout(context)) {
+      case LayoutClass.mobilePortrait:
+      case LayoutClass.mobileLandscape:
+        return DeviceType.mobile;
+      case LayoutClass.tablet:
+        return DeviceType.tablet;
+      case LayoutClass.desktop:
+        return DeviceType.desktop;
     }
   }
 
   /// 是否是手机（包括横屏手机）
   static bool isMobile(BuildContext context) {
     return detect(context) == DeviceType.mobile;
+  }
+
+  /// 是否是手机横屏
+  static bool isMobileLandscape(BuildContext context) {
+    return detectLayout(context) == LayoutClass.mobileLandscape;
+  }
+
+  /// 是否是手机竖屏
+  static bool isMobilePortrait(BuildContext context) {
+    return detectLayout(context) == LayoutClass.mobilePortrait;
   }
 
   /// 是否是平板

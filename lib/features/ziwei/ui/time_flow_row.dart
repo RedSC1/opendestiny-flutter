@@ -14,6 +14,7 @@ class TimeFlowRow<T> extends StatelessWidget {
 
   /// 自定义选中判断（解决对象引用不等的问题）
   final bool Function(T item, T? selected)? isSelectedBuilder;
+  final double adaptiveScale;
 
   const TimeFlowRow({
     super.key,
@@ -25,12 +26,15 @@ class TimeFlowRow<T> extends StatelessWidget {
     required this.activeColor,
     this.itemSubLabelBuilder,
     this.isSelectedBuilder,
+    this.adaptiveScale = 1.0,
   });
 
   @override
   Widget build(BuildContext context) {
+    double s(num value) => value * adaptiveScale;
+
     return Container(
-      height: 62,
+      height: s(62),
       decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -43,7 +47,7 @@ class TimeFlowRow<T> extends StatelessWidget {
         children: [
           // 左侧标签
           Container(
-            width: 38,
+            width: s(38),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: ZiweiClassicTheme.timeRowLabelBg,
@@ -54,8 +58,8 @@ class TimeFlowRow<T> extends StatelessWidget {
             child: Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 10,
+              style: TextStyle(
+                fontSize: s(10),
                 fontWeight: FontWeight.w900,
                 color: Colors.grey,
               ),
@@ -76,7 +80,10 @@ class TimeFlowRow<T> extends StatelessWidget {
                 physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics(),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                padding: EdgeInsets.symmetric(
+                  horizontal: s(8),
+                  vertical: s(6),
+                ),
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   final item = items[index];
@@ -88,18 +95,18 @@ class TimeFlowRow<T> extends StatelessWidget {
                     onTap: () => onItemSelected(item),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      width: 60,
-                      margin: const EdgeInsets.only(right: 6),
+                      width: s(60),
+                      margin: EdgeInsets.only(right: s(6)),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? activeColor.withOpacity(0.08)
                             : Colors.white,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(s(6)),
                         border: Border.all(
                           color: isSelected
                               ? activeColor
                               : Colors.grey.withOpacity(0.15),
-                          width: isSelected ? 1.6 : 1.0,
+                          width: isSelected ? s(1.6) : s(1.0),
                         ),
                       ),
                       child: Column(
@@ -110,7 +117,7 @@ class TimeFlowRow<T> extends StatelessWidget {
                             child: Text(
                               itemLabelBuilder(item),
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: s(13),
                                 fontWeight: isSelected
                                     ? FontWeight.w900
                                     : FontWeight.w700,
@@ -125,7 +132,7 @@ class TimeFlowRow<T> extends StatelessWidget {
                             Text(
                               itemSubLabelBuilder!(item),
                               style: TextStyle(
-                                fontSize: 9,
+                                fontSize: s(9),
                                 color: isSelected
                                     ? activeColor.withOpacity(0.8)
                                     : Colors.blueGrey.withOpacity(0.6),

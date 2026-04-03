@@ -35,6 +35,7 @@ class PalaceCellWidget extends ConsumerWidget {
   final ZiWeiPlate plate;
   final ZiweiUIState state;
   final GlobalKey chartRootKey;
+  final double runtimeScale;
   final void Function(int palaceIndex, Rect? rect) onGanRectChanged;
   final void Function(String starKey, Rect? rect) onFlyingTargetRectChanged;
   final void Function(String starPlacementKey, Rect? rect) onSihuaStarRectChanged;
@@ -46,13 +47,15 @@ class PalaceCellWidget extends ConsumerWidget {
     required this.plate,
     required this.state,
     required this.chartRootKey,
+    this.runtimeScale = 1.0,
     required this.onGanRectChanged,
     required this.onFlyingTargetRectChanged,
     required this.onSihuaStarRectChanged,
     required this.onSihuaBadgeRectChanged,
   });
 
-  double _ps(num value) => value * _palaceScale;
+  double _ps(num value) =>
+      value * _palaceScale * runtimeScale / UIScale.scale;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,6 +77,8 @@ class PalaceCellWidget extends ConsumerWidget {
     final enableFlyingStarHighlightFrame =
         ziweiOptions.animation.enableFlyingStarHighlightFrame;
     final enableFlyingStarArrow = ziweiOptions.animation.enableFlyingStarArrow;
+    final enablePalaceHighlightEffect =
+        ziweiOptions.animation.enablePalaceHighlightEffect;
     final flowStars = isCompactMode ? const <FlowStar>[] : _collectOverlayFlowStars();
 
     // 分类星曜
@@ -115,6 +120,24 @@ class PalaceCellWidget extends ConsumerWidget {
     final zhiLabel = palace.ganzhi.zhi.display;
 
     final isSelected = state.selectedPalaceIndex == palace.index;
+    final isSanheRelated = chartMode == ZiweiChartMode.sanhe &&
+        _isSanheRelatedPalace(state.selectedPalaceIndex, palace.index);
+    final borderColor = isSelected
+        ? ZiweiClassicTheme.palaceNameColor
+        : isSanheRelated
+            ? Colors.lightBlue.shade300
+            : ZiweiClassicTheme.cellBorderColor;
+    final borderWidth = isSelected ? 1.2 : (isSanheRelated ? 1.2 : 1.0);
+    final borderGlow = !enablePalaceHighlightEffect
+        ? null
+        : isSelected
+            ? ZiweiClassicTheme.palaceNameColor.withOpacity(0.18)
+            : isSanheRelated
+                ? Colors.lightBlue.shade300.withOpacity(0.16)
+                : null;
+    final topSectionFlex = runtimeScale < 0.88 ? 76 : 7;
+    final bottomSectionFlex = runtimeScale < 0.88 ? 24 : 3;
+    final sectionGap = runtimeScale < 0.88 ? _ps(0.35.hs) : _ps(1.hs);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque, // 确保空白处也能点
@@ -124,16 +147,39 @@ class PalaceCellWidget extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected
-                ? ZiweiClassicTheme.palaceNameColor
-                : ZiweiClassicTheme.cellBorderColor,
-            width: 1.0,
+            color: borderColor,
+            width: borderWidth,
           ),
           color: ZiweiClassicTheme.cellBgColor,
+          boxShadow: borderGlow == null
+              ? null
+              : [
+                  BoxShadow(
+                    color: borderGlow,
+                    blurRadius: 6,
+                    spreadRadius: 0.4,
+                  ),
+                ],
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
+            if (enablePalaceHighlightEffect && borderGlow != null)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Container(
+                    margin: EdgeInsets.all(borderWidth + 0.6),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: borderColor.withOpacity(
+                          isSelected ? 0.08 : 0.06,
+                        ),
+                        width: 0.8,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             // 1. 底层：动态水印 (跟随流运层级切换内容)
             if (decade != null) _buildDynamicWatermark(decade),
 
@@ -149,7 +195,7 @@ class PalaceCellWidget extends ConsumerWidget {
               child: Column(
                 children: [
                   Expanded(
-                    flex: 7,
+                    flex: topSectionFlex,
                     child: _buildStarGrid(
                       topStars,
                       isFlyingMode: isFlyingMode,
@@ -161,15 +207,13 @@ class PalaceCellWidget extends ConsumerWidget {
                       enableFlyingStarArrow: enableFlyingStarArrow,
                     ),
                   ),
-                  // 取消原有的 Spacer，改为极小的固定间距，让上下结构更紧凑
-                  SizedBox(height: _ps(1.hs)),
-                  // ======== 底部：宫名与重要堆叠标记 (按照专业布局解耦) ======== (flex: 3)
+                  SizedBox(height: sectionGap),
                   Expanded(
-                    flex: 3,
+                    flex: bottomSectionFlex,
                     child: Padding(
                       padding: EdgeInsets.only(
                         right: isCompactMode ? _ps(14.ws) : _ps(18.ws),
-                      ), // 缩减边距，配合右对齐让布局更紧凑
+                      ),
                       child: isCompactMode
                           ? _buildFlyingBottomSection(role: role)
                           : _buildBottomSection(
@@ -185,7 +229,6 @@ class PalaceCellWidget extends ConsumerWidget {
               ),
             ),
 
-            // 4. 十二长生 + 干支 + 流曜 (绝对定位在右下角)
             Positioned(
               right: _ps(2.ws),
               bottom: _ps(2.hs),
@@ -587,9 +630,12 @@ class PalaceCellWidget extends ConsumerWidget {
     final remainingWidth = maxWidth - primaryTotalWidth;
 
     var secondaryFontSize = baseFontSize;
+    final minSecondaryFontSize = _ps(7.2.ts);
     if (secondaryStars.isNotEmpty) {
       secondaryFontSize = (remainingWidth / secondaryStars.length) - spacing;
-      if (secondaryFontSize < 8.5) secondaryFontSize = 8.5;
+      if (secondaryFontSize < minSecondaryFontSize) {
+        secondaryFontSize = minSecondaryFontSize;
+      }
       if (secondaryFontSize > baseFontSize) secondaryFontSize = baseFontSize;
     }
 
@@ -712,11 +758,14 @@ class PalaceCellWidget extends ConsumerWidget {
         final double remainingWidth = maxWidth - primaryTotalWidth;
 
         double secondaryFontSize = baseFontSize;
+        final double minSecondaryFontSize = isCompactMode
+            ? _ps(8.8.ts)
+            : _ps(7.2.ts);
         if (secondaryCount > 0) {
           // 仅对杂曜进行空间压缩逻辑
           secondaryFontSize = (remainingWidth / secondaryCount) - spacing;
-          if (secondaryFontSize < (isCompactMode ? 10.4 : 8.5)) {
-            secondaryFontSize = isCompactMode ? 10.4 : 8.5;
+          if (secondaryFontSize < minSecondaryFontSize) {
+            secondaryFontSize = minSecondaryFontSize;
           }
           if (secondaryFontSize > baseFontSize)
             secondaryFontSize = baseFontSize;
@@ -1154,32 +1203,44 @@ class PalaceCellWidget extends ConsumerWidget {
     required String changshengName,
     required List<_BottomShenshaLine> shenshaLines,
   }) {
+    final shenshaWidth = runtimeScale < 0.88 ? _ps(16.ws) : _ps(20.ws);
+    final shenshaFontSize = runtimeScale < 0.88 ? _ps(8.2.ts) : _ps(9.5.ts);
+    final shenshaLineHeight = runtimeScale < 0.88 ? 1.0 : 1.1;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         // 1. 左侧神煞：固定宽度 20px
         SizedBox(
-          width: _ps(20.ws),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: shenshaLines
-                .map(
-                  (line) => Text(
-                    line.name,
-                    style:
-                        TextStyle(
-                          fontSize: _ps(9.5.ts), // 稍微调大点，增强可读性
-                          height: 1.1,
+          width: shenshaWidth,
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.bottomLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: shenshaLines
+                    .map(
+                      (line) => Text(
+                        line.name,
+                        softWrap: false,
+                        style: TextStyle(
+                          fontSize: shenshaFontSize,
+                          height: shenshaLineHeight,
                         ).copyWith(
                           color: line.color,
                           fontWeight: line.isFlow
                               ? FontWeight.w700
                               : FontWeight.w400,
                         ),
-                  ),
-                )
-                .toList(),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
           ),
         ),
 
@@ -1534,6 +1595,16 @@ class PalaceCellWidget extends ConsumerWidget {
 
   String _flowStarDisplayName(FlowStar star) {
     return star.overlayDisplay;
+  }
+
+  bool _isSanheRelatedPalace(int? selectedIndex, int currentIndex) {
+    if (selectedIndex == null || selectedIndex == currentIndex) {
+      return false;
+    }
+
+    return currentIndex == (selectedIndex + 6) % 12 ||
+        currentIndex == (selectedIndex + 4) % 12 ||
+        currentIndex == (selectedIndex + 8) % 12;
   }
 
   Widget _buildVerticalText(String text, TextStyle style) {

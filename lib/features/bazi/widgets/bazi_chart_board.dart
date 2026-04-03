@@ -15,12 +15,16 @@ class BaziChartBoard extends ConsumerStatefulWidget {
   final BaziChart chart;
   final FortuneTable table;
   final BaziBottomTab currentTab;
+  final double? maxVisibleHeight;
+  final double adaptiveScale;
 
   const BaziChartBoard({
     super.key,
     required this.chart,
     required this.table,
     required this.currentTab,
+    this.maxVisibleHeight,
+    this.adaptiveScale = 1.0,
   });
 
   @override
@@ -38,8 +42,6 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
 
   @override
   Widget build(BuildContext context) {
-    const double chartVisualScale = 0.85;
-
     UIScale.init(context);
 
     final selD = ref.watch(selDecadeIdxProvider);
@@ -53,6 +55,12 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     final isEn = AppL10nSettings.currentLanguage == AppLanguage.en;
     final _showProfessional = ref.watch(showProfessionalProvider);
     final _showInteraction = ref.watch(showInteractionProvider);
+    final chartVisualScale = _resolveChartVisualScale(
+      maxVisibleHeight: widget.maxVisibleHeight,
+      showProfessional: _showProfessional,
+      showInteraction: _showInteraction,
+      adaptiveScale: widget.adaptiveScale,
+    );
 
     final earthAlgo = ref.watch(inputNotifierProvider).baziOptions.earthPalaceAlgorithm;
 
@@ -339,6 +347,38 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
         },
       ),
     );
+  }
+
+  double _resolveChartVisualScale({
+    required double? maxVisibleHeight,
+    required bool showProfessional,
+    required bool showInteraction,
+    required double adaptiveScale,
+  }) {
+    final defaultScale = 0.85 * adaptiveScale;
+    if (maxVisibleHeight == null || maxVisibleHeight <= 0) {
+      return defaultScale;
+    }
+
+    final estimatedUnits =
+        20.0 + // 顶部标签
+        20.0 + // 主十神
+        (showInteraction ? 60.0 : 0.0) +
+        75.0 + // 干支大字
+        10.0 +
+        (showInteraction ? 80.0 : 0.0) +
+        96.0 + // 藏干
+        (showProfessional ? 90.0 : 0.0);
+
+    final estimatedFixedPadding = 24.0 * UIScale.scale;
+    final availableHeight = (maxVisibleHeight - estimatedFixedPadding).clamp(
+      120.0,
+      double.infinity,
+    );
+    final estimatedScaleOneHeight = estimatedUnits * UIScale.scale;
+    final scaleByHeight = availableHeight / estimatedScaleOneHeight;
+
+    return scaleByHeight.clamp(0.54, defaultScale).toDouble();
   }
 
   Widget _buildProfessionalLegend(bool showInteraction, double visualScale) {

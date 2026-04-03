@@ -1250,6 +1250,14 @@ extension StringL10n on String {
       AppLanguage.en: 'Enable Flying Star Arrow',
       AppLanguage.zhTW: '啟用飛星箭頭',
     },
+    '宫位高亮特效': {
+      AppLanguage.en: 'Palace Highlight Effect',
+      AppLanguage.zhTW: '宮位高亮特效',
+    },
+    '控制选中宫位与三方四正的发光和内描边': {
+      AppLanguage.en: 'Control glow and inner stroke for selected and related palaces',
+      AppLanguage.zhTW: '控制選中宮位與三方四正的發光和內描邊',
+    },
     '启用飞星连线动画': {
       AppLanguage.en: 'Enable Flying Star Link Animation',
       AppLanguage.zhTW: '啟用飛星連線動畫',

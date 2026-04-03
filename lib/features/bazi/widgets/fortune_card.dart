@@ -17,6 +17,7 @@ class FortuneCard extends StatelessWidget {
   final Color activeCol;
   final double width;
   final bool isXiaoYunBlock;
+  final double adaptiveScale;
 
   const FortuneCard({
     super.key,
@@ -30,11 +31,12 @@ class FortuneCard extends StatelessWidget {
     this.activeCol = Colors.deepPurple,
     this.width = 62,
     this.isXiaoYunBlock = false,
+    this.adaptiveScale = 1.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    double s(num value) => value * _cardScale;
+    double s(num value) => value * _cardScale * adaptiveScale;
 
     final isEn = AppL10nSettings.currentLanguage == AppLanguage.en;
     final scaledWidth = s(width.ws);

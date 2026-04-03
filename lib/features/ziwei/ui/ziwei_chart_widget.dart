@@ -18,6 +18,7 @@ class ZiweiChartWidget extends ConsumerStatefulWidget {
 }
 
 class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
+  static const double _referenceCellWidth = 84.0;
   final GlobalKey _chartRootKey = GlobalKey();
   final Map<int, Rect> _ganRects = {};
   final Map<String, Rect> _flyingTargetRects = {};
@@ -60,10 +61,15 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
         UIScale.init(context);
 
         const double edgeMargin = 12.0;
+        final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
         final width = constraints.maxWidth - (edgeMargin * 2);
-        final cellWidth = width / 4;
+        final cellWidth = _snapDownToPixel(width / 4, devicePixelRatio);
         // 固定宽高比 1.4，宫格大小随屏幕宽度自然缩放
-        final cellHeight = cellWidth * 1.2;
+        final cellHeight = _snapDownToPixel(cellWidth * 1.2, devicePixelRatio);
+        final cellScale = (cellWidth / _referenceCellWidth)
+            .clamp(0.7, 1.45)
+            .toDouble();
+        final safeCellScale = (cellScale * 0.996).clamp(0.7, 1.45).toDouble();
 
         final positions = {
           DiZhi.si: const Offset(0, 0),
@@ -101,6 +107,7 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
                     plate: state.plate,
                     state: state,
                     chartRootKey: _chartRootKey,
+                    runtimeScale: safeCellScale,
                     onGanRectChanged: _updateGanRect,
                     onFlyingTargetRectChanged: _updateFlyingTargetRect,
                     onSihuaStarRectChanged: _updateSihuaStarRect,
@@ -281,5 +288,9 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
         a.top == b.top &&
         a.width == b.width &&
         a.height == b.height;
+  }
+
+  double _snapDownToPixel(double value, double devicePixelRatio) {
+    return (value * devicePixelRatio).floorToDouble() / devicePixelRatio;
   }
 }

@@ -512,21 +512,26 @@ class ZiweiFlowStarDisplayOptions {
 class ZiweiAnimationOptions {
   final bool enableFlyingStarHighlightFrame;
   final bool enableFlyingStarArrow;
+  final bool enablePalaceHighlightEffect;
 
   const ZiweiAnimationOptions({
     this.enableFlyingStarHighlightFrame = true,
     this.enableFlyingStarArrow = false,
+    this.enablePalaceHighlightEffect = true,
   });
 
   ZiweiAnimationOptions copyWith({
     bool? enableFlyingStarHighlightFrame,
     bool? enableFlyingStarArrow,
+    bool? enablePalaceHighlightEffect,
   }) {
     return ZiweiAnimationOptions(
       enableFlyingStarHighlightFrame:
           enableFlyingStarHighlightFrame ?? this.enableFlyingStarHighlightFrame,
       enableFlyingStarArrow:
           enableFlyingStarArrow ?? this.enableFlyingStarArrow,
+      enablePalaceHighlightEffect:
+          enablePalaceHighlightEffect ?? this.enablePalaceHighlightEffect,
     );
   }
 
@@ -535,12 +540,15 @@ class ZiweiAnimationOptions {
       enableFlyingStarHighlightFrame:
           json['enableFlyingStarHighlightFrame'] as bool? ?? true,
       enableFlyingStarArrow: json['enableFlyingStarArrow'] as bool? ?? false,
+      enablePalaceHighlightEffect:
+          json['enablePalaceHighlightEffect'] as bool? ?? true,
     );
   }
 
   Map<String, dynamic> toJson() => {
     'enableFlyingStarHighlightFrame': enableFlyingStarHighlightFrame,
     'enableFlyingStarArrow': enableFlyingStarArrow,
+    'enablePalaceHighlightEffect': enablePalaceHighlightEffect,
   };
 
   @override
@@ -549,11 +557,15 @@ class ZiweiAnimationOptions {
       other is ZiweiAnimationOptions &&
           other.enableFlyingStarHighlightFrame ==
               enableFlyingStarHighlightFrame &&
-          other.enableFlyingStarArrow == enableFlyingStarArrow;
+          other.enableFlyingStarArrow == enableFlyingStarArrow &&
+          other.enablePalaceHighlightEffect == enablePalaceHighlightEffect;
 
   @override
-  int get hashCode =>
-      Object.hash(enableFlyingStarHighlightFrame, enableFlyingStarArrow);
+  int get hashCode => Object.hash(
+    enableFlyingStarHighlightFrame,
+    enableFlyingStarArrow,
+    enablePalaceHighlightEffect,
+  );
 }
 
 class ZiweiModeDisplayOptions {

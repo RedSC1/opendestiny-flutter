@@ -16,7 +16,10 @@ concurrency:
 env:
   FLUTTER_CHANNEL: stable
   APP_NAME: opendestiny
+  APP_DISPLAY_NAME: OpenDestiny
   APP_DIR: opendestiny-flutter
+  APP_PUBLISHER: RedSC1
+  APP_URL: https://github.com/RedSC1/opendestiny-flutter
 
 jobs:
   android-apk:
@@ -50,10 +53,11 @@ jobs:
         working-directory: ${{ env.APP_DIR }}
 
       - name: Collect Android artifact
-        run: |
-          mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk dist/${{ env.APP_NAME }}-android-release.apk
+        shell: pwsh
         working-directory: ${{ env.APP_DIR }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item build/app/outputs/flutter-apk/app-release.apk dist/${{ env.APP_NAME }}-android-release.apk
 
       - name: Upload Android artifact
         uses: actions/upload-artifact@v4
@@ -63,21 +67,213 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  web-release:
+    name: Web Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.APP_DIR }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Build Web release
+        run: flutter build web --release
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Collect Web artifact
+        shell: pwsh
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path build/web/* -DestinationPath dist/${{ env.APP_NAME }}-web-release.zip -Force
+
+      - name: Upload Web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-release
+          path: ${{ env.APP_DIR }}/dist/${{ env.APP_NAME }}-web-release.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  windows-release:
+    name: Windows Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.APP_DIR }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Resolve app version
+        shell: pwsh
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          $match = Select-String -Path pubspec.yaml -Pattern '^version:\s*([0-9]+\.[0-9]+\.[0-9]+)' | Select-Object -First 1
+          if (-not $match) { throw 'Failed to resolve app version from pubspec.yaml' }
+          $version = $match.Matches[0].Groups[1].Value
+          "APP_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build Windows release
+        run: flutter build windows --release
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Collect Windows artifact
+        shell: pwsh
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath dist/${{ env.APP_NAME }}-windows-release.zip -Force
+
+      - name: Build Windows installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.5
+        with:
+          path: ${{ env.APP_DIR }}/windows/installer/OpenDestiny.iss
+          options: >-
+            /DMyAppName="${{ env.APP_DISPLAY_NAME }}"
+            /DMyAppVersion=${{ env.APP_VERSION }}
+            /DMyAppPublisher="${{ env.APP_PUBLISHER }}"
+            /DMyAppURL="${{ env.APP_URL }}"
+            /DMyAppExeName="${{ env.APP_NAME }}.exe"
+            /DMyAppSourceDir="${{ github.workspace }}\${{ env.APP_DIR }}\build\windows\x64\runner\Release"
+            /DMyOutputDir="${{ github.workspace }}\${{ env.APP_DIR }}\dist"
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: ${{ env.APP_DIR }}/dist/${{ env.APP_NAME }}-windows-release.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Windows installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: ${{ env.APP_DIR }}/dist/OpenDestiny-windows-setup.exe
+          if-no-files-found: error
+          retention-days: 14
+
+  linux-release:
+    name: Linux Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.APP_DIR }}
+
+      - name: Install Linux build dependencies
+        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Build Linux release
+        run: flutter build linux --release
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Collect Linux artifact
+        shell: pwsh
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path build/linux/x64/release/bundle/* -DestinationPath dist/${{ env.APP_NAME }}-linux-release.zip -Force
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: ${{ env.APP_DIR }}/dist/${{ env.APP_NAME }}-linux-release.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  macos-release:
+    name: macOS Release
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.APP_DIR }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Build macOS release
+        run: flutter build macos --release
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Collect macOS artifact
+        shell: pwsh
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path build/macos/Build/Products/Release/* -DestinationPath dist/${{ env.APP_NAME }}-macos-release.zip -Force
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: ${{ env.APP_DIR }}/dist/${{ env.APP_NAME }}-macos-release.zip
+          if-no-files-found: error
+          retention-days: 14
+
   publish-release:
     name: Publish GitHub Release
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     needs:
       - android-apk
+      - web-release
+      - windows-release
+      - linux-release
+      - macos-release
     permissions:
       contents: write
 
     steps:
-      - name: Download Android artifact
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: android-apk
-          path: dist/android-apk
+          path: dist
 
       - name: Create or update GitHub release
         uses: softprops/action-gh-release@v2
@@ -85,3 +281,8 @@ jobs:
           generate_release_notes: true
           files: |
             dist/android-apk/${{ env.APP_NAME }}-android-release.apk
+            dist/web-release/${{ env.APP_NAME }}-web-release.zip
+            dist/windows-release/${{ env.APP_NAME }}-windows-release.zip
+            dist/windows-installer/OpenDestiny-windows-setup.exe
+            dist/linux-release/${{ env.APP_NAME }}-linux-release.zip
+            dist/macos-release/${{ env.APP_NAME }}-macos-release.zip

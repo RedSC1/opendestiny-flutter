@@ -404,6 +404,21 @@ class ZiweiSettingsView extends ConsumerWidget {
             },
           ),
           SwitchListTile(
+            title: Text('宫位高亮特效'.tr),
+            subtitle: Text('控制选中宫位与三方四正的发光和内描边'.tr),
+            value: options.animation.enablePalaceHighlightEffect,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  animation: options.animation.copyWith(
+                    enablePalaceHighlightEffect: value,
+                  ),
+                ),
+              );
+            },
+          ),
+          SwitchListTile(
             title: Text('隐藏生辰信息'.tr),
             subtitle: Text('隐藏公历、真太阳时、农历'.tr),
             value: options.hideCenterBirthInfo,

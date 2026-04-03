@@ -18,6 +18,8 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 初始化UI缩放
     UIScale.init(context);
+    final width = MediaQuery.of(context).size.width;
+    final adaptiveScale = (width / 420.0).clamp(0.75, 1.0).toDouble();
 
     final state = ref.watch(ziweiUIManagerProvider);
     final manager = ref.read(ziweiUIManagerProvider.notifier);
@@ -39,6 +41,7 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
             label: '大限'.tr,
             items: decadeItems,
             selectedItem: null,
+            adaptiveScale: adaptiveScale,
             activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.decade),
             itemLabelBuilder: (item) => item.label.tr,
             itemSubLabelBuilder: (item) => item.subLabel.tr,
@@ -60,6 +63,7 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               label: '流年'.tr,
               items: manifest.childhoods,
               selectedItem: null,
+              adaptiveScale: adaptiveScale,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.year),
               itemLabelBuilder: (c) => '${c.age}${'岁'.tr}',
               itemSubLabelBuilder: (c) => '${c.stem.ganDisplay}${c.branch.zhiDisplay}',
@@ -71,6 +75,7 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               label: '流年'.tr,
               items: manifest.currentDecadeYears!,
               selectedItem: null,
+              adaptiveScale: adaptiveScale,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.year),
               itemLabelBuilder: (y) => '${y.year}',
               itemSubLabelBuilder: (y) => '${y.stem.ganDisplay}${y.branch.zhiDisplay}',
@@ -85,6 +90,7 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               label: '流月'.tr,
               items: manifest.currentYearMonths!,
               selectedItem: null,
+              adaptiveScale: adaptiveScale,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.month),
               itemLabelBuilder: (m) => m.displayLabel,
               itemSubLabelBuilder: (m) =>
@@ -101,6 +107,7 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               label: '流日'.tr,
               items: manifest.currentMonthDays!,
               selectedItem: null,
+              adaptiveScale: adaptiveScale,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.day),
               itemLabelBuilder: (d) => d.day.lunarDay,
               itemSubLabelBuilder: (d) => '${d.stem.ganDisplay}${d.branch.zhiDisplay}',
@@ -115,6 +122,7 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               label: '流时'.tr,
               items: manifest.currentDayHours!,
               selectedItem: null,
+              adaptiveScale: adaptiveScale,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.hour),
               itemLabelBuilder: (h) => h.hourIndex.hourName,
               itemSubLabelBuilder: (h) => '${h.stem.ganDisplay}${h.branch.zhiDisplay}',
