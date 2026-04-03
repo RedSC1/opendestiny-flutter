@@ -8,6 +8,9 @@ on:
       - 'site/**' # 如果你改了落地页的代码，也触发更新
   workflow_dispatch: # 支持在 GitHub 页面上手动点击运行
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
