@@ -1,0 +1,46 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    tags:
+      - 'v*' # 只有打上 v1.0.0 这种标签时才发布正式版
+    paths:
+      - 'site/**' # 如果你改了落地页的代码，也触发更新
+  workflow_dispatch: # 支持在 GitHub 页面上手动点击运行
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. 安装 Flutter 环境
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 2. 编译 Flutter Web (应用部署到 /app 路径)
+      - name: Build Flutter Web
+        run: |
+          flutter pub get
+          flutter build web --release --base-href "/app/" --web-renderer canvaskit
+
+
+      # 3. 整理部署目录
+      - name: Prepare Deployment Folder
+        run: |
+          mkdir -p deployment
+          # 复制落地页静态文件到根目录
+          if [ -d "site" ]; then
+            cp -r site/* deployment/
+          fi
+          # 创建 app 目录并放入 Flutter Web 编译产物
+          mkdir -p deployment/app
+          cp -r build/web/* deployment/app/
+
+      # 4. 部署到 gh-pages 分支
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: deployment # 部署这个文件夹下的所有内容
+          branch: gh-pages

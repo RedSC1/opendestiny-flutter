@@ -156,6 +156,7 @@ class BaziView extends ConsumerWidget {
               _AdaptiveBaziMainPanel(
                 availableHeight: constraints.maxHeight,
                 bottomGap: 16.hs,
+                enableWidthScale: false,
                 headerBuilder: headerBuilder,
                 chartBuilder: chartBuilder,
               ),
@@ -447,6 +448,7 @@ class BaziView extends ConsumerWidget {
 class _AdaptiveBaziMainPanel extends StatefulWidget {
   final double availableHeight;
   final double bottomGap;
+  final bool enableWidthScale;
   final Widget Function(double adaptiveScale) headerBuilder;
   final Widget Function(double? maxVisibleHeight, double adaptiveScale)
       chartBuilder;
@@ -454,6 +456,7 @@ class _AdaptiveBaziMainPanel extends StatefulWidget {
   const _AdaptiveBaziMainPanel({
     required this.availableHeight,
     required this.bottomGap,
+    this.enableWidthScale = true,
     required this.headerBuilder,
     required this.chartBuilder,
   });
@@ -483,10 +486,12 @@ class _AdaptiveBaziMainPanelState extends State<_AdaptiveBaziMainPanel> {
           0.82,
           1.0,
         ).toDouble();
-        final widthScale = (constraints.maxWidth / 860.0).clamp(
-          0.82,
-          1.0,
-        ).toDouble();
+        final widthScale = widget.enableWidthScale
+            ? (constraints.maxWidth / 860.0).clamp(
+                0.82,
+                1.0,
+              ).toDouble()
+            : 1.0;
         final adaptiveScale = math.min(heightScale, widthScale);
 
         final estimatedHeaderHeight = _headerHeight > 0

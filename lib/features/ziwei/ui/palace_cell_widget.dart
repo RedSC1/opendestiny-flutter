@@ -694,7 +694,9 @@ class PalaceCellWidget extends ConsumerWidget {
       plate.ruleset.brightnessLabels,
     );
     final brightnessHeight =
-        !isFlyingMode && brightness.isNotEmpty ? (_ps(9.ts) * 1.1) : 0.0;
+        !isFlyingMode && brightness.isNotEmpty
+        ? (_starBrightnessFontSize(fontSize: fontSize) * 1.1)
+        : 0.0;
 
     double badgeHeight = 0;
     if (star is StaticStar && star.siHuaBuff.isNotEmpty) {
@@ -702,6 +704,15 @@ class PalaceCellWidget extends ConsumerWidget {
     }
 
     return nameHeight + brightnessHeight + badgeHeight + _ps(4.hs);
+  }
+
+  double _starBrightnessFontSize({
+    required double fontSize,
+  }) {
+    final baseBrightnessSize = _ps(10.ts);
+    final scaled = fontSize * 0.86;
+    final minSize = _ps(6.6.ts);
+    return scaled.clamp(minSize, baseBrightnessSize);
   }
 
   /// 顶部星曜区：阶梯式缩放逻辑
@@ -848,6 +859,7 @@ class PalaceCellWidget extends ConsumerWidget {
       palace.branch,
       plate.ruleset.brightnessLabels,
     );
+    final brightnessFontSize = _starBrightnessFontSize(fontSize: fontSize);
     final color = ZiweiClassicTheme.getStarColor(star);
 
     // 收集所有维度的四化信息 (本命、大限、小限、流年、流月、流日、流时)
@@ -970,7 +982,7 @@ class PalaceCellWidget extends ConsumerWidget {
             child: Text(
               brightness,
               style: TextStyle(
-                fontSize: _ps(10.ts),
+                fontSize: brightnessFontSize,
                 color: ZiweiClassicTheme.getBrightnessColor(
                   _getBrightnessKey(star),
                 ),
@@ -999,7 +1011,7 @@ class PalaceCellWidget extends ConsumerWidget {
                       (fontSize * 1.1 + _ps(1.hs));
                   final double bHeight =
                       !isCompactMode && brightness.isNotEmpty
-                      ? (_ps(10.ts) * 1.1)
+                      ? (brightnessFontSize * 1.1)
                       : 0;
                   final double occupiedHeight =
                       starHeight + bHeight + _ps(1.hs);

@@ -355,7 +355,7 @@ class _BaziChartBoardState extends ConsumerState<BaziChartBoard> {
     required bool showInteraction,
     required double adaptiveScale,
   }) {
-    final defaultScale = 0.85 * adaptiveScale;
+    final defaultScale = adaptiveScale;
     if (maxVisibleHeight == null || maxVisibleHeight <= 0) {
       return defaultScale;
     }

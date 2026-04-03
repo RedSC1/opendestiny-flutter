@@ -678,10 +678,11 @@ class InputNotifier extends _$InputNotifier {
   }
 
   String _buildCaseName(DateTime time) {
+    final yyyy = time.year.toString().padLeft(4, '0');
     final mm = time.month.toString().padLeft(2, '0');
     final dd = time.day.toString().padLeft(2, '0');
     final hh = time.hour.toString().padLeft(2, '0');
     final mi = time.minute.toString().padLeft(2, '0');
-    return '案例 $mm-$dd $hh:$mi';
+    return '案例 $yyyy-$mm-$dd $hh:$mi';
   }
 }
