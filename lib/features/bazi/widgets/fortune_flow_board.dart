@@ -38,6 +38,16 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
     if (level <= 4) ref.read(selHourIdxProvider.notifier).state = null;
   }
 
+  void _toggleSelection({
+    required StateController<int?> controller,
+    required int index,
+    required int resetLevel,
+  }) {
+    final isSame = controller.state == index;
+    controller.state = isSame ? null : index;
+    _resetFrom(resetLevel);
+  }
+
   @override
   Widget build(BuildContext context) {
     final selD = ref.watch(selDecadeIdxProvider);
@@ -88,8 +98,11 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
               activeCol: Colors.deepPurple,
               isXiaoYunBlock: isXiaoYun,
               onTap: () {
-                ref.read(selDecadeIdxProvider.notifier).state = i;
-                _resetFrom(1);
+                _toggleSelection(
+                  controller: ref.read(selDecadeIdxProvider.notifier),
+                  index: i,
+                  resetLevel: 1,
+                );
               },
             );
           },
@@ -124,8 +137,11 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
                 isCur: isCurrentYear,
                 activeCol: Colors.orange,
                 onTap: () {
-                  ref.read(selYearIdxProvider.notifier).state = i;
-                  _resetFrom(2);
+                  _toggleSelection(
+                    controller: ref.read(selYearIdxProvider.notifier),
+                    index: i,
+                    resetLevel: 2,
+                  );
                 },
               );
             },
@@ -153,8 +169,11 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
                 isCur: isCurrentMonth,
                 activeCol: Colors.teal,
                 onTap: () {
-                  ref.read(selMonthIdxProvider.notifier).state = i;
-                  _resetFrom(3);
+                  _toggleSelection(
+                    controller: ref.read(selMonthIdxProvider.notifier),
+                    index: i,
+                    resetLevel: 3,
+                  );
                 },
               );
             },
@@ -186,8 +205,11 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
                 isCur: isToday,
                 activeCol: Colors.cyan,
                 onTap: () {
-                  ref.read(selDayIdxProvider.notifier).state = i;
-                  _resetFrom(4);
+                  _toggleSelection(
+                    controller: ref.read(selDayIdxProvider.notifier),
+                    index: i,
+                    resetLevel: 4,
+                  );
                 },
               );
             },
@@ -241,7 +263,13 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
                 isSel: selH == i,
                 isCur: isCurrentHour,
                 activeCol: Colors.blueGrey,
-                onTap: () => ref.read(selHourIdxProvider.notifier).state = i,
+                onTap: () {
+                  _toggleSelection(
+                    controller: ref.read(selHourIdxProvider.notifier),
+                    index: i,
+                    resetLevel: 5,
+                  );
+                },
               );
             },
           ),

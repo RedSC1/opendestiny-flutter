@@ -10,6 +10,8 @@ class CaseRepository {
 
   Future<DestinyCase?> loadCase(String id) => _storage.loadCase(id);
 
+  Future<void> saveCase(DestinyCase caseData) => _storage.saveCase(caseData);
+
   Future<DestinyCase> loadCurrentCase() async {
     final currentId = await _storage.getCurrentCaseId();
     if (currentId != null) {

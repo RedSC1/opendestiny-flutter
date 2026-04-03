@@ -1,11 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/case_json_transfer.dart';
 import '../../providers/input_provider.dart';
 import '../../core/l10n.dart';
 import '../profile/profile_view.dart';
 
 class CaseLibraryView extends ConsumerWidget {
   const CaseLibraryView({super.key});
+
+  static final CaseJsonTransfer _jsonTransfer = CaseJsonTransfer();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,6 +21,23 @@ class CaseLibraryView extends ConsumerWidget {
         title: Text('案例库'.tr),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            tooltip: '导入 JSON'.tr,
+            icon: const Icon(Icons.file_open_outlined),
+            onPressed: () => _importCases(context, ref),
+          ),
+          IconButton(
+            tooltip: '分享全部 JSON'.tr,
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => _shareAllCases(context, ref),
+          ),
+          IconButton(
+            tooltip: '导出全部 JSON'.tr,
+            icon: const Icon(Icons.download_outlined),
+            onPressed: () => _exportAllCases(context, ref),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -118,6 +139,8 @@ class CaseLibraryView extends ConsumerWidget {
                       await ref.read(inputNotifierProvider.notifier).deleteCase(item.id);
                     }
                   },
+                  onShare: () => _shareCase(context, ref, item.id),
+                  onExport: () => _exportCase(context, ref, item.id),
                 );
               },
             ),
@@ -139,6 +162,154 @@ class CaseLibraryView extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _importCases(BuildContext context, WidgetRef ref) async {
+    try {
+      final cases = await _jsonTransfer.pickCasesFromJson();
+      if (cases.isEmpty) {
+        return;
+      }
+      final count = await ref.read(inputNotifierProvider.notifier).importCases(cases);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'已导入'.tr} $count ${'个命例'.tr}')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'导入失败：'.tr}$e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportAllCases(BuildContext context, WidgetRef ref) async {
+    try {
+      final cases = await ref.read(inputNotifierProvider.notifier).getSavedCases();
+      if (cases.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('当前没有可导出的命例'.tr)),
+          );
+        }
+        return;
+      }
+      await _jsonTransfer.exportCases(cases);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${'已导出'.tr} ${cases.length} ${'个命例'.tr}，${_exportLocationHint()}'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'导出失败：'.tr}$e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareAllCases(BuildContext context, WidgetRef ref) async {
+    try {
+      final cases = await ref.read(inputNotifierProvider.notifier).getSavedCases();
+      if (cases.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('当前没有可分享的命例'.tr)),
+          );
+        }
+        return;
+      }
+      await _jsonTransfer.shareCases(cases);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'已打开分享面板'.tr} ${cases.length} ${'个命例'.tr}')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'分享失败：'.tr}$e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportCase(BuildContext context, WidgetRef ref, String id) async {
+    try {
+      final caseData = await ref.read(inputNotifierProvider.notifier).getCaseById(id);
+      if (caseData == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('命例不存在或已删除'.tr)),
+          );
+        }
+        return;
+      }
+      await _jsonTransfer.exportCase(caseData);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${'已导出命例：'.tr}${caseData.name}，${_exportLocationHint()}'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'导出失败：'.tr}$e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareCase(BuildContext context, WidgetRef ref, String id) async {
+    try {
+      final caseData = await ref.read(inputNotifierProvider.notifier).getCaseById(id);
+      if (caseData == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('命例不存在或已删除'.tr)),
+          );
+        }
+        return;
+      }
+      await _jsonTransfer.shareCase(caseData);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'已打开分享面板：'.tr}${caseData.name}')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'分享失败：'.tr}$e')),
+        );
+      }
+    }
+  }
+
+  String _exportLocationHint() {
+    if (kIsWeb) {
+      return '请到浏览器下载目录查看'.tr;
+    }
+
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.iOS:
+        return '请到“文件”App 中查看'.tr;
+      case TargetPlatform.android:
+        return '请到系统下载目录查看'.tr;
+      case TargetPlatform.macOS:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
+        return '请到下载目录查看'.tr;
+      case TargetPlatform.fuchsia:
+        return '请检查系统保存位置'.tr;
+    }
+  }
 }
 
 class _CaseListTile extends StatelessWidget {
@@ -148,6 +319,8 @@ class _CaseListTile extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.onDelete,
+    required this.onShare,
+    required this.onExport,
   });
 
   final String title;
@@ -155,6 +328,8 @@ class _CaseListTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback onShare;
+  final VoidCallback onExport;
 
   @override
   Widget build(BuildContext context) {
@@ -205,10 +380,38 @@ class _CaseListTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  color: Colors.red.shade400,
-                  onPressed: onDelete,
+                PopupMenuButton<_CaseMenuAction>(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: selected ? Colors.deepPurple : Colors.grey.shade700,
+                  ),
+                  onSelected: (action) {
+                    switch (action) {
+                      case _CaseMenuAction.share:
+                        onShare();
+                        break;
+                      case _CaseMenuAction.export:
+                        onExport();
+                        break;
+                      case _CaseMenuAction.delete:
+                        onDelete();
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => <PopupMenuEntry<_CaseMenuAction>>[
+                    PopupMenuItem<_CaseMenuAction>(
+                      value: _CaseMenuAction.share,
+                      child: Text('分享 JSON'.tr),
+                    ),
+                    PopupMenuItem<_CaseMenuAction>(
+                      value: _CaseMenuAction.export,
+                      child: Text('导出 JSON'.tr),
+                    ),
+                    PopupMenuItem<_CaseMenuAction>(
+                      value: _CaseMenuAction.delete,
+                      child: Text('删除'.tr),
+                    ),
+                  ],
                 ),
                 const SizedBox(width: 8),
                 Icon(
@@ -224,3 +427,5 @@ class _CaseListTile extends StatelessWidget {
     );
   }
 }
+
+enum _CaseMenuAction { share, export, delete }

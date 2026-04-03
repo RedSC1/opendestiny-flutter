@@ -377,6 +377,108 @@ extension StringL10n on String {
     '秒': {AppLanguage.en: 'Second', AppLanguage.zhTW: '秒'},
     '分': {AppLanguage.en: 'Minute', AppLanguage.zhTW: '分'},
     '闰月': {AppLanguage.en: 'Leap Month', AppLanguage.zhTW: '閏月'},
+    '导入 JSON': {AppLanguage.en: 'Import JSON', AppLanguage.zhTW: '導入 JSON'},
+    '导出全部 JSON': {
+      AppLanguage.en: 'Export All JSON',
+      AppLanguage.zhTW: '導出全部 JSON',
+    },
+    '分享全部 JSON': {
+      AppLanguage.en: 'Share All JSON',
+      AppLanguage.zhTW: '分享全部 JSON',
+    },
+    '分享 JSON': {AppLanguage.en: 'Share JSON', AppLanguage.zhTW: '分享 JSON'},
+    '导出 JSON': {AppLanguage.en: 'Export JSON', AppLanguage.zhTW: '導出 JSON'},
+    '已导入': {AppLanguage.en: 'Imported', AppLanguage.zhTW: '已導入'},
+    '个命例': {AppLanguage.en: 'cases', AppLanguage.zhTW: '個命例'},
+    '导入失败：': {AppLanguage.en: 'Import failed: ', AppLanguage.zhTW: '導入失敗：'},
+    '已导入流派': {AppLanguage.en: 'Profile imported', AppLanguage.zhTW: '已導入流派'},
+    '导入流派失败：': {
+      AppLanguage.en: 'Profile import failed: ',
+      AppLanguage.zhTW: '導入流派失敗：',
+    },
+    '当前没有可分享的命例': {
+      AppLanguage.en: 'No cases available for sharing',
+      AppLanguage.zhTW: '當前沒有可分享的命例',
+    },
+    '当前没有可导出的命例': {
+      AppLanguage.en: 'No cases available for export',
+      AppLanguage.zhTW: '當前沒有可導出的命例',
+    },
+    '已导出': {AppLanguage.en: 'Exported', AppLanguage.zhTW: '已導出'},
+    '已导出命例：': {
+      AppLanguage.en: 'Exported case: ',
+      AppLanguage.zhTW: '已導出命例：',
+    },
+    '已导出流派：': {
+      AppLanguage.en: 'Exported profile: ',
+      AppLanguage.zhTW: '已導出流派：',
+    },
+    '已打开分享面板': {
+      AppLanguage.en: 'Opened share sheet for',
+      AppLanguage.zhTW: '已打開分享面板',
+    },
+    '已打开分享面板：': {
+      AppLanguage.en: 'Opened share sheet for: ',
+      AppLanguage.zhTW: '已打開分享面板：',
+    },
+    '导出失败：': {AppLanguage.en: 'Export failed: ', AppLanguage.zhTW: '導出失敗：'},
+    '导出流派失败：': {
+      AppLanguage.en: 'Profile export failed: ',
+      AppLanguage.zhTW: '導出流派失敗：',
+    },
+    '分享失败：': {AppLanguage.en: 'Share failed: ', AppLanguage.zhTW: '分享失敗：'},
+    '分享流派失败：': {
+      AppLanguage.en: 'Profile share failed: ',
+      AppLanguage.zhTW: '分享流派失敗：',
+    },
+    '导入四化流派': {
+      AppLanguage.en: 'Imported SiHua Profile',
+      AppLanguage.zhTW: '導入四化流派',
+    },
+    '导入亮度流派': {
+      AppLanguage.en: 'Imported Brightness Profile',
+      AppLanguage.zhTW: '導入亮度流派',
+    },
+    '导入星曜流派': {
+      AppLanguage.en: 'Imported Stars Profile',
+      AppLanguage.zhTW: '導入星曜流派',
+    },
+    '四化 JSON 根节点必须是对象': {
+      AppLanguage.en: 'SiHua JSON root must be an object',
+      AppLanguage.zhTW: '四化 JSON 根節點必須是物件',
+    },
+    '亮度 JSON 根节点必须是对象': {
+      AppLanguage.en: 'Brightness JSON root must be an object',
+      AppLanguage.zhTW: '亮度 JSON 根節點必須是物件',
+    },
+    '星曜 JSON 根节点必须是数组': {
+      AppLanguage.en: 'Stars JSON root must be an array',
+      AppLanguage.zhTW: '星曜 JSON 根節點必須是陣列',
+    },
+    '命例不存在或已删除': {
+      AppLanguage.en: 'The case does not exist or was deleted',
+      AppLanguage.zhTW: '命例不存在或已刪除',
+    },
+    '请到浏览器下载目录查看': {
+      AppLanguage.en: 'Check your browser downloads folder',
+      AppLanguage.zhTW: '請到瀏覽器下載目錄查看',
+    },
+    '请到“文件”App 中查看': {
+      AppLanguage.en: 'Check the Files app',
+      AppLanguage.zhTW: '請到「檔案」App 中查看',
+    },
+    '请到系统下载目录查看': {
+      AppLanguage.en: 'Check the system Downloads folder',
+      AppLanguage.zhTW: '請到系統下載目錄查看',
+    },
+    '请到下载目录查看': {
+      AppLanguage.en: 'Check the Downloads folder',
+      AppLanguage.zhTW: '請到下載目錄查看',
+    },
+    '请检查系统保存位置': {
+      AppLanguage.en: 'Check the system save location',
+      AppLanguage.zhTW: '請檢查系統保存位置',
+    },
     '日期格式': {
       AppLanguage.en: 'MMM dd, yyyy HH:mm',
       AppLanguage.zhTW: 'yyyy年MM月dd日 HH:mm',

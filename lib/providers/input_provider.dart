@@ -5,7 +5,6 @@ import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../core/app_settings_storage.dart';
 import '../core/case_repository.dart';
 import '../core/case_storage.dart';
-import '../core/destiny_profile_storage.dart';
 import '../core/l10n.dart'; 
 
 part 'input_provider.g.dart';
@@ -33,9 +32,8 @@ class InputNotifier extends _$InputNotifier {
   static const String draftCaseId = 'default';
   final AppSettingsStorage _settingsStorage = AppSettingsStorage();
   final CaseRepository _caseRepository = CaseRepository(
-    SharedPreferencesCaseStorage(),
+    HiveCaseStorage(),
   );
-  final DestinyProfileStorage _legacyStorage = DestinyProfileStorage();
   bool _isHydrated = false;
   bool _isHydrating = false;
   int _mutationVersion = 0;
@@ -371,6 +369,47 @@ class InputNotifier extends _$InputNotifier {
     _notifyDerivedDataChanged();
   }
 
+  Future<List<DestinyCase>> getSavedCases() async {
+    final summaries = await _caseRepository.listCases();
+    final cases = <DestinyCase>[];
+    for (final summary in summaries) {
+      final item = await _caseRepository.loadCase(summary.id);
+      if (item != null) {
+        cases.add(item);
+      }
+    }
+    return cases;
+  }
+
+  Future<DestinyCase?> getCaseById(String id) {
+    return _caseRepository.loadCase(id);
+  }
+
+  Future<int> importCases(List<DestinyCase> cases) async {
+    if (cases.isEmpty) {
+      return 0;
+    }
+
+    final existingIds = (await _caseRepository.listCases())
+        .map((item) => item.id)
+        .toSet();
+    if (_currentCase.id != draftCaseId) {
+      existingIds.add(_currentCase.id);
+    }
+
+    var importedCount = 0;
+    for (final item in cases) {
+      final normalized = _normalizeImportedCase(item, existingIds);
+      await _caseRepository.saveCase(normalized);
+      existingIds.add(normalized.id);
+      importedCount++;
+    }
+
+    await _refreshCaseSummaries();
+    _notifyDerivedDataChanged();
+    return importedCount;
+  }
+
   DestinyProfile _composeProfile() {
     return DestinyProfile(
       birthInput: _currentCase.birthInput,
@@ -400,26 +439,12 @@ class InputNotifier extends _$InputNotifier {
 
     _isHydrating = true;
     final startVersion = _mutationVersion;
-    var didMigrateLegacy = false;
 
     try {
       final storedSettings = await _settingsStorage.load();
       final storedCase = await _caseRepository.loadCurrentCase();
-      var nextSettings = storedSettings ?? _settings;
-      var nextCase = storedCase;
-
-      if (storedSettings == null) {
-        final legacyJson = await _legacyStorage.loadRawJson();
-        if (legacyJson != null) {
-          final migrated = _migrateLegacyProfile(
-            legacyJson,
-            seedCase: nextCase,
-          );
-          nextSettings = migrated.settings;
-          nextCase = migrated.currentCase;
-          didMigrateLegacy = true;
-        }
-      }
+      final nextSettings = storedSettings ?? _settings;
+      final nextCase = storedCase;
 
       if (startVersion == _mutationVersion) {
         _settings = _normalizeZiweiProfiles(nextSettings);
@@ -431,15 +456,12 @@ class InputNotifier extends _$InputNotifier {
     } finally {
       _isHydrated = true;
       _isHydrating = false;
-      if (startVersion != _mutationVersion || didMigrateLegacy) {
+      if (startVersion != _mutationVersion) {
         await _persist(
           settingsSnapshot: _settings,
           caseSnapshot: _currentCase,
           mutationVersion: _mutationVersion,
         );
-        if (didMigrateLegacy) {
-          await _legacyStorage.clear();
-        }
       }
     }
   }
@@ -476,49 +498,6 @@ class InputNotifier extends _$InputNotifier {
       return;
     }
     await _caseRepository.saveCurrentCase(caseSnapshot);
-  }
-
-  ({AppSettings settings, DestinyCase currentCase}) _migrateLegacyProfile(
-    Map<String, dynamic> legacyJson, {
-    required DestinyCase seedCase,
-  }) {
-    final legacyProfile = DestinyProfile.fromJson(legacyJson);
-    final legacyBirthInputJson =
-        legacyJson['birthInput'] is Map
-            ? Map<String, dynamic>.from(legacyJson['birthInput'] as Map)
-            : null;
-
-    final settings = AppSettings(
-      language: legacyProfile.language,
-      useTrueSolarTime:
-          legacyBirthInputJson?['useTrueSolarTime'] as bool? ?? true,
-      ratHourMode: _parseLegacyRatHourMode(
-        legacyBirthInputJson?['ratHourMode'],
-      ),
-      baziOptions: legacyProfile.baziOptions,
-      ziweiOptions: legacyProfile.ziweiOptions,
-    );
-
-    final currentCase = DestinyCase.fromProfile(
-      legacyProfile,
-      id: seedCase.id,
-      name: seedCase.name,
-      createdAt: seedCase.createdAt,
-      updatedAt: seedCase.updatedAt,
-    );
-    return (settings: settings, currentCase: currentCase);
-  }
-
-  RatHourMode _parseLegacyRatHourMode(dynamic value) {
-    switch (value) {
-      case 'todayGan':
-        return RatHourMode.todayGan;
-      case 'tomorrowGan':
-        return RatHourMode.tomorrowGan;
-      case 'noSplit':
-      default:
-        return RatHourMode.noSplit;
-    }
   }
 
   AppSettings _normalizeZiweiProfiles(AppSettings settings) {
@@ -672,6 +651,26 @@ class InputNotifier extends _$InputNotifier {
 
   void _notifyDerivedDataChanged() {
     state = _composeProfile();
+  }
+
+  DestinyCase _normalizeImportedCase(DestinyCase source, Set<String> existingIds) {
+    final now = DateTime.now();
+    final baseName = source.name.trim().isEmpty ? '导入案例' : source.name.trim();
+    var nextId = source.id.trim();
+    var nextName = baseName;
+
+    if (nextId.isEmpty || nextId == draftCaseId) {
+      nextId = _buildCaseId(now);
+    }
+
+    if (existingIds.contains(nextId)) {
+      do {
+        nextId = 'case_import_${DateTime.now().microsecondsSinceEpoch}';
+      } while (existingIds.contains(nextId));
+      nextName = '$baseName 导入';
+    }
+
+    return source.copyWith(id: nextId, name: nextName);
   }
 
   String _buildCaseId(DateTime time) {

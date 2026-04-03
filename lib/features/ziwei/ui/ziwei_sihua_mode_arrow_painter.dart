@@ -312,42 +312,45 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
 
     final dir = _normalize(direction);
     final normal = Offset(-dir.dy, dir.dx);
-    final centeredOffset = (types.length - 1) / 2.0;
     final alongOffset = 3.0 + laneIndex * 1.2;
     final sideBase = 7.0;
+    final anchor = endPoint - (dir * alongOffset) + (normal * sideBase);
+    final painters = types
+        .map(
+          (type) => TextPainter(
+            text: TextSpan(
+              text: _labelFor(type),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                color: _labelColor(type),
+                height: 1.0,
+                shadows: const [
+                  Shadow(color: Colors.white, blurRadius: 2),
+                ],
+              ),
+            ),
+            textDirection: TextDirection.ltr,
+          )..layout(),
+        )
+        .toList(growable: false);
+    const spacing = 2.0;
+    final totalWidth = painters.fold<double>(
+          0,
+          (sum, painter) => sum + painter.width,
+        ) +
+        math.max(0, painters.length - 1) * spacing;
+    var currentLeft = anchor.dx - (totalWidth / 2);
 
-    for (int i = 0; i < types.length; i++) {
-      final type = types[i];
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: _labelFor(type),
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-            color: _labelColor(type),
-            height: 1.0,
-            shadows: const [
-              Shadow(color: Colors.white, blurRadius: 2),
-            ],
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-
-      final spread = (i - centeredOffset) * 7.0;
-      final sideOffset = sideBase + spread;
-      final offset =
-          endPoint -
-          (dir * alongOffset) +
-          (normal * sideOffset);
-
+    for (final textPainter in painters) {
       textPainter.paint(
         canvas,
         Offset(
-          offset.dx - textPainter.width / 2,
-          offset.dy - textPainter.height / 2,
+          currentLeft,
+          anchor.dy - textPainter.height / 2,
         ),
       );
+      currentLeft += textPainter.width + spacing;
     }
   }
 

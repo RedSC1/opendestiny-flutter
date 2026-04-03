@@ -3,10 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ziwei_core/ziwei_core.dart';
+import '../../core/json_text_transfer.dart';
 import '../../providers/input_provider.dart';
 import '../../models/destiny_profile.dart';
 import '../../core/l10n.dart';
 import '../../core/ziwei_l10n.dart';
+
+final JsonTextTransfer _jsonTextTransfer = JsonTextTransfer();
 
 class ZiweiSettingsView extends ConsumerWidget {
   const ZiweiSettingsView({super.key});
@@ -623,6 +626,61 @@ bool _isProtectedZiweiProfile(
       .contains(profile.name);
 }
 
+String _normalizeZiweiProfileJson(
+  ZiweiCustomProfileType type,
+  String jsonText,
+) {
+  const encoder = JsonEncoder.withIndent('  ');
+  final baseRuleset = ConfigLoader.getDefault();
+
+  if (type == ZiweiCustomProfileType.siHua) {
+    final decoded = jsonDecode(jsonText);
+    if (decoded is! Map<String, dynamic>) {
+      throw FormatException('四化 JSON 根节点必须是对象'.tr);
+    }
+    ConfigLoader.overrideWith(baseRuleset, sihuaJson: jsonText);
+    return encoder.convert(decoded);
+  }
+
+  if (type == ZiweiCustomProfileType.brightness) {
+    final decoded = jsonDecode(jsonText);
+    if (decoded is! Map<String, dynamic>) {
+      throw FormatException('亮度 JSON 根节点必须是对象'.tr);
+    }
+    ConfigLoader.overrideWith(baseRuleset, brightnessJson: jsonText);
+    return encoder.convert(decoded);
+  }
+
+  final decoded = jsonDecode(jsonText);
+  if (decoded is! List) {
+    throw FormatException('星曜 JSON 根节点必须是数组'.tr);
+  }
+  ConfigLoader.overrideWith(baseRuleset, starsJson: jsonText);
+  return encoder.convert(decoded);
+}
+
+String _ziweiProfileFilePrefix(ZiweiCustomProfileType type) {
+  switch (type) {
+    case ZiweiCustomProfileType.siHua:
+      return 'sihua_profile';
+    case ZiweiCustomProfileType.brightness:
+      return 'brightness_profile';
+    case ZiweiCustomProfileType.stars:
+      return 'stars_profile';
+  }
+}
+
+String _defaultImportedZiweiProfileName(ZiweiCustomProfileType type) {
+  switch (type) {
+    case ZiweiCustomProfileType.siHua:
+      return '导入四化流派'.tr;
+    case ZiweiCustomProfileType.brightness:
+      return '导入亮度流派'.tr;
+    case ZiweiCustomProfileType.stars:
+      return '导入星曜流派'.tr;
+  }
+}
+
 class _ZiweiProfileArchivePage extends ConsumerWidget {
   const _ZiweiProfileArchivePage({
     required this.type,
@@ -649,7 +707,16 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
         : options.activeStarsProfileId;
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: Text(title),
+        actions: [
+          IconButton(
+            tooltip: '导入 JSON'.tr,
+            icon: const Icon(Icons.file_open_outlined),
+            onPressed: () => _importProfileJson(context, ref),
+          ),
+        ],
+      ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: profiles.length,
@@ -668,7 +735,12 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
               );
               await Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => _buildProfileEditorPage(ref, profile, locked),
+                  builder: (_) => _buildProfileEditorPage(
+                    context,
+                    ref,
+                    profile,
+                    locked,
+                  ),
                 ),
               );
             },
@@ -709,6 +781,7 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
   }
 
   Widget _buildProfileEditorPage(
+    BuildContext context,
     WidgetRef ref,
     ZiweiCustomProfile profile,
     bool locked,
@@ -721,25 +794,118 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
       );
     }
 
+    Future<void> onExport(String json) {
+      return _exportProfileJson(context, profile.name, json);
+    }
+
+    Future<void> onShare(String json) {
+      return _shareProfileJson(context, profile.name, json);
+    }
+
     if (type == ZiweiCustomProfileType.siHua) {
       return _SiHuaProfileEditorPage(
+        profileName: profile.name,
         initialJson: profile.json,
         readOnly: locked,
         onChanged: onChanged,
+        onExport: onExport,
+        onShare: onShare,
       );
     }
     if (type == ZiweiCustomProfileType.brightness) {
       return _BrightnessProfileEditorPage(
+        profileName: profile.name,
         initialJson: profile.json,
         readOnly: locked,
         onChanged: onChanged,
+        onExport: onExport,
+        onShare: onShare,
       );
     }
     return _StarsProfileEditorPage(
+      profileName: profile.name,
       initialJson: profile.json,
       readOnly: locked,
       onChanged: onChanged,
+      onExport: onExport,
+      onShare: onShare,
     );
+  }
+
+  Future<void> _importProfileJson(BuildContext context, WidgetRef ref) async {
+    try {
+      final jsonText = await _jsonTextTransfer.pickJsonText();
+      if (jsonText == null || jsonText.trim().isEmpty) {
+        return;
+      }
+      final normalized = _normalizeZiweiProfileJson(type, jsonText);
+      ref.read(inputNotifierProvider.notifier).createZiweiCustomProfile(
+        type: type,
+        name: _defaultImportedZiweiProfileName(type),
+        json: normalized,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('已导入流派'.tr)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'导入流派失败：'.tr}$e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportProfileJson(
+    BuildContext context,
+    String profileName,
+    String jsonText,
+  ) async {
+    try {
+      await _jsonTextTransfer.exportJsonText(
+        fileName:
+            '${_ziweiProfileFilePrefix(type)}_${_jsonTextTransfer.sanitizeFileName(profileName)}',
+        jsonText: jsonText,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'已导出流派：'.tr}$profileName')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'导出流派失败：'.tr}$e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareProfileJson(
+    BuildContext context,
+    String profileName,
+    String jsonText,
+  ) async {
+    try {
+      await _jsonTextTransfer.shareJsonText(
+        fileName:
+            '${_ziweiProfileFilePrefix(type)}_${_jsonTextTransfer.sanitizeFileName(profileName)}',
+        jsonText: jsonText,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'已打开分享面板：'.tr}$profileName')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${'分享流派失败：'.tr}$e')),
+        );
+      }
+    }
   }
 
   Future<void> _showRenameDialog(
@@ -906,21 +1072,54 @@ class _ZiweiProfileTile extends StatelessWidget {
   }
 }
 
-class _StarsProfileEditorPage extends StatelessWidget {
+class _StarsProfileEditorPage extends StatefulWidget {
   const _StarsProfileEditorPage({
+    required this.profileName,
     required this.initialJson,
     required this.readOnly,
     required this.onChanged,
+    required this.onExport,
+    required this.onShare,
   });
 
+  final String profileName;
   final String initialJson;
   final bool readOnly;
   final ValueChanged<String> onChanged;
+  final Future<void> Function(String json) onExport;
+  final Future<void> Function(String json) onShare;
+
+  @override
+  State<_StarsProfileEditorPage> createState() => _StarsProfileEditorPageState();
+}
+
+class _StarsProfileEditorPageState extends State<_StarsProfileEditorPage> {
+  late String _json;
+
+  @override
+  void initState() {
+    super.initState();
+    _json = widget.initialJson;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('编辑自定义星曜流派'.tr)),
+      appBar: AppBar(
+        title: Text('编辑自定义星曜流派'.tr),
+        actions: [
+          IconButton(
+            tooltip: '分享 JSON'.tr,
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => widget.onShare(_json),
+          ),
+          IconButton(
+            tooltip: '导出 JSON'.tr,
+            icon: const Icon(Icons.download_outlined),
+            onPressed: () => widget.onExport(_json),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
@@ -929,9 +1128,14 @@ class _StarsProfileEditorPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: _CustomStarsJsonEditor(
-                initialJson: initialJson,
-                readOnly: readOnly,
-                onChanged: onChanged,
+                initialJson: _json,
+                readOnly: widget.readOnly,
+                onChanged: (json) {
+                  setState(() {
+                    _json = json;
+                  });
+                  widget.onChanged(json);
+                },
               ),
             ),
           ),
@@ -1024,14 +1228,20 @@ class _CustomStarsJsonEditorState extends State<_CustomStarsJsonEditor> {
 
 class _SiHuaProfileEditorPage extends StatefulWidget {
   const _SiHuaProfileEditorPage({
+    required this.profileName,
     required this.initialJson,
     required this.readOnly,
     required this.onChanged,
+    required this.onExport,
+    required this.onShare,
   });
 
+  final String profileName;
   final String initialJson;
   final bool readOnly;
   final ValueChanged<String> onChanged;
+  final Future<void> Function(String json) onExport;
+  final Future<void> Function(String json) onShare;
 
   @override
   State<_SiHuaProfileEditorPage> createState() =>
@@ -1054,6 +1264,16 @@ class _SiHuaProfileEditorPageState extends State<_SiHuaProfileEditorPage> {
       appBar: AppBar(
         title: Text('编辑自定义四化流派'.tr),
         actions: [
+          IconButton(
+            tooltip: '分享 JSON'.tr,
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => widget.onShare(_json),
+          ),
+          IconButton(
+            tooltip: '导出 JSON'.tr,
+            icon: const Icon(Icons.download_outlined),
+            onPressed: () => widget.onExport(_json),
+          ),
           TextButton(
             onPressed: () {
               setState(() {
@@ -1302,14 +1522,20 @@ class _CustomSiHuaJsonEditorState extends State<_CustomSiHuaJsonEditor> {
 
 class _BrightnessProfileEditorPage extends StatefulWidget {
   const _BrightnessProfileEditorPage({
+    required this.profileName,
     required this.initialJson,
     required this.readOnly,
     required this.onChanged,
+    required this.onExport,
+    required this.onShare,
   });
 
+  final String profileName;
   final String initialJson;
   final bool readOnly;
   final ValueChanged<String> onChanged;
+  final Future<void> Function(String json) onExport;
+  final Future<void> Function(String json) onShare;
 
   @override
   State<_BrightnessProfileEditorPage> createState() =>
@@ -1384,6 +1610,8 @@ class _BrightnessProfileEditorPageState
     }
   }
 
+  String get _currentJson => const JsonEncoder.withIndent('  ').convert(_data);
+
 
   @override
   Widget build(BuildContext context) {
@@ -1393,6 +1621,16 @@ class _BrightnessProfileEditorPageState
         appBar: AppBar(
           title: Text('编辑自定义亮度流派'.tr),
           actions: [
+            IconButton(
+              tooltip: '分享 JSON'.tr,
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => widget.onShare(_currentJson),
+            ),
+            IconButton(
+              tooltip: '导出 JSON'.tr,
+              icon: const Icon(Icons.download_outlined),
+              onPressed: () => widget.onExport(_currentJson),
+            ),
             TextButton(
               onPressed: () {
                 setState(() {

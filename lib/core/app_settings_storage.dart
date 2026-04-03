@@ -1,15 +1,11 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/destiny_profile.dart';
+import 'hive_storage.dart';
 
 class AppSettingsStorage {
-  static const _storageKey = 'app_settings_v1';
-
   Future<AppSettings?> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_storageKey);
+    final raw = HiveStorage.settingsBox.get(HiveStorage.appSettingsKey);
     if (raw == null || raw.isEmpty) {
       return null;
     }
@@ -26,7 +22,9 @@ class AppSettingsStorage {
   }
 
   Future<void> save(AppSettings settings) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_storageKey, jsonEncode(settings.toJson()));
+    await HiveStorage.settingsBox.put(
+      HiveStorage.appSettingsKey,
+      jsonEncode(settings.toJson()),
+    );
   }
 }

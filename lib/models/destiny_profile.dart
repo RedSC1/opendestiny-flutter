@@ -53,6 +53,33 @@ String _ratHourModeToJson(RatHourMode value) {
   }
 }
 
+String _twoDigits(int value) => value.toString().padLeft(2, '0');
+
+String _formatLunarDayLabel(int day) {
+  if (AppL10nSettings.currentLanguage == AppLanguage.en) {
+    return 'Day $day';
+  }
+  if (day <= 0 || day > 30) {
+    return day.toString();
+  }
+  if (day == 10) return '初十';
+  if (day == 20) return '二十';
+  if (day == 30) return '三十';
+  const units = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  if (day < 10) return '初${units[day]}';
+  if (day < 20) return '十${units[day % 10]}';
+  return '廿${units[day % 10]}';
+}
+
+String _formatCaseLunarMonth(LunarBirthInput lunar) {
+  final raw = lunar.month.trim();
+  final hasLeapPrefix = raw.startsWith('闰') || raw.startsWith('閏');
+  if (lunar.isLeap && !hasLeapPrefix) {
+    return '${'闰'.tr}$raw';
+  }
+  return raw;
+}
+
 class TimePackConfig {
   final double longitude;
   final double latitude;
@@ -382,6 +409,17 @@ class BirthInput {
   AstroDateTime get activeClockTime => calendarType == BirthCalendarType.lunar
       ? lunarClockTime
       : solar.toAstroDateTime();
+
+  String get caseSummaryText {
+    if (calendarType == BirthCalendarType.lunar) {
+      return '${'农历'.tr} ${lunar.year}${'年'.tr} ${_formatCaseLunarMonth(lunar)}${'月'.tr} ${_formatLunarDayLabel(lunar.day)} ${_twoDigits(lunar.hour)}:${_twoDigits(lunar.minute)}';
+    }
+
+    if (AppL10nSettings.currentLanguage == AppLanguage.en) {
+      return '${'Solar'.tr} ${solar.year}-${_twoDigits(solar.month)}-${_twoDigits(solar.day)} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}';
+    }
+    return '${'公历'.tr} ${solar.year}-${_twoDigits(solar.month)}-${_twoDigits(solar.day)} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}';
+  }
 
   TimePack toTimePack({
     required bool useTrueSolarTime,
@@ -830,9 +868,7 @@ class DestinyCase {
     id: id,
     name: name,
     updatedAt: updatedAt,
-    subtitle: note.isNotEmpty
-        ? note
-        : '${birthInput.activeClockTime.year}-${birthInput.activeClockTime.month.toString().padLeft(2, '0')}-${birthInput.activeClockTime.day.toString().padLeft(2, '0')}',
+    subtitle: note.isNotEmpty ? note : birthInput.caseSummaryText,
   );
 
   factory DestinyCase.fromProfile(

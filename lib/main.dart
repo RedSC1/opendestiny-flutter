@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/case_library/case_library_view.dart';
 
 import 'package:flutter/foundation.dart';
+import 'core/hive_storage.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await HiveStorage.init();
   LicenseRegistry.addLicense(() {
     return Stream<LicenseEntry>.fromIterable([
       const LicenseEntryWithLineBreaks(
