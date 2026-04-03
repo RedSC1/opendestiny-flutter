@@ -23,7 +23,7 @@ jobs:
       - name: Build Flutter Web
         run: |
           flutter pub get
-          flutter build web --release --base-href "/app/" --web-renderer canvaskit
+          flutter build web --release --base-href "/app/"
 
 
       # 3. 整理部署目录
