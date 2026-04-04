@@ -23,6 +23,13 @@ void main() {
     'webBuild': _resolveWebBuild(appVersion),
     'commit': _resolveCommit(),
     'builtAt': DateTime.now().toUtc().toIso8601String(),
+    'critical': false,
+    'message': '',
+    'githubUrl': 'https://github.com/RedSC1/opendestiny-flutter/releases/latest',
+    'giteeUrl': _optionalEnv('OD_GITEE_RELEASE_URL') ??
+        'https://gitee.com/RedSC1/opendestiny-flutter',
+    'gitcodeUrl': _optionalEnv('OD_GITCODE_RELEASE_URL') ??
+        'https://gitcode.com/RedSC/opendestiny-flutter',
   };
 
   final webDir = Directory(_path(root.path, 'web'));
@@ -88,6 +95,12 @@ String _resolveCommit() {
     // Ignore and fall back to an empty commit marker.
   }
   return '';
+}
+
+String? _optionalEnv(String key) {
+  final value = Platform.environment[key]?.trim();
+  if (value == null || value.isEmpty) return null;
+  return value;
 }
 
 String _timestamp(DateTime value) {

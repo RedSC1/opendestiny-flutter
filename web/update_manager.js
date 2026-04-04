@@ -8,8 +8,8 @@
   const isZh = locale.startsWith('zh');
   const copy = isZh
     ? {
-        title: '发现新版本',
-        body: '检测到新版网页资源，刷新后即可切换到最新版本。',
+        title: '发现网页更新',
+        body: '检测到网页更新，刷新后即可使用最新内容。',
         action: '立即刷新',
         close: '稍后',
       }
@@ -27,6 +27,7 @@
   let dismissedBuildKey = null;
   const versionFetchRetryCount = 3;
   const versionFetchRetryDelayMs = 1200;
+  window.__OD_LAST_UPDATE_CHECK_RESULT__ = 'idle';
 
   function rootVersionUrl() {
     return new URL('../version.json', document.baseURI).toString();
@@ -237,17 +238,20 @@
   async function checkForUpdates() {
     const registration = currentRegistration || (await resolveRegistration());
     if (!registration) {
-      return;
+      return 'error';
     }
 
     if (registration.waiting) {
       maybeShowBanner();
-      return;
+      return 'update';
     }
 
     const remoteInfo = await fetchRemoteInfo();
+    if (!remoteInfo) {
+      return 'error';
+    }
+
     if (
-      remoteInfo &&
       remoteInfo.webBuild &&
       localInfo.webBuild &&
       remoteInfo.webBuild !== localInfo.webBuild
@@ -269,7 +273,7 @@
           maybeShowBanner(remoteInfo);
         }
       }, 1200);
-      return;
+      return 'update';
     }
 
     try {
@@ -277,7 +281,25 @@
     } catch (_) {
       // Ignore transient update errors.
     }
+    return 'latest';
   }
+
+  window.__OD_CHECK_WEB_UPDATE__ = function () {
+    window.__OD_LAST_UPDATE_CHECK_RESULT__ = 'pending';
+    checkForUpdates()
+      .then(function (result) {
+        window.__OD_LAST_UPDATE_CHECK_RESULT__ = result || 'error';
+      })
+      .catch(function () {
+        window.__OD_LAST_UPDATE_CHECK_RESULT__ = 'error';
+      });
+    return 'pending';
+  };
+
+  window.__OD_ACTIVATE_WEB_UPDATE__ = function () {
+    activateUpdate();
+    return 'refreshing';
+  };
 
   window.addEventListener('load', function () {
     resolveRegistration().then(function (registration) {

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/case_library/case_library_view.dart';
 
 import 'package:flutter/foundation.dart';
+import 'core/app_update_service.dart';
 import 'core/hive_storage.dart';
 
 Future<void> main() async {
@@ -41,12 +42,40 @@ SOFTWARE.''',
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  bool _startupUpdateChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _runStartupUpdateCheck();
+      });
+    }
+  }
+
+  Future<void> _runStartupUpdateCheck() async {
+    if (_startupUpdateChecked || kIsWeb) return;
+    _startupUpdateChecked = true;
+    await Future<void>.delayed(const Duration(seconds: 2));
+    final context = _navigatorKey.currentContext;
+    if (!mounted || context == null) return;
+    await AppUpdateService.checkAndShowDialog(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'OpenDestiny',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

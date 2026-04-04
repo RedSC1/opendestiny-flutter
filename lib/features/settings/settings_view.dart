@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../../providers/input_provider.dart';
@@ -7,6 +8,10 @@ import 'bazi_settings_view.dart';
 import 'ziwei_settings_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/app_version.dart';
+import '../../core/app_update_service.dart';
+import '../../core/web_update_bridge_stub.dart'
+    if (dart.library.html) '../../core/web_update_bridge_web.dart'
+        as web_update;
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsView extends ConsumerWidget {
@@ -138,6 +143,62 @@ class SettingsView extends ConsumerWidget {
               MaterialPageRoute(
                 builder: (context) => const ZiweiSettingsView(),
               ),
+            );
+          },
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.system_update_alt_outlined),
+          title: Text('检查更新'.tr),
+          subtitle: Text(
+            kIsWeb ? '检查网页更新并刷新'.tr : '获取最新版本与下载入口'.tr,
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () async {
+            if (kIsWeb) {
+              final result = await web_update.checkForWebUpdate();
+              if (!context.mounted) return;
+
+              if (result == 'update') {
+                await showDialog<void>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: Text('发现网页更新'.tr),
+                    content: Text('检测到网页更新，刷新后即可使用最新内容。'.tr),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: Text('稍后'.tr),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.of(dialogContext).pop();
+                          await web_update.activateWebUpdate();
+                        },
+                        child: Text('立即刷新'.tr),
+                      ),
+                    ],
+                  ),
+                );
+                return;
+              }
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    result == 'latest'
+                        ? '当前已是最新网页版本'.tr
+                        : '检查更新失败'.tr,
+                  ),
+                ),
+              );
+              return;
+            }
+
+            await AppUpdateService.checkAndShowDialog(
+              context,
+              silentIfLatest: false,
+              silentIfError: false,
             );
           },
         ),

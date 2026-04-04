@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.2
+
+### 🚀 Features
+- **App Update Check**: Added startup and manual update checks for app platforms, with GitHub Release as the primary destination and Gitee/GitCode as fallback mirrors.
+- **Web Refresh Prompt**: Added web update detection with a manual refresh prompt, including a settings entry to check for web updates on demand.
+- **Custom Masters Profile Support**: Added full OpenDestiny-side support for custom `命主 / 身主` rule profiles, including profile archive management and editor UI.
+
+### 🛠️ Improvements
+- **Unified Version Source**: Added generated `version.json` / `build_info.js` metadata for web deployments so update prompts can compare against a single remote source.
+- **Safer Web Update Flow**: Web update checks now run once on startup, retry transient failures a few times, and never auto-refresh in the background.
+
 ## 0.4.1
 
 ### 🚨 Major Fix

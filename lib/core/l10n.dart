@@ -432,6 +432,59 @@ extension StringL10n on String {
       AppLanguage.en: 'Opened share sheet for: ',
       AppLanguage.zhTW: '已打開分享面板：',
     },
+    '检查更新': {AppLanguage.en: 'Check for Updates', AppLanguage.zhTW: '檢查更新'},
+    '获取最新版本与下载入口': {
+      AppLanguage.en: 'Fetch latest version and download links',
+      AppLanguage.zhTW: '獲取最新版本與下載入口',
+    },
+    '检查网页更新并刷新': {
+      AppLanguage.en: 'Check for web updates and refresh',
+      AppLanguage.zhTW: '檢查網頁更新並刷新',
+    },
+    '发现新版本': {AppLanguage.en: 'Update Available', AppLanguage.zhTW: '發現新版本'},
+    '发现重大更新': {
+      AppLanguage.en: 'Critical Update Available',
+      AppLanguage.zhTW: '發現重大更新',
+    },
+    '发现网页更新': {
+      AppLanguage.en: 'Web Update Available',
+      AppLanguage.zhTW: '發現網頁更新',
+    },
+    '当前版本': {AppLanguage.en: 'Current Version', AppLanguage.zhTW: '當前版本'},
+    '最新版本': {AppLanguage.en: 'Latest Version', AppLanguage.zhTW: '最新版本'},
+    '更新内容': {AppLanguage.en: 'What\'s New', AppLanguage.zhTW: '更新內容'},
+    '前往 GitHub Release': {
+      AppLanguage.en: 'Open GitHub Release',
+      AppLanguage.zhTW: '前往 GitHub Release',
+    },
+    'Gitee 镜像': {AppLanguage.en: 'Gitee Mirror', AppLanguage.zhTW: 'Gitee 鏡像'},
+    'GitCode 镜像': {
+      AppLanguage.en: 'GitCode Mirror',
+      AppLanguage.zhTW: 'GitCode 鏡像',
+    },
+    'GitHub 为主发布源，国内访问不稳定时可尝试备用镜像。': {
+      AppLanguage.en: 'GitHub is the primary release source. Try mirror links if access is unstable.',
+      AppLanguage.zhTW: 'GitHub 為主發布源，訪問不穩定時可嘗試備用鏡像。',
+    },
+    '已是最新版本': {AppLanguage.en: 'Already up to date', AppLanguage.zhTW: '已是最新版本'},
+    '当前已是最新网页版本': {
+      AppLanguage.en: 'You already have the latest web version',
+      AppLanguage.zhTW: '當前已是最新網頁版本',
+    },
+    '检查更新失败': {
+      AppLanguage.en: 'Failed to check for updates',
+      AppLanguage.zhTW: '檢查更新失敗',
+    },
+    '检测到网页更新，刷新后即可使用最新内容。': {
+      AppLanguage.en: 'A web update is ready. Refresh to use the latest content.',
+      AppLanguage.zhTW: '檢測到網頁更新，刷新後即可使用最新內容。',
+    },
+    '立即刷新': {AppLanguage.en: 'Refresh Now', AppLanguage.zhTW: '立即刷新'},
+    '无法打开更新链接': {
+      AppLanguage.en: 'Unable to open update link',
+      AppLanguage.zhTW: '無法打開更新鏈接',
+    },
+    '稍后': {AppLanguage.en: 'Later', AppLanguage.zhTW: '稍後'},
     '导出失败：': {AppLanguage.en: 'Export failed: ', AppLanguage.zhTW: '導出失敗：'},
     '导出流派失败：': {
       AppLanguage.en: 'Profile export failed: ',
