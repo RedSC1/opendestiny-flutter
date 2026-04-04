@@ -190,8 +190,9 @@ class CenterInfoWidget extends ConsumerWidget {
                               child: Text(
                                 '${'公历'.tr}: ${_formatAstroDate(date.solar, appSettings.useAstronomicalYear)}',
                                 style: TextStyle(
-                                  fontSize: s(10.ts),
-                                  color: ZiweiClassicTheme.minorStarColor,
+                                  fontSize: s(10.8.ts),
+                                  fontWeight: FontWeight.w500,
+                                  color: ZiweiClassicTheme.metaInfoColor,
                                 ),
                               ),
                             ),
@@ -201,8 +202,9 @@ class CenterInfoWidget extends ConsumerWidget {
                                 child: Text(
                                   '${'真太阳'.tr}: ${_formatAstroDate(date.trueSolarTime!, appSettings.useAstronomicalYear)}',
                                   style: TextStyle(
-                                    fontSize: s(10.ts),
-                                    color: ZiweiClassicTheme.minorStarColor,
+                                    fontSize: s(10.8.ts),
+                                    fontWeight: FontWeight.w500,
+                                    color: ZiweiClassicTheme.metaInfoColor,
                                   ),
                                 ),
                               ),
@@ -211,8 +213,9 @@ class CenterInfoWidget extends ConsumerWidget {
                               child: Text(
                                 '${'农历'.tr}: ${bazi.year.display}年 ${plate.effectiveYear.formatYear(appSettings.useAstronomicalYear)} ${date.lunar.monthNameStr}月${_formatLunarDay(date.lunar.day)} ${bazi.time.zhi.display}时',
                                 style: TextStyle(
-                                  fontSize: s(10.ts),
-                                  color: ZiweiClassicTheme.minorStarColor,
+                                  fontSize: s(10.8.ts),
+                                  fontWeight: FontWeight.w500,
+                                  color: ZiweiClassicTheme.metaInfoColor,
                                 ),
                               ),
                             ),
@@ -226,7 +229,7 @@ class CenterInfoWidget extends ConsumerWidget {
                         child: Text(
                           '${'命主'.tr}: ${(plate.mingZhu ?? "").nodeDisplay}   ${'身主'.tr}: ${(plate.shenZhu ?? "").nodeDisplay}',
                           style: TextStyle(
-                            fontSize: s(10.ts),
+                            fontSize: s(10.8.ts),
                             fontWeight: FontWeight.bold,
                             color: ZiweiClassicTheme.decadeAgeColor,
                           ),
@@ -250,7 +253,7 @@ class CenterInfoWidget extends ConsumerWidget {
                           child: Text(
                             '${'子年斗君'.tr}: ${douJunZhi.display}',
                             style: TextStyle(
-                              fontSize: s(10.ts),
+                              fontSize: s(10.8.ts),
                               fontWeight: FontWeight.bold,
                               color: ZiweiClassicTheme.decadeAgeColor,
                             ),

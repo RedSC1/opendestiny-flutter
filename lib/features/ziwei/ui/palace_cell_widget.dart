@@ -1047,7 +1047,11 @@ class PalaceCellWidget extends ConsumerWidget {
                   ),
                   style: TextStyle(
                     fontSize: fontSize,
-                    fontWeight: isMajor ? FontWeight.w700 : FontWeight.w400,
+                    fontWeight: isMajor
+                        ? FontWeight.w700
+                        : star.type == StarType.minor
+                        ? FontWeight.w500
+                        : FontWeight.w400,
                     color: color,
                     height: 1.05,
                   ),

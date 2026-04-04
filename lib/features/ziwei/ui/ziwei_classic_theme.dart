@@ -5,9 +5,9 @@ import '../../../core/ziwei_l10n.dart';
 class ZiweiClassicTheme {
   // --- 星曜核心色盘 (借鉴奇门图) ---
   static const Color majorStarColor = Color(0xFFC62828); // 朱红 (天英/景门色)
-  static const Color luckyStarColor = Color(0xFF2E7D32); // 翡翠绿 (天辅/杜门色)
-  static const Color badStarColor = Color(0xFF333333); // 玄铁黑 (白虎/惊门色)
-  static const Color minorStarColor = Color(0xFF757575); // 石板灰 (杂曜/神煞)
+  static const Color luckyStarColor = Color(0xFF1B5E20); // 深翡翠绿 (辅星)
+  static const Color badStarColor = Color(0xFF111111); // 更深玄铁黑 (煞星)
+  static const Color minorStarColor = Color(0xFF616161); // 深石板灰 (杂曜/神煞)
 
   // --- 四化色 (现代高对比) ---
   static const Color sihuaLu = Color(0xFF2E7D32); // 繁荣绿
@@ -18,6 +18,8 @@ class ZiweiClassicTheme {
   // --- 布局与功能色 ---
   static const Color palaceNameColor = Color(0xFFC62828); // 宫位名与主色一致
   static const Color decadeAgeColor = Color(0xFF546E7A); // 蓝灰色
+  static const Color metaInfoColor = Color(0xFF37474F); // 中宫出生信息/辅助信息
+  static const Color subLabelColor = Color(0xFF546E7A); // 大运副标题/年份信息
   static const Color ganzhiColor = Color(0xFFAF601A); // 大地棕
   static const Color changshengColor = Color(0xFF9E9E9E); // 中性灰
   static const Color cellBorderColor = Color(0xFFEEEEEE); // 极浅灰边框 (极细感)

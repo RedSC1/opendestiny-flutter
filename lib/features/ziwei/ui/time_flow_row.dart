@@ -133,9 +133,10 @@ class TimeFlowRow<T> extends StatelessWidget {
                               itemSubLabelBuilder!(item),
                               style: TextStyle(
                                 fontSize: s(9),
+                                fontWeight: FontWeight.w500,
                                 color: isSelected
-                                    ? activeColor.withOpacity(0.8)
-                                    : Colors.blueGrey.withOpacity(0.6),
+                                    ? activeColor
+                                    : ZiweiClassicTheme.subLabelColor,
                                 height: 1.1,
                               ),
                             ),
