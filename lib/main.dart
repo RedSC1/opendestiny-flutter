@@ -6,6 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'core/app_update_service.dart';
 import 'core/hive_storage.dart';
 
+const _fontFamily = 'NotoSansSC';
+const _fontFallback = ['NotoSansTC'];
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HiveStorage.init();
@@ -74,15 +77,54 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final baseTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      useMaterial3: true,
+    );
+
+    final textTheme = _strengthenTextTheme(
+      baseTheme.textTheme.apply(
+        fontFamily: _fontFamily,
+        fontFamilyFallback: _fontFallback,
+      ),
+    );
+
     return MaterialApp(
       navigatorKey: _navigatorKey,
       title: 'OpenDestiny',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      theme: baseTheme.copyWith(
+        textTheme: textTheme,
+        primaryTextTheme: _strengthenTextTheme(
+          baseTheme.primaryTextTheme.apply(
+            fontFamily: _fontFamily,
+            fontFamilyFallback: _fontFallback,
+          ),
+        ),
       ),
       home: const CaseLibraryView(),
     );
   }
+}
+
+TextTheme _strengthenTextTheme(TextTheme theme) {
+  return theme.copyWith(
+    bodyLarge: _withWeight(theme.bodyLarge, FontWeight.w500),
+    bodyMedium: _withWeight(theme.bodyMedium, FontWeight.w500),
+    bodySmall: _withWeight(theme.bodySmall, FontWeight.w500),
+    labelLarge: _withWeight(theme.labelLarge, FontWeight.w500),
+    labelMedium: _withWeight(theme.labelMedium, FontWeight.w500),
+    labelSmall: _withWeight(theme.labelSmall, FontWeight.w500),
+    titleLarge: _withWeight(theme.titleLarge, FontWeight.w600),
+    titleMedium: _withWeight(theme.titleMedium, FontWeight.w600),
+    titleSmall: _withWeight(theme.titleSmall, FontWeight.w600),
+    headlineLarge: _withWeight(theme.headlineLarge, FontWeight.w600),
+    headlineMedium: _withWeight(theme.headlineMedium, FontWeight.w600),
+    headlineSmall: _withWeight(theme.headlineSmall, FontWeight.w600),
+  );
+}
+
+TextStyle? _withWeight(TextStyle? style, FontWeight weight) {
+  if (style == null) return null;
+  return style.copyWith(fontWeight: style.fontWeight ?? weight);
 }
