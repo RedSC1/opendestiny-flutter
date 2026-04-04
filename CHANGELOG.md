@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.1
+
+### 🚨 Major Fix
+- **BCE Charting Correction**: Fixed incorrect chart generation for BCE dates by aligning the full calendar engine stack with the latest astronomical-year fixes. This resolves previously incorrect Ziwei/Bazi charting results when plotting ancient birth dates.
+
+### 🛠️ Fixes
+- **Version Sync**: Bumped the desktop app version to `0.4.1` and synchronized the internal `AppVersion.current` constant.
+- **Core Calendar Alignment**: Synchronized the application with the corrected `LunarDate` astronomical-year behavior and historical-year helper APIs from the underlying libraries.
+
+### 📦 Dependency Updates
+- `bazi_core`: `^0.6.3`
+- `ziwei_core`: `^0.12.3`
+- `sxwnl_spa_dart`: `^0.18.1`
+
 ## 0.4.0
 
 ### 🚀 Features
