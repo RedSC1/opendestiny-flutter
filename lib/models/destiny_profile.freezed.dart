@@ -246,6 +246,11 @@ mixin _$ZiweiOptions {
   List<ZiweiCustomProfile> get siHuaProfiles =>
       throw _privateConstructorUsedError;
   String get activeSiHuaProfileId => throw _privateConstructorUsedError;
+  ZiweiMastersMode get mastersMode => throw _privateConstructorUsedError;
+  String get customMastersJson => throw _privateConstructorUsedError;
+  List<ZiweiCustomProfile> get mastersProfiles =>
+      throw _privateConstructorUsedError;
+  String get activeMastersProfileId => throw _privateConstructorUsedError;
   ZiweiBrightnessMode get brightnessMode => throw _privateConstructorUsedError;
   String get customBrightnessJson => throw _privateConstructorUsedError;
   List<ZiweiCustomProfile> get brightnessProfiles =>
@@ -296,6 +301,10 @@ abstract class $ZiweiOptionsCopyWith<$Res> {
     String customSiHuaJson,
     List<ZiweiCustomProfile> siHuaProfiles,
     String activeSiHuaProfileId,
+    ZiweiMastersMode mastersMode,
+    String customMastersJson,
+    List<ZiweiCustomProfile> mastersProfiles,
+    String activeMastersProfileId,
     ZiweiBrightnessMode brightnessMode,
     String customBrightnessJson,
     List<ZiweiCustomProfile> brightnessProfiles,
@@ -340,6 +349,10 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
     Object? customSiHuaJson = null,
     Object? siHuaProfiles = null,
     Object? activeSiHuaProfileId = null,
+    Object? mastersMode = null,
+    Object? customMastersJson = null,
+    Object? mastersProfiles = null,
+    Object? activeMastersProfileId = null,
     Object? brightnessMode = null,
     Object? customBrightnessJson = null,
     Object? brightnessProfiles = null,
@@ -395,6 +408,22 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
             activeSiHuaProfileId: null == activeSiHuaProfileId
                 ? _value.activeSiHuaProfileId
                 : activeSiHuaProfileId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            mastersMode: null == mastersMode
+                ? _value.mastersMode
+                : mastersMode // ignore: cast_nullable_to_non_nullable
+                      as ZiweiMastersMode,
+            customMastersJson: null == customMastersJson
+                ? _value.customMastersJson
+                : customMastersJson // ignore: cast_nullable_to_non_nullable
+                      as String,
+            mastersProfiles: null == mastersProfiles
+                ? _value.mastersProfiles
+                : mastersProfiles // ignore: cast_nullable_to_non_nullable
+                      as List<ZiweiCustomProfile>,
+            activeMastersProfileId: null == activeMastersProfileId
+                ? _value.activeMastersProfileId
+                : activeMastersProfileId // ignore: cast_nullable_to_non_nullable
                       as String,
             brightnessMode: null == brightnessMode
                 ? _value.brightnessMode
@@ -489,6 +518,10 @@ abstract class _$$ZiweiOptionsImplCopyWith<$Res>
     String customSiHuaJson,
     List<ZiweiCustomProfile> siHuaProfiles,
     String activeSiHuaProfileId,
+    ZiweiMastersMode mastersMode,
+    String customMastersJson,
+    List<ZiweiCustomProfile> mastersProfiles,
+    String activeMastersProfileId,
     ZiweiBrightnessMode brightnessMode,
     String customBrightnessJson,
     List<ZiweiCustomProfile> brightnessProfiles,
@@ -532,6 +565,10 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
     Object? customSiHuaJson = null,
     Object? siHuaProfiles = null,
     Object? activeSiHuaProfileId = null,
+    Object? mastersMode = null,
+    Object? customMastersJson = null,
+    Object? mastersProfiles = null,
+    Object? activeMastersProfileId = null,
     Object? brightnessMode = null,
     Object? customBrightnessJson = null,
     Object? brightnessProfiles = null,
@@ -587,6 +624,22 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
         activeSiHuaProfileId: null == activeSiHuaProfileId
             ? _value.activeSiHuaProfileId
             : activeSiHuaProfileId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        mastersMode: null == mastersMode
+            ? _value.mastersMode
+            : mastersMode // ignore: cast_nullable_to_non_nullable
+                  as ZiweiMastersMode,
+        customMastersJson: null == customMastersJson
+            ? _value.customMastersJson
+            : customMastersJson // ignore: cast_nullable_to_non_nullable
+                  as String,
+        mastersProfiles: null == mastersProfiles
+            ? _value._mastersProfiles
+            : mastersProfiles // ignore: cast_nullable_to_non_nullable
+                  as List<ZiweiCustomProfile>,
+        activeMastersProfileId: null == activeMastersProfileId
+            ? _value.activeMastersProfileId
+            : activeMastersProfileId // ignore: cast_nullable_to_non_nullable
                   as String,
         brightnessMode: null == brightnessMode
             ? _value.brightnessMode
@@ -674,6 +727,11 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     this.customSiHuaJson = '',
     final List<ZiweiCustomProfile> siHuaProfiles = const <ZiweiCustomProfile>[],
     this.activeSiHuaProfileId = '',
+    this.mastersMode = ZiweiMastersMode.builtin,
+    this.customMastersJson = '',
+    final List<ZiweiCustomProfile> mastersProfiles =
+        const <ZiweiCustomProfile>[],
+    this.activeMastersProfileId = '',
     this.brightnessMode = ZiweiBrightnessMode.builtin,
     this.customBrightnessJson = '',
     final List<ZiweiCustomProfile> brightnessProfiles =
@@ -700,6 +758,7 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     this.flowStarDisplay = const ZiweiFlowStarDisplayOptions(),
     this.animation = const ZiweiAnimationOptions(),
   }) : _siHuaProfiles = siHuaProfiles,
+       _mastersProfiles = mastersProfiles,
        _brightnessProfiles = brightnessProfiles,
        _starsProfiles = starsProfiles;
 
@@ -739,6 +798,24 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
   @override
   @JsonKey()
   final String activeSiHuaProfileId;
+  @override
+  @JsonKey()
+  final ZiweiMastersMode mastersMode;
+  @override
+  @JsonKey()
+  final String customMastersJson;
+  final List<ZiweiCustomProfile> _mastersProfiles;
+  @override
+  @JsonKey()
+  List<ZiweiCustomProfile> get mastersProfiles {
+    if (_mastersProfiles is EqualUnmodifiableListView) return _mastersProfiles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_mastersProfiles);
+  }
+
+  @override
+  @JsonKey()
+  final String activeMastersProfileId;
   @override
   @JsonKey()
   final ZiweiBrightnessMode brightnessMode;
@@ -806,7 +883,7 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
 
   @override
   String toString() {
-    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, siHuaMode: $siHuaMode, customSiHuaJson: $customSiHuaJson, siHuaProfiles: $siHuaProfiles, activeSiHuaProfileId: $activeSiHuaProfileId, brightnessMode: $brightnessMode, customBrightnessJson: $customBrightnessJson, brightnessProfiles: $brightnessProfiles, activeBrightnessProfileId: $activeBrightnessProfileId, starsMode: $starsMode, customStarsJson: $customStarsJson, starsProfiles: $starsProfiles, activeStarsProfileId: $activeStarsProfileId, sihuaDisplay: $sihuaDisplay, flyingDisplay: $flyingDisplay, showCenterBazi: $showCenterBazi, showBodyPalace: $showBodyPalace, showLaiYinPalace: $showLaiYinPalace, hideCenterBirthInfo: $hideCenterBirthInfo, enableHistorical: $enableHistorical, flowStarDisplay: $flowStarDisplay, animation: $animation)';
+    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, siHuaMode: $siHuaMode, customSiHuaJson: $customSiHuaJson, siHuaProfiles: $siHuaProfiles, activeSiHuaProfileId: $activeSiHuaProfileId, mastersMode: $mastersMode, customMastersJson: $customMastersJson, mastersProfiles: $mastersProfiles, activeMastersProfileId: $activeMastersProfileId, brightnessMode: $brightnessMode, customBrightnessJson: $customBrightnessJson, brightnessProfiles: $brightnessProfiles, activeBrightnessProfileId: $activeBrightnessProfileId, starsMode: $starsMode, customStarsJson: $customStarsJson, starsProfiles: $starsProfiles, activeStarsProfileId: $activeStarsProfileId, sihuaDisplay: $sihuaDisplay, flyingDisplay: $flyingDisplay, showCenterBazi: $showCenterBazi, showBodyPalace: $showBodyPalace, showLaiYinPalace: $showLaiYinPalace, hideCenterBirthInfo: $hideCenterBirthInfo, enableHistorical: $enableHistorical, flowStarDisplay: $flowStarDisplay, animation: $animation)';
   }
 
   @override
@@ -834,6 +911,16 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
             ) &&
             (identical(other.activeSiHuaProfileId, activeSiHuaProfileId) ||
                 other.activeSiHuaProfileId == activeSiHuaProfileId) &&
+            (identical(other.mastersMode, mastersMode) ||
+                other.mastersMode == mastersMode) &&
+            (identical(other.customMastersJson, customMastersJson) ||
+                other.customMastersJson == customMastersJson) &&
+            const DeepCollectionEquality().equals(
+              other._mastersProfiles,
+              _mastersProfiles,
+            ) &&
+            (identical(other.activeMastersProfileId, activeMastersProfileId) ||
+                other.activeMastersProfileId == activeMastersProfileId) &&
             (identical(other.brightnessMode, brightnessMode) ||
                 other.brightnessMode == brightnessMode) &&
             (identical(other.customBrightnessJson, customBrightnessJson) ||
@@ -890,6 +977,10 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     customSiHuaJson,
     const DeepCollectionEquality().hash(_siHuaProfiles),
     activeSiHuaProfileId,
+    mastersMode,
+    customMastersJson,
+    const DeepCollectionEquality().hash(_mastersProfiles),
+    activeMastersProfileId,
     brightnessMode,
     customBrightnessJson,
     const DeepCollectionEquality().hash(_brightnessProfiles),
@@ -934,6 +1025,10 @@ abstract class _ZiweiOptions implements ZiweiOptions {
     final String customSiHuaJson,
     final List<ZiweiCustomProfile> siHuaProfiles,
     final String activeSiHuaProfileId,
+    final ZiweiMastersMode mastersMode,
+    final String customMastersJson,
+    final List<ZiweiCustomProfile> mastersProfiles,
+    final String activeMastersProfileId,
     final ZiweiBrightnessMode brightnessMode,
     final String customBrightnessJson,
     final List<ZiweiCustomProfile> brightnessProfiles,
@@ -974,6 +1069,14 @@ abstract class _ZiweiOptions implements ZiweiOptions {
   List<ZiweiCustomProfile> get siHuaProfiles;
   @override
   String get activeSiHuaProfileId;
+  @override
+  ZiweiMastersMode get mastersMode;
+  @override
+  String get customMastersJson;
+  @override
+  List<ZiweiCustomProfile> get mastersProfiles;
+  @override
+  String get activeMastersProfileId;
   @override
   ZiweiBrightnessMode get brightnessMode;
   @override

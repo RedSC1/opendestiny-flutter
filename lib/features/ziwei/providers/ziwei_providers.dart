@@ -39,6 +39,16 @@ String _resolveActiveBrightnessJson(ZiweiOptions options) {
   return options.customBrightnessJson;
 }
 
+String _resolveActiveMastersJson(ZiweiOptions options) {
+  if (options.mastersProfiles.isNotEmpty) {
+    final active = options.mastersProfiles
+        .where((profile) => profile.id == options.activeMastersProfileId)
+        .firstOrNull;
+    return (active ?? options.mastersProfiles.first).json;
+  }
+  return options.customMastersJson;
+}
+
 String _resolveActiveStarsJson(ZiweiOptions options) {
   if (options.starsProfiles.isNotEmpty) {
     final active = options.starsProfiles
@@ -58,6 +68,7 @@ ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
   final activeSiHuaJson = _resolveActiveSiHuaJson(options);
   final activeStarsJson = _resolveActiveStarsJson(options);
   final activeBrightnessJson = _resolveActiveBrightnessJson(options);
+  final activeMastersJson = _resolveActiveMastersJson(options);
   final siHuaRuleset =
       options.siHuaMode == ZiweiSiHuaMode.custom && activeSiHuaJson.trim().isNotEmpty
       ? ConfigLoader.overrideWith(
@@ -81,14 +92,22 @@ ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
           brightnessJson: activeBrightnessJson,
         )
       : starRuleset;
+  final mergedRuleset =
+      options.mastersMode == ZiweiMastersMode.custom &&
+          activeMastersJson.trim().isNotEmpty
+      ? ConfigLoader.overrideWith(
+          baseRuleset,
+          mastersJson: activeMastersJson,
+        )
+      : baseRuleset;
 
   return ZiweiRuleset(
-    stars: baseRuleset.stars,
-    flowDefinitions: baseRuleset.flowDefinitions,
-    brightnessLabels: baseRuleset.brightnessLabels,
-    siHuaRules: baseRuleset.siHuaRules,
-    mingZhuRule: baseRuleset.mingZhuRule,
-    shenZhuRule: baseRuleset.shenZhuRule,
+    stars: mergedRuleset.stars,
+    flowDefinitions: mergedRuleset.flowDefinitions,
+    brightnessLabels: mergedRuleset.brightnessLabels,
+    siHuaRules: mergedRuleset.siHuaRules,
+    mingZhuRule: mergedRuleset.mingZhuRule,
+    shenZhuRule: mergedRuleset.shenZhuRule,
     calendarOptions: CalendarOptions(
       leapRule: options.leapRule,
       wuHuDunBasedOn: options.wuHuDunBasedOn,

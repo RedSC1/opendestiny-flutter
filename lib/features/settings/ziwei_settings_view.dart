@@ -142,6 +142,65 @@ class ZiweiSettingsView extends ConsumerWidget {
               ),
             ),
           const Divider(),
+          _buildSectionTitle('命主/身主流派'.tr),
+          RadioListTile<ZiweiMastersMode>(
+            title: Text('内置规则'.tr),
+            subtitle: Text('使用系统默认命主身主起例'.tr),
+            value: ZiweiMastersMode.builtin,
+            groupValue: options.mastersMode,
+            onChanged: (val) {
+              if (val != null) {
+                _updateOptions(ref, options.copyWith(mastersMode: val));
+              }
+            },
+          ),
+          RadioListTile<ZiweiMastersMode>(
+            title: Text('自定义规则'.tr),
+            subtitle: Text('手动编辑命主身主起法与身主年支边界'.tr),
+            value: ZiweiMastersMode.custom,
+            groupValue: options.mastersMode,
+            onChanged: (val) {
+              if (val != null) {
+                final nextJson = options.customMastersJson.isEmpty
+                    ? _defaultCustomMastersJson()
+                    : options.customMastersJson;
+                _updateOptions(
+                  ref,
+                  _ensureMastersProfiles(
+                    options.copyWith(
+                      mastersMode: val,
+                      customMastersJson: nextJson,
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+          if (options.mastersMode == ZiweiMastersMode.custom)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: ListTile(
+                  leading: const Icon(Icons.account_tree_outlined),
+                  title: Text('编辑自定义命主身主流派'.tr),
+                  subtitle: Text('进入三级菜单编辑命主、身主与年支边界'.tr),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => _ZiweiProfileArchivePage(
+                          type: ZiweiCustomProfileType.masters,
+                          title: '自定义命主身主流派'.tr,
+                          createDefaultJson: _defaultCustomMastersJson,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          const Divider(),
           _buildSectionTitle('亮度流派'.tr),
           RadioListTile<ZiweiBrightnessMode>(
             title: Text('内置规则'.tr),
@@ -593,6 +652,27 @@ class ZiweiSettingsView extends ConsumerWidget {
     return const JsonEncoder.withIndent('  ').convert(_defaultCustomSiHua());
   }
 
+  String _defaultCustomMastersJson() {
+    final defaultRuleset = ConfigLoader.getDefault();
+    final payload = {
+      'ming_zhu': {
+        'boundary': defaultRuleset.mingZhuRule?.boundary.name ?? 'lunar',
+        'table': {
+          for (final entry in (defaultRuleset.mingZhuRule?.table.entries ?? const <MapEntry<int, String>>[]))
+            entry.key.toString(): entry.value,
+        },
+      },
+      'shen_zhu': {
+        'boundary': defaultRuleset.shenZhuRule?.boundary.name ?? 'lunar',
+        'table': {
+          for (final entry in (defaultRuleset.shenZhuRule?.table.entries ?? const <MapEntry<int, String>>[]))
+            entry.key.toString(): entry.value,
+        },
+      },
+    };
+    return const JsonEncoder.withIndent('  ').convert(payload);
+  }
+
   String _defaultCustomBrightnessJson() {
     final defaultRuleset = ConfigLoader.getDefault();
     final payload = {
@@ -646,6 +726,22 @@ class ZiweiSettingsView extends ConsumerWidget {
     return options.copyWith(
       brightnessProfiles: [profile],
       activeBrightnessProfileId: profile.id,
+    );
+  }
+
+  ZiweiOptions _ensureMastersProfiles(ZiweiOptions options) {
+    if (options.mastersProfiles.isNotEmpty) return options;
+    final now = DateTime.now();
+    final profile = ZiweiCustomProfile(
+      id: 'masters_${now.microsecondsSinceEpoch}',
+      name: '默认命主身主流派'.tr,
+      json: options.customMastersJson,
+      createdAt: now,
+      updatedAt: now,
+    );
+    return options.copyWith(
+      mastersProfiles: [profile],
+      activeMastersProfileId: profile.id,
     );
   }
 
@@ -707,6 +803,12 @@ bool _isProtectedZiweiProfile(
 ) {
   return (type == ZiweiCustomProfileType.siHua
           ? const {'默认四化流派', '默認四化流派', 'Default SiHua Profile'}
+          : type == ZiweiCustomProfileType.masters
+          ? const {
+              '默认命主身主流派',
+              '默認命主身主流派',
+              'Default Masters Profile',
+            }
           : type == ZiweiCustomProfileType.brightness
           ? const {
               '默认亮度流派',
@@ -733,6 +835,15 @@ String _normalizeZiweiProfileJson(
     return encoder.convert(decoded);
   }
 
+  if (type == ZiweiCustomProfileType.masters) {
+    final decoded = jsonDecode(jsonText);
+    if (decoded is! Map<String, dynamic>) {
+      throw FormatException('命主/身主 JSON 根节点必须是对象'.tr);
+    }
+    ConfigLoader.overrideWith(baseRuleset, mastersJson: jsonText);
+    return encoder.convert(decoded);
+  }
+
   if (type == ZiweiCustomProfileType.brightness) {
     final decoded = jsonDecode(jsonText);
     if (decoded is! Map<String, dynamic>) {
@@ -754,6 +865,8 @@ String _ziweiProfileFilePrefix(ZiweiCustomProfileType type) {
   switch (type) {
     case ZiweiCustomProfileType.siHua:
       return 'sihua_profile';
+    case ZiweiCustomProfileType.masters:
+      return 'masters_profile';
     case ZiweiCustomProfileType.brightness:
       return 'brightness_profile';
     case ZiweiCustomProfileType.stars:
@@ -765,6 +878,8 @@ String _defaultImportedZiweiProfileName(ZiweiCustomProfileType type) {
   switch (type) {
     case ZiweiCustomProfileType.siHua:
       return '导入四化流派'.tr;
+    case ZiweiCustomProfileType.masters:
+      return '导入命主身主流派'.tr;
     case ZiweiCustomProfileType.brightness:
       return '导入亮度流派'.tr;
     case ZiweiCustomProfileType.stars:
@@ -788,11 +903,15 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
     final options = ref.watch(appSettingsProvider).ziweiOptions;
     final profiles = type == ZiweiCustomProfileType.siHua
         ? options.siHuaProfiles
+        : type == ZiweiCustomProfileType.masters
+        ? options.mastersProfiles
         : type == ZiweiCustomProfileType.brightness
         ? options.brightnessProfiles
         : options.starsProfiles;
     final activeId = type == ZiweiCustomProfileType.siHua
         ? options.activeSiHuaProfileId
+        : type == ZiweiCustomProfileType.masters
+        ? options.activeMastersProfileId
         : type == ZiweiCustomProfileType.brightness
         ? options.activeBrightnessProfileId
         : options.activeStarsProfileId;
@@ -859,6 +978,8 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
             type: type,
             name: type == ZiweiCustomProfileType.siHua
                 ? '新建四化流派'.tr
+                : type == ZiweiCustomProfileType.masters
+                ? '新建命主身主流派'.tr
                 : type == ZiweiCustomProfileType.brightness
                 ? '新建亮度流派'.tr
                 : '新建星曜流派'.tr,
@@ -895,6 +1016,16 @@ class _ZiweiProfileArchivePage extends ConsumerWidget {
 
     if (type == ZiweiCustomProfileType.siHua) {
       return _SiHuaProfileEditorPage(
+        profileName: profile.name,
+        initialJson: profile.json,
+        readOnly: locked,
+        onChanged: onChanged,
+        onExport: onExport,
+        onShare: onShare,
+      );
+    }
+    if (type == ZiweiCustomProfileType.masters) {
+      return _MastersProfileEditorPage(
         profileName: profile.name,
         initialJson: profile.json,
         readOnly: locked,
@@ -1602,6 +1733,485 @@ class _CustomSiHuaJsonEditorState extends State<_CustomSiHuaJsonEditor> {
       decoration: InputDecoration(
         hintText:
             '{\n  "jia": {"lu": "lianzhen", "quan": "pojun", "ke": "wuqu", "ji": "taiyang"}\n}',
+        border: const OutlineInputBorder(),
+        errorText: _error,
+        alignLabelWithHint: true,
+      ),
+      style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+    );
+  }
+}
+
+Map<String, dynamic> _emptyMastersTable() => {
+  for (var i = 0; i < DiZhi.values.length; i++) i.toString(): '',
+};
+
+Map<String, dynamic> _defaultMastersEditorData() {
+  final defaultRuleset = ConfigLoader.getDefault();
+  return {
+    'ming_zhu': {
+      'boundary': defaultRuleset.mingZhuRule?.boundary.name ?? 'lunar',
+      'table': {
+        for (final entry in (defaultRuleset.mingZhuRule?.table.entries ??
+            const <MapEntry<int, String>>[]))
+          entry.key.toString(): entry.value,
+      },
+    },
+    'shen_zhu': {
+      'boundary': defaultRuleset.shenZhuRule?.boundary.name ?? 'lunar',
+      'table': {
+        for (final entry in (defaultRuleset.shenZhuRule?.table.entries ??
+            const <MapEntry<int, String>>[]))
+          entry.key.toString(): entry.value,
+      },
+    },
+  };
+}
+
+Map<String, dynamic> _normalizeMastersEditorData(Map<String, dynamic> raw) {
+  Map<String, dynamic> normalizeSection(
+    String key, {
+    required String defaultBoundary,
+  }) {
+    final source = Map<String, dynamic>.from((raw[key] as Map?) ?? const {});
+    final boundary = (source['boundary'] ?? defaultBoundary).toString();
+    final table = Map<String, dynamic>.from((source['table'] as Map?) ?? const {});
+    final normalizedTable = <String, dynamic>{
+      for (var i = 0; i < DiZhi.values.length; i++)
+        i.toString(): (table[i.toString()] ?? '').toString(),
+    };
+    return {
+      'boundary': boundary,
+      'table': normalizedTable,
+    };
+  }
+
+  return {
+    'ming_zhu': normalizeSection('ming_zhu', defaultBoundary: 'lunar'),
+    'shen_zhu': normalizeSection('shen_zhu', defaultBoundary: 'lunar'),
+  };
+}
+
+class _MastersProfileEditorPage extends StatefulWidget {
+  const _MastersProfileEditorPage({
+    required this.profileName,
+    required this.initialJson,
+    required this.readOnly,
+    required this.onChanged,
+    required this.onExport,
+    required this.onShare,
+  });
+
+  final String profileName;
+  final String initialJson;
+  final bool readOnly;
+  final ValueChanged<String> onChanged;
+  final Future<void> Function(String json) onExport;
+  final Future<void> Function(String json) onShare;
+
+  @override
+  State<_MastersProfileEditorPage> createState() =>
+      _MastersProfileEditorPageState();
+}
+
+class _MastersProfileEditorPageState extends State<_MastersProfileEditorPage> {
+  late String _json;
+  bool _jsonMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _json = widget.initialJson.isEmpty
+        ? const JsonEncoder.withIndent('  ').convert(_defaultMastersEditorData())
+        : widget.initialJson;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('编辑自定义命主身主流派'.tr),
+        actions: [
+          IconButton(
+            tooltip: '分享 JSON'.tr,
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => widget.onShare(_json),
+          ),
+          IconButton(
+            tooltip: '导出 JSON'.tr,
+            icon: const Icon(Icons.download_outlined),
+            onPressed: () => widget.onExport(_json),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _jsonMode = !_jsonMode;
+              });
+            },
+            child: Text((_jsonMode ? '表格编辑' : 'JSON 编辑').tr),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(12),
+        children: [
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: _jsonMode
+                  ? _CustomMastersJsonEditor(
+                      initialJson: _json,
+                      readOnly: widget.readOnly,
+                      onChanged: (json) {
+                        setState(() {
+                          _json = json;
+                        });
+                        widget.onChanged(json);
+                      },
+                    )
+                  : _CustomMastersEditor(
+                      initialJson: _json,
+                      readOnly: widget.readOnly,
+                      onChanged: (json) {
+                        setState(() {
+                          _json = json;
+                        });
+                        widget.onChanged(json);
+                      },
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CustomMastersEditor extends StatefulWidget {
+  const _CustomMastersEditor({
+    required this.initialJson,
+    required this.readOnly,
+    required this.onChanged,
+  });
+
+  final String initialJson;
+  final bool readOnly;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_CustomMastersEditor> createState() => _CustomMastersEditorState();
+}
+
+class _CustomMastersEditorState extends State<_CustomMastersEditor> {
+  late Map<String, dynamic> _data;
+
+  @override
+  void initState() {
+    super.initState();
+    final raw = widget.initialJson.isEmpty
+        ? _defaultMastersEditorData()
+        : Map<String, dynamic>.from(jsonDecode(widget.initialJson));
+    _data = _normalizeMastersEditorData(raw);
+  }
+
+  Map<String, dynamic> _sectionFor(String key) {
+    return Map<String, dynamic>.from(
+      (_data[key] as Map?) ?? const {'boundary': 'lunar', 'table': {}},
+    );
+  }
+
+  Map<String, dynamic> _tableFor(String key) {
+    return Map<String, dynamic>.from(
+      (_sectionFor(key)['table'] as Map?) ?? _emptyMastersTable(),
+    );
+  }
+
+  void _sync() {
+    widget.onChanged(const JsonEncoder.withIndent('  ').convert(_data));
+  }
+
+  void _updateBoundary(Boundary boundary) {
+    setState(() {
+      final section = _sectionFor('shen_zhu');
+      section['boundary'] = boundary.name;
+      section['table'] = _tableFor('shen_zhu');
+      _data['shen_zhu'] = section;
+    });
+    _sync();
+  }
+
+  void _updateRule(String sectionKey, int branchIndex, String starKey) {
+    setState(() {
+      final section = _sectionFor(sectionKey);
+      final table = _tableFor(sectionKey);
+      table[branchIndex.toString()] = starKey;
+      section['table'] = table;
+      _data[sectionKey] = section;
+    });
+    _sync();
+  }
+
+  String _summaryFor(String sectionKey) {
+    final table = _tableFor(sectionKey);
+    return DiZhi.values
+        .take(4)
+        .map((zhi) {
+          final value = (table[zhi.index.toString()] ?? '').toString();
+          return '${zhi.display}:${value.isEmpty ? '未设置'.tr : value.nodeDisplay}';
+        })
+        .join('  ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final defaultRuleset = ConfigLoader.getDefault();
+    final starOptions = defaultRuleset.stars.map((star) => star.key).toSet().toList()
+      ..sort();
+    final shenBoundary = Boundary.values.firstWhere(
+      (value) => value.name == _sectionFor('shen_zhu')['boundary'],
+      orElse: () => Boundary.lunar,
+    );
+
+    Widget buildSection(String sectionKey, String title) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ),
+          ...DiZhi.values.map((zhi) {
+            final value = (_tableFor(sectionKey)[zhi.index.toString()] ?? '').toString();
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: ListTile(
+                title: Text(zhi.display),
+                subtitle: Text(value.isEmpty ? '未设置'.tr : value.nodeDisplay),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => _MasterBranchEditorPage(
+                        title: '$title ${zhi.display}',
+                        currentValue: value,
+                        readOnly: widget.readOnly,
+                        starOptions: starOptions,
+                        onChanged: (next) =>
+                            _updateRule(sectionKey, zhi.index, next),
+                      ),
+                    ),
+                  );
+                  if (mounted) {
+                    setState(() {});
+                  }
+                },
+              ),
+            );
+          }),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '命主/身主起例'.tr,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '身主年支基准'.tr,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                RadioListTile<Boundary>(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('身主跟随农历年支'.tr),
+                  value: Boundary.lunar,
+                  groupValue: shenBoundary,
+                  onChanged: widget.readOnly
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            _updateBoundary(value);
+                          }
+                        },
+                ),
+                RadioListTile<Boundary>(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('身主跟随节气年支'.tr),
+                  value: Boundary.solar,
+                  groupValue: shenBoundary,
+                  onChanged: widget.readOnly
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            _updateBoundary(value);
+                          }
+                        },
+                ),
+              ],
+            ),
+          ),
+        ),
+        Card(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            title: Text('命主起例'.tr),
+            subtitle: Text(_summaryFor('ming_zhu')),
+          ),
+        ),
+        buildSection('ming_zhu', '命主起例'.tr),
+        Card(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            title: Text('身主起例'.tr),
+            subtitle: Text(_summaryFor('shen_zhu')),
+          ),
+        ),
+        buildSection('shen_zhu', '身主起例'.tr),
+      ],
+    );
+  }
+}
+
+class _MasterBranchEditorPage extends StatelessWidget {
+  const _MasterBranchEditorPage({
+    required this.title,
+    required this.currentValue,
+    required this.readOnly,
+    required this.starOptions,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String currentValue;
+  final bool readOnly;
+  final List<String> starOptions;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: ListView(
+        padding: const EdgeInsets.all(12),
+        children: [
+          DropdownButtonFormField<String>(
+            initialValue: currentValue.isEmpty ? '' : currentValue,
+            decoration: InputDecoration(
+              labelText: '星曜'.tr,
+              border: const OutlineInputBorder(),
+            ),
+            items: [
+              DropdownMenuItem<String>(value: '', child: Text('未设置'.tr)),
+              ...starOptions.map(
+                (starKey) => DropdownMenuItem<String>(
+                  value: starKey,
+                  child: Text(starKey.nodeDisplay),
+                ),
+              ),
+            ],
+            onChanged: readOnly
+                ? null
+                : (next) {
+                    onChanged(next ?? '');
+                  },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CustomMastersJsonEditor extends StatefulWidget {
+  const _CustomMastersJsonEditor({
+    required this.initialJson,
+    required this.readOnly,
+    required this.onChanged,
+  });
+
+  final String initialJson;
+  final bool readOnly;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_CustomMastersJsonEditor> createState() =>
+      _CustomMastersJsonEditorState();
+}
+
+class _CustomMastersJsonEditorState extends State<_CustomMastersJsonEditor> {
+  late final TextEditingController _controller;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialJson);
+  }
+
+  @override
+  void didUpdateWidget(covariant _CustomMastersJsonEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialJson != oldWidget.initialJson &&
+        widget.initialJson != _controller.text) {
+      _controller.text = widget.initialJson;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleChanged(String value) {
+    try {
+      final decoded = jsonDecode(value);
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('root must be object');
+      }
+      final normalized = _normalizeMastersEditorData(decoded);
+      ConfigLoader.overrideWith(
+        ConfigLoader.getDefault(),
+        mastersJson: const JsonEncoder.withIndent('  ').convert(normalized),
+      );
+      setState(() {
+        _error = null;
+      });
+      widget.onChanged(const JsonEncoder.withIndent('  ').convert(normalized));
+    } catch (_) {
+      setState(() {
+        _error = '命主/身主 JSON 格式无效'.tr;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      minLines: 12,
+      maxLines: 20,
+      readOnly: widget.readOnly,
+      onChanged: widget.readOnly ? null : _handleChanged,
+      decoration: InputDecoration(
+        hintText:
+            '{\n  "ming_zhu": {"table": {"0": "tanlang"}},\n  "shen_zhu": {"boundary": "lunar", "table": {"0": "lingxing"}}\n}',
         border: const OutlineInputBorder(),
         errorText: _error,
         alignLabelWithHint: true,

@@ -508,6 +508,8 @@ void updateRatHourMode(RatHourMode mode) {
     final options = settings.ziweiOptions;
     var siHuaProfiles = options.siHuaProfiles;
     var activeSiHuaProfileId = options.activeSiHuaProfileId;
+    var mastersProfiles = options.mastersProfiles;
+    var activeMastersProfileId = options.activeMastersProfileId;
     var brightnessProfiles = options.brightnessProfiles;
     var activeBrightnessProfileId = options.activeBrightnessProfileId;
     var starsProfiles = options.starsProfiles;
@@ -527,6 +529,24 @@ void updateRatHourMode(RatHourMode mode) {
     } else if (siHuaProfiles.isNotEmpty &&
         siHuaProfiles.every((profile) => profile.id != activeSiHuaProfileId)) {
       activeSiHuaProfileId = siHuaProfiles.first.id;
+    }
+
+    if (mastersProfiles.isEmpty && options.customMastersJson.trim().isNotEmpty) {
+      final now = DateTime.now();
+      final profile = ZiweiCustomProfile(
+        id: 'masters_migrated_${now.microsecondsSinceEpoch}',
+        name: '迁移命主身主流派',
+        json: options.customMastersJson,
+        createdAt: now,
+        updatedAt: now,
+      );
+      mastersProfiles = [profile];
+      activeMastersProfileId = profile.id;
+    } else if (mastersProfiles.isNotEmpty &&
+        mastersProfiles.every(
+          (profile) => profile.id != activeMastersProfileId,
+        )) {
+      activeMastersProfileId = mastersProfiles.first.id;
     }
 
     if (brightnessProfiles.isEmpty &&
@@ -568,6 +588,8 @@ void updateRatHourMode(RatHourMode mode) {
       ziweiOptions: options.copyWith(
         siHuaProfiles: siHuaProfiles,
         activeSiHuaProfileId: activeSiHuaProfileId,
+        mastersProfiles: mastersProfiles,
+        activeMastersProfileId: activeMastersProfileId,
         brightnessProfiles: brightnessProfiles,
         activeBrightnessProfileId: activeBrightnessProfileId,
         starsProfiles: starsProfiles,
@@ -582,6 +604,8 @@ void updateRatHourMode(RatHourMode mode) {
   ) {
     return type == ZiweiCustomProfileType.siHua
         ? options.siHuaProfiles
+        : type == ZiweiCustomProfileType.masters
+        ? options.mastersProfiles
         : type == ZiweiCustomProfileType.brightness
         ? options.brightnessProfiles
         : options.starsProfiles;
@@ -593,6 +617,8 @@ void updateRatHourMode(RatHourMode mode) {
   ) {
     return type == ZiweiCustomProfileType.siHua
         ? options.activeSiHuaProfileId
+        : type == ZiweiCustomProfileType.masters
+        ? options.activeMastersProfileId
         : type == ZiweiCustomProfileType.brightness
         ? options.activeBrightnessProfileId
         : options.activeStarsProfileId;
@@ -608,6 +634,12 @@ void updateRatHourMode(RatHourMode mode) {
   Set<String> _protectedProfileNamesForType(ZiweiCustomProfileType type) {
     return type == ZiweiCustomProfileType.siHua
         ? const {'默认四化流派', '默認四化流派', 'Default SiHua Profile'}
+        : type == ZiweiCustomProfileType.masters
+        ? const {
+            '默认命主身主流派',
+            '默認命主身主流派',
+            'Default Masters Profile',
+          }
         : type == ZiweiCustomProfileType.brightness
         ? const {
             '默认亮度流派',
@@ -631,6 +663,12 @@ void updateRatHourMode(RatHourMode mode) {
       return options.copyWith(
         siHuaProfiles: profiles ?? options.siHuaProfiles,
         activeSiHuaProfileId: activeId ?? options.activeSiHuaProfileId,
+      );
+    }
+    if (type == ZiweiCustomProfileType.masters) {
+      return options.copyWith(
+        mastersProfiles: profiles ?? options.mastersProfiles,
+        activeMastersProfileId: activeId ?? options.activeMastersProfileId,
       );
     }
     if (type == ZiweiCustomProfileType.brightness) {

@@ -73,6 +73,16 @@ _$ZiweiOptionsImpl _$$ZiweiOptionsImplFromJson(
           .toList() ??
       const <ZiweiCustomProfile>[],
   activeSiHuaProfileId: json['activeSiHuaProfileId'] as String? ?? '',
+  mastersMode:
+      $enumDecodeNullable(_$ZiweiMastersModeEnumMap, json['mastersMode']) ??
+      ZiweiMastersMode.builtin,
+  customMastersJson: json['customMastersJson'] as String? ?? '',
+  mastersProfiles:
+      (json['mastersProfiles'] as List<dynamic>?)
+          ?.map((e) => ZiweiCustomProfile.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <ZiweiCustomProfile>[],
+  activeMastersProfileId: json['activeMastersProfileId'] as String? ?? '',
   brightnessMode:
       $enumDecodeNullable(
         _$ZiweiBrightnessModeEnumMap,
@@ -141,6 +151,10 @@ Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
       'customSiHuaJson': instance.customSiHuaJson,
       'siHuaProfiles': instance.siHuaProfiles,
       'activeSiHuaProfileId': instance.activeSiHuaProfileId,
+      'mastersMode': _$ZiweiMastersModeEnumMap[instance.mastersMode]!,
+      'customMastersJson': instance.customMastersJson,
+      'mastersProfiles': instance.mastersProfiles,
+      'activeMastersProfileId': instance.activeMastersProfileId,
       'brightnessMode': _$ZiweiBrightnessModeEnumMap[instance.brightnessMode]!,
       'customBrightnessJson': instance.customBrightnessJson,
       'brightnessProfiles': instance.brightnessProfiles,
@@ -176,6 +190,11 @@ const _$ChildhoodRoleEnumMap = {
 const _$ZiweiSiHuaModeEnumMap = {
   ZiweiSiHuaMode.builtin: 'builtin',
   ZiweiSiHuaMode.custom: 'custom',
+};
+
+const _$ZiweiMastersModeEnumMap = {
+  ZiweiMastersMode.builtin: 'builtin',
+  ZiweiMastersMode.custom: 'custom',
 };
 
 const _$ZiweiBrightnessModeEnumMap = {

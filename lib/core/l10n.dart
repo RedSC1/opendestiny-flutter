@@ -446,6 +446,10 @@ extension StringL10n on String {
       AppLanguage.en: 'Imported SiHua Profile',
       AppLanguage.zhTW: '導入四化流派',
     },
+    '导入命主身主流派': {
+      AppLanguage.en: 'Imported Masters Profile',
+      AppLanguage.zhTW: '導入命主身主流派',
+    },
     '导入亮度流派': {
       AppLanguage.en: 'Imported Brightness Profile',
       AppLanguage.zhTW: '導入亮度流派',
@@ -457,6 +461,10 @@ extension StringL10n on String {
     '四化 JSON 根节点必须是对象': {
       AppLanguage.en: 'SiHua JSON root must be an object',
       AppLanguage.zhTW: '四化 JSON 根節點必須是物件',
+    },
+    '命主/身主 JSON 根节点必须是对象': {
+      AppLanguage.en: 'Masters JSON root must be an object',
+      AppLanguage.zhTW: '命主/身主 JSON 根節點必須是物件',
     },
     '亮度 JSON 根节点必须是对象': {
       AppLanguage.en: 'Brightness JSON root must be an object',
@@ -1157,7 +1165,19 @@ extension StringL10n on String {
     },
     '四化基准点': {AppLanguage.en: 'SiHua Standard', AppLanguage.zhTW: '四化基準點'},
     '四化流派': {AppLanguage.en: 'SiHua School', AppLanguage.zhTW: '四化流派'},
+    '命主/身主流派': {
+      AppLanguage.en: 'Masters School',
+      AppLanguage.zhTW: '命主/身主流派',
+    },
     '亮度流派': {AppLanguage.en: 'Brightness School', AppLanguage.zhTW: '亮度流派'},
+    '使用系统默认命主身主起例': {
+      AppLanguage.en: 'Use system default master rules',
+      AppLanguage.zhTW: '使用系統默認命主身主起例',
+    },
+    '手动编辑命主身主起法与身主年支边界': {
+      AppLanguage.en: 'Edit master rules and Shen boundary manually',
+      AppLanguage.zhTW: '手動編輯命主身主起法與身主年支邊界',
+    },
     '使用系统默认星曜亮度表': {
       AppLanguage.en: 'Use system default brightness tables',
       AppLanguage.zhTW: '使用系統默認星曜亮度表',
@@ -1182,9 +1202,17 @@ extension StringL10n on String {
       AppLanguage.en: 'Edit Custom SiHua Profile',
       AppLanguage.zhTW: '編輯自定義四化流派',
     },
+    '编辑自定义命主身主流派': {
+      AppLanguage.en: 'Edit Custom Masters Profile',
+      AppLanguage.zhTW: '編輯自定義命主身主流派',
+    },
     '进入三级菜单编辑十天干四化规则': {
       AppLanguage.en: 'Open the nested editor for ten-stem SiHua rules',
       AppLanguage.zhTW: '進入三級菜單編輯十天干四化規則',
+    },
+    '进入三级菜单编辑命主、身主与年支边界': {
+      AppLanguage.en: 'Open the nested editor for master rules and year boundary',
+      AppLanguage.zhTW: '進入三級菜單編輯命主、身主與年支邊界',
     },
     '进入三级菜单编辑亮度标签与星曜亮度': {
       AppLanguage.en: 'Open the nested editor for brightness labels and star tables',
@@ -1196,6 +1224,28 @@ extension StringL10n on String {
       AppLanguage.en: 'Invalid SiHua JSON format',
       AppLanguage.zhTW: '四化 JSON 格式無效',
     },
+    '命主/身主 JSON 格式无效': {
+      AppLanguage.en: 'Invalid masters JSON format',
+      AppLanguage.zhTW: '命主/身主 JSON 格式無效',
+    },
+    '命主/身主起例': {
+      AppLanguage.en: 'Master Rules',
+      AppLanguage.zhTW: '命主/身主起例',
+    },
+    '身主年支基准': {
+      AppLanguage.en: 'Shen Year Boundary',
+      AppLanguage.zhTW: '身主年支基準',
+    },
+    '身主跟随农历年支': {
+      AppLanguage.en: 'Shen follows lunar year branch',
+      AppLanguage.zhTW: '身主跟隨農曆年支',
+    },
+    '身主跟随节气年支': {
+      AppLanguage.en: 'Shen follows solar year branch',
+      AppLanguage.zhTW: '身主跟隨節氣年支',
+    },
+    '命主起例': {AppLanguage.en: 'Ming Rule', AppLanguage.zhTW: '命主起例'},
+    '身主起例': {AppLanguage.en: 'Shen Rule', AppLanguage.zhTW: '身主起例'},
     '亮度等级': {AppLanguage.en: 'Brightness Levels', AppLanguage.zhTW: '亮度等級'},
     '静态星': {AppLanguage.en: 'Static Stars', AppLanguage.zhTW: '靜態星'},
     '流曜': {AppLanguage.en: 'Flow Stars', AppLanguage.zhTW: '流曜'},
@@ -1220,16 +1270,32 @@ extension StringL10n on String {
       AppLanguage.en: 'Custom SiHua Profiles',
       AppLanguage.zhTW: '自定義四化流派',
     },
+    '自定义命主身主流派': {
+      AppLanguage.en: 'Custom Masters Profiles',
+      AppLanguage.zhTW: '自定義命主身主流派',
+    },
     '自定义亮度流派': {
       AppLanguage.en: 'Custom Brightness Profiles',
       AppLanguage.zhTW: '自定義亮度流派',
     },
     '更新时间': {AppLanguage.en: 'Updated', AppLanguage.zhTW: '更新時間'},
     '新建四化流派': {AppLanguage.en: 'New SiHua Profile', AppLanguage.zhTW: '新建四化流派'},
+    '新建命主身主流派': {
+      AppLanguage.en: 'New Masters Profile',
+      AppLanguage.zhTW: '新建命主身主流派',
+    },
     '新建亮度流派': {AppLanguage.en: 'New Brightness Profile', AppLanguage.zhTW: '新建亮度流派'},
     '默认四化流派': {AppLanguage.en: 'Default SiHua Profile', AppLanguage.zhTW: '默認四化流派'},
+    '默认命主身主流派': {
+      AppLanguage.en: 'Default Masters Profile',
+      AppLanguage.zhTW: '默認命主身主流派',
+    },
     '默认亮度流派': {AppLanguage.en: 'Default Brightness Profile', AppLanguage.zhTW: '默認亮度流派'},
     '迁移四化流派': {AppLanguage.en: 'Migrated SiHua Profile', AppLanguage.zhTW: '遷移四化流派'},
+    '迁移命主身主流派': {
+      AppLanguage.en: 'Migrated Masters Profile',
+      AppLanguage.zhTW: '遷移命主身主流派',
+    },
     '迁移亮度流派': {
       AppLanguage.en: 'Migrated Brightness Profile',
       AppLanguage.zhTW: '遷移亮度流派',

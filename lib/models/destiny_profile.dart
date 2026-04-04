@@ -631,7 +631,7 @@ class ZiweiModeDisplayOptions {
       Object.hash(showCenterBazi, showBodyPalace, showLaiYinPalace, animation);
 }
 
-enum ZiweiCustomProfileType { siHua, brightness, stars }
+enum ZiweiCustomProfileType { siHua, masters, brightness, stars }
 
 class ZiweiCustomProfile {
   final String id;
@@ -699,6 +699,8 @@ class ZiweiCustomProfile {
 
 enum ZiweiSiHuaMode { builtin, custom }
 
+enum ZiweiMastersMode { builtin, custom }
+
 enum ZiweiBrightnessMode { builtin, custom }
 
 enum ZiweiStarsMode { builtin, custom }
@@ -715,6 +717,10 @@ class ZiweiOptions with _$ZiweiOptions {
     @Default('') String customSiHuaJson,
     @Default(<ZiweiCustomProfile>[]) List<ZiweiCustomProfile> siHuaProfiles,
     @Default('') String activeSiHuaProfileId,
+    @Default(ZiweiMastersMode.builtin) ZiweiMastersMode mastersMode,
+    @Default('') String customMastersJson,
+    @Default(<ZiweiCustomProfile>[]) List<ZiweiCustomProfile> mastersProfiles,
+    @Default('') String activeMastersProfileId,
     @Default(ZiweiBrightnessMode.builtin) ZiweiBrightnessMode brightnessMode,
     @Default('') String customBrightnessJson,
     @Default(<ZiweiCustomProfile>[]) List<ZiweiCustomProfile> brightnessProfiles,
