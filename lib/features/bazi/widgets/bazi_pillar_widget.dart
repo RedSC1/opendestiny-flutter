@@ -168,8 +168,9 @@ class BaziPillarWidget extends StatelessWidget {
                             child: Text(
                               Relationship.getShiShen(dayMaster, gan).display,
                               style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: s(10.ts),
+                                color: Colors.blueGrey.shade700,
+                                fontSize: s(10.5.ts),
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),

@@ -230,16 +230,20 @@ class BaziView extends ConsumerWidget {
       children: [
         Text(
           '$label: ',
-          style: TextStyle(fontSize: s(10.ts), color: Colors.grey),
+          style: TextStyle(
+            fontSize: s(10.8.ts),
+            color: Colors.blueGrey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Flexible(
           child: Text(
             value,
             softWrap: true,
             style: TextStyle(
-              fontSize: s(10.ts),
+              fontSize: s(10.8.ts),
               fontWeight: FontWeight.bold,
-              color: Colors.blueGrey,
+              color: Colors.blueGrey.shade900,
             ),
           ),
         ),
