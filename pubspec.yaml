@@ -110,14 +110,6 @@ flutter:
     - assets/images/logo.png
     - assets/images/shubanlogo.svg
 
-  fonts:
-    - family: NotoSansSC
-      fonts:
-        - asset: assets/fonts/NotoSansSC-VariableFont_wght.ttf
-    - family: NotoSansTC
-      fonts:
-        - asset: assets/fonts/NotoSansTC-VariableFont_wght.ttf
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
