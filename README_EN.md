@@ -105,8 +105,9 @@ Exploring the path of transforming traditional symbolic stars into programmable 
 *   **ShenSha Matrix**: Initial integration of core algorithms including Noble, Horse, KongWang, and KuiGang.
 *   **Engineering Note**: This module is marked as "experimental" to test algorithmic robustness. Due to the vast discrepancies in rules across lineages, results are for reference only and have not undergone large-scale manual verification.
 
-### 4. Advanced Historical Chronology (Upcoming)
-*   **Dual-mode Year Display**: Toggle between **Astronomical year numbering** (including Year 0 and negatives) and **Historical chronology** (BC/AD format) for precise ancient chart analysis.
+### 4. Advanced Historical Chronology
+*   **Dual-mode Year Display**: Seamlessly toggle between **Astronomical year numbering** (including Year 0 and negatives) and **Historical chronology** (BC/AD format) for precise ancient chart analysis.
+*   **Calendar Protection**: Built-in alerts for historical calendar "red zones" with automatic handling of astronomical offsets for specific dynasties.
 
 ---
 
