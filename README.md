@@ -16,6 +16,8 @@
 
 [**English Version**](README_EN.md)
 
+[**Web Demo**](https://opendestiny.redsc1.com/app/)
+
 ---
 
 ## 🌟 项目简介
