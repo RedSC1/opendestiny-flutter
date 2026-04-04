@@ -148,7 +148,7 @@ class SettingsView extends ConsumerWidget {
         ),
         const Divider(),
         ListTile(
-          leading: const Icon(Icons.system_update_alt_outlined),
+          leading: const Icon(Icons.refresh_rounded),
           title: Text('检查更新'.tr),
           subtitle: Text(
             kIsWeb ? '检查网页更新并刷新'.tr : '获取最新版本与下载入口'.tr,

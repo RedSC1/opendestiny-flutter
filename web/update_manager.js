@@ -236,19 +236,15 @@
   }
 
   async function checkForUpdates() {
-    const registration = currentRegistration || (await resolveRegistration());
-    if (!registration) {
-      return 'error';
-    }
-
-    if (registration.waiting) {
-      maybeShowBanner();
-      return 'update';
-    }
-
     const remoteInfo = await fetchRemoteInfo();
     if (!remoteInfo) {
       return 'error';
+    }
+
+    const registration = currentRegistration || (await resolveRegistration());
+    if (registration && registration.waiting) {
+      maybeShowBanner(remoteInfo);
+      return 'update';
     }
 
     if (
@@ -260,14 +256,16 @@
       if (dismissedBuildKey && dismissedBuildKey !== buildKey(remoteInfo)) {
         dismissedBuildKey = null;
       }
-      try {
-        await registration.update();
-      } catch (_) {
-        // Ignore update errors and fall back to a manual refresh prompt.
+      if (registration) {
+        try {
+          await registration.update();
+        } catch (_) {
+          // Ignore update errors and fall back to a manual refresh prompt.
+        }
       }
 
       window.setTimeout(function () {
-        if (registration.waiting) {
+        if (registration && registration.waiting) {
           maybeShowBanner(remoteInfo);
         } else {
           maybeShowBanner(remoteInfo);
@@ -276,10 +274,12 @@
       return 'update';
     }
 
-    try {
-      await registration.update();
-    } catch (_) {
-      // Ignore transient update errors.
+    if (registration) {
+      try {
+        await registration.update();
+      } catch (_) {
+        // Ignore transient update errors.
+      }
     }
     return 'latest';
   }
