@@ -79,6 +79,7 @@ class _MyAppState extends State<MyApp> {
       title: 'OpenDestiny',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        fontFamily: 'Microsoft YaHei',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),

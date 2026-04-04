@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.3
+
+### 🛠️ Fixes
+- **Update Check Reliability**: Fixed update checks on Android release builds and aligned platform permissions for desktop/app update requests.
+- **Web Update Check Flow**: Hardened the web update-check path and manual refresh entry so remote version metadata can be checked more reliably.
+
+### 🎨 UI
+- **Windows Font Preference**: Prefer `Microsoft YaHei` as the global app font on supported systems, while letting unsupported platforms fall back to their default system fonts.
+
 ## 0.4.2
 
 ### 🚀 Features
