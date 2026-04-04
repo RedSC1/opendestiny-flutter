@@ -42,6 +42,7 @@ jobs:
       - name: Build Flutter Web
         run: |
           flutter pub get
+          dart tool/write_web_build_info.dart
           flutter build web --release --base-href "/app/"
 
       - name: Prepare deployment folder
@@ -52,6 +53,7 @@ jobs:
           fi
           mkdir -p deployment/app
           cp -r build/web/. deployment/app/
+          cp build/web/version.json deployment/version.json
           touch deployment/.nojekyll
 
       - name: Upload Pages artifact

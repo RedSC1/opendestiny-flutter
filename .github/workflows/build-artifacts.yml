@@ -87,6 +87,10 @@ jobs:
         run: flutter pub get
         working-directory: ${{ env.APP_DIR }}
 
+      - name: Generate web build info
+        run: dart tool/write_web_build_info.dart
+        working-directory: ${{ env.APP_DIR }}
+
       - name: Build Web release
         run: flutter build web --release
         working-directory: ${{ env.APP_DIR }}
