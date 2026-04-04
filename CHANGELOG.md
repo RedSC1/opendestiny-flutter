@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4
+
+### 🎨 UI
+- **Ziwei Readability Tuning**: Increased contrast for bad stars, lucky stars, minor stars, center-panel birth info, and time-flow sublabels to improve readability on mobile screens.
+- **Bazi Readability Tuning**: Strengthened the lunar time, hidden stem labels, and `起运 / 司令` info so key auxiliary text is easier to read.
+
 ## 0.4.3
 
 ### 🛠️ Fixes
