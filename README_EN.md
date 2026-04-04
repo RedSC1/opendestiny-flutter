@@ -14,7 +14,19 @@
   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square">
 </p>
 
-[**Web Demo**](https://opendestiny.redsc1.com/app/)
+<p align="center">
+  <strong>Try it now:</strong> Open the Web Demo and start charting immediately, no installation required.
+</p>
+
+<p align="center">
+  <a href="https://opendestiny.redsc1.com/app/">
+    <img alt="Web Demo" src="https://img.shields.io/badge/Web%20Demo-Launch%20Now-0A7CFF?style=for-the-badge">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://opendestiny.redsc1.com/app/"><strong>Launch Web Demo</strong></a>
+</p>
 
 ---
 
@@ -215,6 +227,7 @@ opendestiny-flutter/
 *   [ ] Complete internal localization and multi-language support (i18n).
 *   [ ] Implement advanced chart interaction (Palace popups, overlay modes).
 *   [ ] Cloud synchronization mapping for saved Destiny Profiles (`Case Library`).
+*   [ ] Expand into additional traditional divination modules, including Qimen Dunjia, Meihua Yishu, and Liuyao.
 
 ---
 

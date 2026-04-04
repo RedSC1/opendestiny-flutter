@@ -14,9 +14,21 @@
   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square">
 </p>
 
-[**English Version**](README_EN.md)
+<p align="center">
+  <strong>在线体验：</strong> 直接打开 Web Demo 即可排盘，无需安装。
+</p>
 
-[**Web Demo**](https://opendestiny.redsc1.com/app/)
+<p align="center">
+  <a href="https://opendestiny.redsc1.com/app/">
+    <img alt="Web Demo" src="https://img.shields.io/badge/Web%20Demo-立即体验-0A7CFF?style=for-the-badge">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://opendestiny.redsc1.com/app/"><strong>立即体验 Web Demo</strong></a>
+  ·
+  <a href="README_EN.md"><strong>English Version</strong></a>
+</p>
 
 ---
 
@@ -209,7 +221,8 @@ opendestiny-flutter/
 *   [x] 三套核心命理引擎闭环（`ziwei_core`, `bazi_core`）与解耦。
 *   [x] 抽离核心逻辑并完成 `pub.dev` 多包矩阵发布，建立依赖规范。
 *   [ ] 完善应用内容的国际化多语言体系 (i18n)。
-*   [ ] 盘面的深层交互设计探讨（诸如：十二宫位双击弹层、星曜详细释义卡片等）。
+*   [ ] 现有盘面的深层交互设计探讨（诸如：紫微斗数十二宫位双击弹层、星曜详细释义卡片等）。
+*   [ ] 拓展更多传统术数模块，包括奇门遁甲、梅花易数、六爻等功能。
 
 ---
 
