@@ -57,7 +57,9 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
     final selM = ref.watch(selMonthIdxProvider);
     final selDay = ref.watch(selDayIdxProvider);
     final selH = ref.watch(selHourIdxProvider);
-    final ratHourMode = ref.watch(appSettingsProvider).ratHourMode;
+    final appSettings = ref.watch(appSettingsProvider);
+    final ratHourMode = appSettings.ratHourMode;
+    final useAstronomical = appSettings.useAstronomicalYear;
 
     final now = AstroDateTime.fromDateTime(DateTime.now());
     final currentLichunJD = getSpecificJieQi(now.year, 21);
@@ -87,18 +89,18 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
                     ? widget.table.fortune.getXiaoYunByAge(1)
                     : d.ganZhi;
 
-                return FortuneCard(
-                  shiShen: isXiaoYun
-                      ? ''
-                      : Relationship.getShiShen(
-                          widget.dayMaster,
-                          displayGz.gan,
-                        ).display,
-                  gz: displayGz,
-                  top: '${d.startTime.year}',
-                  bottom: isXiaoYun
-                      ? '1~${d.endAge}${'岁'.tr}'
-                      : '${d.startAge}${'虚岁'.tr}',
+                  return FortuneCard(
+                    shiShen: isXiaoYun
+                        ? ''
+                        : Relationship.getShiShen(
+                            widget.dayMaster,
+                            displayGz.gan,
+                          ).display,
+                    gz: displayGz,
+                    top: d.startTime.year.formatYear(useAstronomical),
+                    bottom: isXiaoYun
+                        ? '1~${d.endAge}${'岁'.tr}'
+                        : '${d.startAge}${'虚岁'.tr}',
                   isSel: selD == i,
                   isCur: isCurrentDecade,
                   activeCol: Colors.deepPurple,
@@ -133,7 +135,7 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
                       y.ganZhi.gan,
                     ).display,
                     gz: y.ganZhi,
-                    top: '${y.year}',
+                    top: y.year.formatYear(useAstronomical),
                     bottom: xiaoYunGz.display,
                     isSel: selY == i,
                     isCur: isCurrentYear,

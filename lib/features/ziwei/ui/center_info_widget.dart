@@ -22,8 +22,9 @@ class CenterInfoWidget extends ConsumerWidget {
 
   const CenterInfoWidget({super.key, required this.state});
 
-  String _formatAstroDate(AstroDateTime dt) {
-    return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  String _formatAstroDate(AstroDateTime dt, bool useAstronomical) {
+    final yearStr = dt.year.formatYear(useAstronomical);
+    return '$yearStr-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   String _formatLunarDay(int day) {
@@ -187,7 +188,7 @@ class CenterInfoWidget extends ConsumerWidget {
                             FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                '${'公历'.tr}: ${_formatAstroDate(date.solar)}',
+                                '${'公历'.tr}: ${_formatAstroDate(date.solar, appSettings.useAstronomicalYear)}',
                                 style: TextStyle(
                                   fontSize: s(10.ts),
                                   color: ZiweiClassicTheme.minorStarColor,
@@ -198,7 +199,7 @@ class CenterInfoWidget extends ConsumerWidget {
                               FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
-                                  '${'真太阳'.tr}: ${_formatAstroDate(date.trueSolarTime!)}',
+                                  '${'真太阳'.tr}: ${_formatAstroDate(date.trueSolarTime!, appSettings.useAstronomicalYear)}',
                                   style: TextStyle(
                                     fontSize: s(10.ts),
                                     color: ZiweiClassicTheme.minorStarColor,
@@ -208,7 +209,7 @@ class CenterInfoWidget extends ConsumerWidget {
                             FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                '${'农历'.tr}: ${bazi.year.display}年 ${date.lunar.monthNameStr}月${_formatLunarDay(date.lunar.day)} ${bazi.time.zhi.display}时',
+                                '${'农历'.tr}: ${bazi.year.display}年 ${plate.effectiveYear.formatYear(appSettings.useAstronomicalYear)} ${date.lunar.monthNameStr}月${_formatLunarDay(date.lunar.day)} ${bazi.time.zhi.display}时',
                                 style: TextStyle(
                                   fontSize: s(10.ts),
                                   color: ZiweiClassicTheme.minorStarColor,
@@ -231,6 +232,31 @@ class CenterInfoWidget extends ConsumerWidget {
                           ),
                         ),
                       ),
+                      SizedBox(height: s(2)),
+                      // 子年斗君
+                      Builder(builder: (context) {
+                        // 使用排盘引擎认定的有效月份 (处理了闰月和十五分割)
+                        final birthMonth = plate.effectiveMonth;
+                        // 获取生时地支索引 (0=子, 1=丑...)
+                        final hourIndex = bazi.time.zhi.index;
+
+                        // 算法：子宫起正月(0)，逆数生月，顺数生时
+                        final douJunIndex =
+                            (0 - (birthMonth - 1) + hourIndex + 12) % 12;
+                        final douJunZhi = DiZhi.values[douJunIndex];
+
+                        return FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '${'子年斗君'.tr}: ${douJunZhi.display}',
+                            style: TextStyle(
+                              fontSize: s(10.ts),
+                              fontWeight: FontWeight.bold,
+                              color: ZiweiClassicTheme.decadeAgeColor,
+                            ),
+                          ),
+                        );
+                      }),
                     ],
                   ),
 
@@ -249,7 +275,11 @@ class CenterInfoWidget extends ConsumerWidget {
                         // --- 底部八字展示区 ---
                         FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: _buildProfessionalBazi(bazi, fortuneTable),
+                          child: _buildProfessionalBazi(
+                            bazi,
+                            fortuneTable,
+                            appSettings.useAstronomicalYear,
+                          ),
                         ),
                         SizedBox(height: s(4)),
                         // 作者署名 (极其低调)
@@ -274,7 +304,11 @@ class CenterInfoWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfessionalBazi(BaZi bazi, FortuneTable table) {
+  Widget _buildProfessionalBazi(
+    BaZi bazi,
+    FortuneTable table,
+    bool useAstronomical,
+  ) {
     // 1. 原局四柱 (极其紧凑的自绘逻辑，避免使用大型的 BaziPillarWidget)
     final pillars = [
       (
@@ -425,7 +459,7 @@ class CenterInfoWidget extends ConsumerWidget {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  '${d.startTime.year}',
+                  d.startTime.year.formatYear(useAstronomical),
                   softWrap: false,
                   style: TextStyle(fontSize: 8.8.ts, color: Colors.black38),
                 ),

@@ -106,7 +106,7 @@ class CaseLibraryView extends ConsumerWidget {
                 final selected = currentCase.id == item.id;
                 return _CaseListTile(
                   title: item.name,
-                  subtitle: item.subtitle,
+                  subtitle: item.getSubtitle(ref.watch(appSettingsProvider).useAstronomicalYear),
                   selected: selected,
                   onTap: () async {
                     await ref.read(inputNotifierProvider.notifier).selectCase(item.id);
@@ -150,6 +150,8 @@ class CaseLibraryView extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           await ref.read(inputNotifierProvider.notifier).createNewCase();
+          // 强制重置导航到“编辑资料”页 (index 0)
+          ref.read(navigationIndexProvider.notifier).state = 0;
           if (context.mounted) {
             Navigator.push(
               context,

@@ -6,6 +6,7 @@ import '../../../core/ui_scale.dart';
 import '../providers/ziwei_providers.dart';
 import '../../../core/l10n.dart';
 import '../../../core/ziwei_l10n.dart';
+import '../../../providers/input_provider.dart';
 import 'time_flow_row.dart';
 import 'ziwei_classic_theme.dart';
 
@@ -23,6 +24,7 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
 
     final state = ref.watch(ziweiUIManagerProvider);
     final manager = ref.read(ziweiUIManagerProvider.notifier);
+    final useAstronomical = ref.watch(appSettingsProvider).useAstronomicalYear;
 
     // 从响应式状态中读取快照
     final manifest = state.manifest;
@@ -77,7 +79,7 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               selectedItem: null,
               adaptiveScale: adaptiveScale,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.year),
-              itemLabelBuilder: (y) => '${y.year}',
+              itemLabelBuilder: (y) => y.year.formatYear(useAstronomical),
               itemSubLabelBuilder: (y) => '${y.stem.ganDisplay}${y.branch.zhiDisplay}',
               isSelectedBuilder: (item, _) => 
                   state.currentYear?.year == item.year,

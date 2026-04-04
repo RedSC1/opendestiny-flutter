@@ -79,6 +79,7 @@ class PalaceCellWidget extends ConsumerWidget {
     final enableFlyingStarArrow = ziweiOptions.animation.enableFlyingStarArrow;
     final enablePalaceHighlightEffect =
         ziweiOptions.animation.enablePalaceHighlightEffect;
+    final useAstronomical = ref.watch(appSettingsProvider).useAstronomicalYear;
     final flowStars = isCompactMode ? const <FlowStar>[] : _collectOverlayFlowStars();
 
     // 分类星曜
@@ -122,12 +123,12 @@ class PalaceCellWidget extends ConsumerWidget {
     final isSelected = state.selectedPalaceIndex == palace.index;
     final isSanheRelated = chartMode == ZiweiChartMode.sanhe &&
         _isSanheRelatedPalace(state.selectedPalaceIndex, palace.index);
-    final borderColor = isSelected
+    final highlightBorderColor = isSelected
         ? ZiweiClassicTheme.palaceNameColor
         : isSanheRelated
             ? Colors.lightBlue.shade300
-            : ZiweiClassicTheme.cellBorderColor;
-    final borderWidth = isSelected ? 1.2 : (isSanheRelated ? 1.2 : 1.0);
+            : null;
+    final highlightBorderWidth = isSelected ? 1.2 : (isSanheRelated ? 1.2 : 0.0);
     final borderGlow = !enablePalaceHighlightEffect
         ? null
         : isSelected
@@ -147,8 +148,8 @@ class PalaceCellWidget extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           border: Border.all(
-            color: borderColor,
-            width: borderWidth,
+            color: ZiweiClassicTheme.cellBorderColor,
+            width: 1.0,
           ),
           color: ZiweiClassicTheme.cellBgColor,
           boxShadow: borderGlow == null
@@ -164,14 +165,28 @@ class PalaceCellWidget extends ConsumerWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
+            if (highlightBorderColor != null)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: highlightBorderColor,
+                        width: highlightBorderWidth,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             if (enablePalaceHighlightEffect && borderGlow != null)
               Positioned.fill(
                 child: IgnorePointer(
                   child: Container(
-                    margin: EdgeInsets.all(borderWidth + 0.6),
+                    margin: EdgeInsets.all(highlightBorderWidth + 0.6),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: borderColor.withOpacity(
+                        color: highlightBorderColor!.withOpacity(
                           isSelected ? 0.08 : 0.06,
                         ),
                         width: 0.8,
@@ -181,10 +196,10 @@ class PalaceCellWidget extends ConsumerWidget {
                 ),
               ),
             // 1. 底层：动态水印 (跟随流运层级切换内容)
-            if (decade != null) _buildDynamicWatermark(decade),
+            if (decade != null) _buildDynamicWatermark(decade, useAstronomical),
 
             // 1.1 身宫暗纹大水印 (不占位置，低优先级背景)
-            if (plate.bodyPalaceIndex == palace.index) _buildBodyWatermark(),
+            // if (plate.bodyPalaceIndex == palace.index) _buildBodyWatermark(),
 
             // 2. 表层：主功能区 (核心内容 Column，内部预置呼吸感)
             Padding(
@@ -241,6 +256,9 @@ class PalaceCellWidget extends ConsumerWidget {
                 canUseFlyingArrow: canUseFlyingArrow,
                 flowStars: flowStars,
                 enableFlyingStarArrow: enableFlyingStarArrow,
+                chartMode: chartMode,
+                ziweiOptions: ziweiOptions,
+                useAstronomical: useAstronomical,
               ),
             ),
           ],
@@ -249,24 +267,64 @@ class PalaceCellWidget extends ConsumerWidget {
     );
   }
 
-  /// 渲染身宫背景大水印 (沉底放置，腾出中间留白区给时间数字)
-  Widget _buildBodyWatermark() {
-    return IgnorePointer(
-      child: Container(
-        alignment: const Alignment(0, 0.8), // 进一步下沉，彻底避开上方的流运数字
-        child: Opacity(
-          opacity: 0.12,
-          child: Text(
-            '身'.tr,
-            style: TextStyle(
-              fontSize: _ps(32.ts),
-              fontWeight: FontWeight.w900,
-              color: ZiweiClassicTheme.sihuaJi.withOpacity(0.8), // 淡淡的红印感
-            ),
-          ),
+  /// 渲染精致的竖向印章 (支持身宫、来因等)
+  Widget _buildStamp(String text) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: _ps(1.2.ws),
+        vertical: _ps(0.6.hs),
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: ZiweiClassicTheme.sihuaJi.withOpacity(0.8),
+          width: 0.6,
         ),
+        borderRadius: BorderRadius.circular(_ps(0.8.ws)),
+      ),
+      child: Text(
+        text.split('').join('\n'),
+        style: TextStyle(
+          fontSize: _ps(7.2.ts),
+          fontWeight: FontWeight.bold,
+          color: ZiweiClassicTheme.sihuaJi,
+          height: 1.1,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
+  }
+
+  /// 渲染精致的横向印章 (支持小限等)
+  Widget _buildHorizontalStamp(String text, Color color) {
+    return Container(
+      margin: EdgeInsets.only(bottom: _ps(2.hs)),
+      padding: EdgeInsets.symmetric(
+        horizontal: _ps(2.ws),
+        vertical: _ps(0.4.hs),
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: color.withOpacity(0.8),
+          width: 0.6,
+        ),
+        borderRadius: BorderRadius.circular(_ps(0.8.ws)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: _ps(7.5.ts),
+          fontWeight: FontWeight.bold,
+          color: color,
+          height: 1.0,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  /// 渲染身宫标记
+  Widget _buildBodyWatermark() {
+    return _buildStamp('身宫'.tr);
   }
 
   /// 渲染右下角垂直信息柱 (流曜 + 长生 + 干支)
@@ -279,15 +337,53 @@ class PalaceCellWidget extends ConsumerWidget {
     required bool canUseFlyingArrow,
     required List<FlowStar> flowStars,
     required bool enableFlyingStarArrow,
+    required ZiweiChartMode chartMode,
+    required ZiweiOptions ziweiOptions,
+    required bool useAstronomical,
   }) {
     final previewWidget =
-        (isFlyingMode || isSihuaMode) ? _buildFlowPreviewAboveGanzhi() : null;
+        (isFlyingMode || isSihuaMode) ? _buildFlowPreviewAboveGanzhi(useAstronomical) : null;
+
+    final yearStemIndex = (plate.effectiveYear - 4) % 10;
+    final yearStem = TianGan.values[yearStemIndex];
+    final isLaiYin = palace.stem == yearStem && palace.index > 1;
+
+    final showBody = switch (chartMode) {
+      ZiweiChartMode.sanhe => ziweiOptions.showBodyPalace,
+      ZiweiChartMode.sihua => ziweiOptions.sihuaDisplay.showBodyPalace,
+      ZiweiChartMode.flying => ziweiOptions.flyingDisplay.showBodyPalace,
+    };
+    final showLaiYin = switch (chartMode) {
+      ZiweiChartMode.sanhe => ziweiOptions.showLaiYinPalace,
+      ZiweiChartMode.sihua => ziweiOptions.sihuaDisplay.showLaiYinPalace,
+      ZiweiChartMode.flying => ziweiOptions.flyingDisplay.showLaiYinPalace,
+    };
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        // 0. 特殊宫位标记 (来因/身宫) - 横向排列
+        if ((isLaiYin && showLaiYin) ||
+            (plate.bodyPalaceIndex == palace.index && showBody))
+          Padding(
+            padding: EdgeInsets.only(bottom: _ps(2.hs)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isLaiYin && showLaiYin) _buildStamp('来因'.tr),
+                if (isLaiYin &&
+                    showLaiYin &&
+                    plate.bodyPalaceIndex == palace.index &&
+                    showBody)
+                  SizedBox(width: _ps(2.ws)),
+                if (plate.bodyPalaceIndex == palace.index && showBody)
+                  _buildBodyWatermark(),
+              ],
+            ),
+          ),
+
         // 1. 流曜 (竖排，放在最上面)
         if (flowStars.isNotEmpty) _buildVerticalFlowStars(flowStars),
         if (flowStars.isNotEmpty && changsheng.isNotEmpty)
@@ -348,7 +444,7 @@ class PalaceCellWidget extends ConsumerWidget {
     );
   }
 
-  Widget? _buildFlowPreviewAboveGanzhi() {
+  Widget? _buildFlowPreviewAboveGanzhi(bool useAstronomical) {
     final hourEntries = _currentPalaceHourPreviewEntries();
     if (hourEntries.isNotEmpty) {
       return _buildSingleLineFlowPreview(
@@ -376,7 +472,7 @@ class PalaceCellWidget extends ConsumerWidget {
       );
     }
 
-    final yearLabels = _currentPalaceYearPreviewLabels();
+    final yearLabels = _currentPalaceYearPreviewLabels(useAstronomical);
     if (yearLabels.isNotEmpty) {
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -433,7 +529,7 @@ class PalaceCellWidget extends ConsumerWidget {
     );
   }
 
-  List<String> _currentPalaceYearPreviewLabels() {
+  List<String> _currentPalaceYearPreviewLabels(bool useAstronomical) {
     if (state.currentDecade == null || state.currentYear != null) {
       return const [];
     }
@@ -441,9 +537,13 @@ class PalaceCellWidget extends ConsumerWidget {
     if (state.currentDecade!.decadeIndex == 0) {
       return state.manifest.childhoods
           .where(
-            (node) => FlowYear.createByYear(node.year, plate).index == palace.index,
+            (node) =>
+                FlowYear.createByYear(node.year, plate).index == palace.index,
           )
-          .map((node) => _formatYearPreviewLabel(node.year, node.age))
+          .map(
+            (node) =>
+                _formatYearPreviewLabel(node.year, node.age, useAstronomical),
+          )
           .toList();
     }
 
@@ -453,19 +553,21 @@ class PalaceCellWidget extends ConsumerWidget {
 
     return years
         .where(
-          (node) => FlowYear.createByYear(node.year, plate).index == palace.index,
+          (node) =>
+              FlowYear.createByYear(node.year, plate).index == palace.index,
         )
         .map(
           (node) => _formatYearPreviewLabel(
             node.year,
             node.year - effectiveBirthYear + 1,
+            useAstronomical,
           ),
         )
         .toList();
   }
 
-  String _formatYearPreviewLabel(int year, int age) {
-    return '$year${'年'.tr}$age${'岁'.tr}';
+  String _formatYearPreviewLabel(int year, int age, bool useAstronomical) {
+    return '${year.formatYear(useAstronomical)}${'年'.tr}$age${'岁'.tr}';
   }
 
   List<_FlowPreviewEntry> _currentPalaceMonthPreviewEntries() {
@@ -646,6 +748,7 @@ class PalaceCellWidget extends ConsumerWidget {
       final height = _estimateStarColumnHeight(
         star,
         baseFontSize,
+        baseFontSize: baseFontSize,
         isFlyingMode: false,
       );
       final width = baseFontSize + spacing;
@@ -656,6 +759,7 @@ class PalaceCellWidget extends ConsumerWidget {
       final height = _estimateStarColumnHeight(
         star,
         secondaryFontSize,
+        baseFontSize: secondaryFontSize,
         isFlyingMode: false,
       );
       final width = secondaryFontSize + spacing;
@@ -679,6 +783,7 @@ class PalaceCellWidget extends ConsumerWidget {
   double _estimateStarColumnHeight(
     Star star,
     double fontSize, {
+    required double baseFontSize,
     required bool isFlyingMode,
   }) {
     final name = getStarDisplayName(star);
@@ -686,7 +791,9 @@ class PalaceCellWidget extends ConsumerWidget {
     final charCount = isPinyin ? 1 : name.characters.length;
 
     final nameHeight =
-        charCount * (fontSize * 1.1) + ((charCount - 1).clamp(0, 99) * 1.5);
+        charCount * _starLineSlotHeight(fontSize) +
+        ((charCount - 1).clamp(0, 99) *
+            _starCharGap(baseFontSize: baseFontSize, actualFontSize: fontSize));
 
     final brightness = getStarBrightness(
       star,
@@ -911,7 +1018,10 @@ class PalaceCellWidget extends ConsumerWidget {
         ? [name]
         : name.characters.toList();
     final lineSlotHeight = _starLineSlotHeight(fontSize);
-    final charGap = _starCharGap(fontSize);
+    final charGap = _starCharGap(
+      baseFontSize: baseFontSize,
+      actualFontSize: fontSize,
+    );
     final textTopInset = _starTextTopInset(
       baseFontSize: baseFontSize,
       actualFontSize: fontSize,
@@ -931,11 +1041,15 @@ class PalaceCellWidget extends ConsumerWidget {
                 padding: EdgeInsets.only(top: textTopInset),
                 child: Text(
                   characters[i],
+                  textHeightBehavior: const TextHeightBehavior(
+                    applyHeightToFirstAscent: true,
+                    applyHeightToLastDescent: true,
+                  ),
                   style: TextStyle(
                     fontSize: fontSize,
                     fontWeight: isMajor ? FontWeight.w700 : FontWeight.w400,
                     color: color,
-                    height: 1.0,
+                    height: 1.05,
                   ),
                 ),
               ),
@@ -1007,8 +1121,9 @@ class PalaceCellWidget extends ConsumerWidget {
 
                   // --- 碰撞检测逻辑 ---
                   // 1. 计算星曜及亮度所占高度
-                  final double starHeight = characters.length *
-                      (fontSize * 1.1 + _ps(1.hs));
+                  final double starHeight =
+                      characters.length * lineSlotHeight +
+                      ((characters.length - 1).clamp(0, 99) * charGap);
                   final double bHeight =
                       !isCompactMode && brightness.isNotEmpty
                       ? (brightnessFontSize * 1.1)
@@ -1101,11 +1216,27 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   double _starLineSlotHeight(double actualFontSize) {
-    return actualFontSize * 1.12;
+    return (actualFontSize * 1.18) + _ps(0.3.hs);
   }
 
-  double _starCharGap(double actualFontSize) {
-    return (actualFontSize * 0.06).clamp(_ps(0.15.hs), _ps(0.8.hs));
+  double _starCharGap({
+    required double baseFontSize,
+    required double actualFontSize,
+  }) {
+    // 基础比例系数
+    const baseGapRatio = 0.06;
+    // 如果没缩，直接返回正常比例
+    if (actualFontSize >= baseFontSize) {
+      return (baseFontSize * baseGapRatio).clamp(_ps(0.1.hs), _ps(0.8.hs));
+    }
+
+    // 如果缩了，间距缩减要比字号缩减更“狠”
+    // 计算当前的缩减比例 (如 0.8 表示缩到了 80%)
+    final shrinkRatio = (actualFontSize / baseFontSize).clamp(0.1, 1.0);
+
+    // 使用二次方缩减，让间距缩得更快，使小字看起来更紧凑（不散架）
+    return (baseFontSize * baseGapRatio * shrinkRatio * shrinkRatio)
+        .clamp(_ps(0.05.hs), _ps(0.8.hs));
   }
 
   double _starTextTopInset({
@@ -1114,7 +1245,7 @@ class PalaceCellWidget extends ConsumerWidget {
   }) {
     final shrink = (baseFontSize - actualFontSize).clamp(0.0, baseFontSize);
     if (shrink < _ps(0.2.ts)) return 0.0;
-    return (shrink * 0.28).clamp(0.0, _ps(1.8.hs));
+    return (shrink * 0.16).clamp(0.0, _ps(1.0.hs));
   }
 
   Map<String, SiHuaType> _selectedPalaceFlyingTargets() {
@@ -1219,6 +1350,10 @@ class PalaceCellWidget extends ConsumerWidget {
     final shenshaFontSize = runtimeScale < 0.88 ? _ps(8.2.ts) : _ps(9.5.ts);
     final shenshaLineHeight = runtimeScale < 0.88 ? 1.0 : 1.1;
 
+    // 判断是否为小限命宫
+    final isSmallLimitLife = state.currentYear != null &&
+        plate.getRole(ZiweiScope.smallLimit, palace.index) == PalaceRole.life;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -1234,23 +1369,27 @@ class PalaceCellWidget extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
-                children: shenshaLines
-                    .map(
-                      (line) => Text(
-                        line.name,
-                        softWrap: false,
-                        style: TextStyle(
-                          fontSize: shenshaFontSize,
-                          height: shenshaLineHeight,
-                        ).copyWith(
-                          color: line.color,
-                          fontWeight: line.isFlow
-                              ? FontWeight.w700
-                              : FontWeight.w400,
-                        ),
+                children: [
+                  if (isSmallLimitLife)
+                    _buildHorizontalStamp(
+                      '小限'.tr,
+                      ZiweiClassicTheme.scopeSmallLimit,
+                    ),
+                  ...shenshaLines.map(
+                    (line) => Text(
+                      line.name,
+                      softWrap: false,
+                      style: TextStyle(
+                        fontSize: shenshaFontSize,
+                        height: shenshaLineHeight,
+                      ).copyWith(
+                        color: line.color,
+                        fontWeight:
+                            line.isFlow ? FontWeight.w700 : FontWeight.w400,
                       ),
-                    )
-                    .toList(),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -1641,8 +1780,8 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 构建动态水印组件 (纯净版数字)
-  Widget _buildDynamicWatermark(Decade fallbackDecade) {
-    final info = _getWatermarkInfo(fallbackDecade);
+  Widget _buildDynamicWatermark(Decade fallbackDecade, bool useAstronomical) {
+    final info = _getWatermarkInfo(fallbackDecade, useAstronomical);
 
     return Align(
       alignment: const Alignment(0, 0.32), // 稍微上提，避开底部宫职区
@@ -1671,7 +1810,7 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 获取当前宫位应该显示的水印信息
-  _WatermarkInfo _getWatermarkInfo(Decade fallbackDecade) {
+  _WatermarkInfo _getWatermarkInfo(Decade fallbackDecade, bool useAstronomical) {
     // 1. 流时 (紫色)
     if (state.currentHour != null &&
         plate.getRole(ZiweiScope.hour, palace.index) == PalaceRole.life) {
@@ -1709,7 +1848,7 @@ class PalaceCellWidget extends ConsumerWidget {
     if (state.currentYear != null &&
         plate.getRole(ZiweiScope.year, palace.index) == PalaceRole.life) {
       return _WatermarkInfo(
-        text: '${state.currentYear!.year}',
+        text: state.currentYear!.year.formatYear(useAstronomical),
         prefix: '年',
         color: ZiweiClassicTheme.getScopeColor(ZiweiScope.year),
         isActive: true,

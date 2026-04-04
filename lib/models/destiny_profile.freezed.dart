@@ -261,6 +261,8 @@ mixin _$ZiweiOptions {
   ZiweiModeDisplayOptions get flyingDisplay =>
       throw _privateConstructorUsedError;
   bool get showCenterBazi => throw _privateConstructorUsedError;
+  bool get showBodyPalace => throw _privateConstructorUsedError;
+  bool get showLaiYinPalace => throw _privateConstructorUsedError;
   bool get hideCenterBirthInfo => throw _privateConstructorUsedError;
   bool get enableHistorical => throw _privateConstructorUsedError;
   ZiweiFlowStarDisplayOptions get flowStarDisplay =>
@@ -305,6 +307,8 @@ abstract class $ZiweiOptionsCopyWith<$Res> {
     ZiweiModeDisplayOptions sihuaDisplay,
     ZiweiModeDisplayOptions flyingDisplay,
     bool showCenterBazi,
+    bool showBodyPalace,
+    bool showLaiYinPalace,
     bool hideCenterBirthInfo,
     bool enableHistorical,
     ZiweiFlowStarDisplayOptions flowStarDisplay,
@@ -347,6 +351,8 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
     Object? sihuaDisplay = null,
     Object? flyingDisplay = null,
     Object? showCenterBazi = null,
+    Object? showBodyPalace = null,
+    Object? showLaiYinPalace = null,
     Object? hideCenterBirthInfo = null,
     Object? enableHistorical = null,
     Object? flowStarDisplay = null,
@@ -434,6 +440,14 @@ class _$ZiweiOptionsCopyWithImpl<$Res, $Val extends ZiweiOptions>
                 ? _value.showCenterBazi
                 : showCenterBazi // ignore: cast_nullable_to_non_nullable
                       as bool,
+            showBodyPalace: null == showBodyPalace
+                ? _value.showBodyPalace
+                : showBodyPalace // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            showLaiYinPalace: null == showLaiYinPalace
+                ? _value.showLaiYinPalace
+                : showLaiYinPalace // ignore: cast_nullable_to_non_nullable
+                      as bool,
             hideCenterBirthInfo: null == hideCenterBirthInfo
                 ? _value.hideCenterBirthInfo
                 : hideCenterBirthInfo // ignore: cast_nullable_to_non_nullable
@@ -486,6 +500,8 @@ abstract class _$$ZiweiOptionsImplCopyWith<$Res>
     ZiweiModeDisplayOptions sihuaDisplay,
     ZiweiModeDisplayOptions flyingDisplay,
     bool showCenterBazi,
+    bool showBodyPalace,
+    bool showLaiYinPalace,
     bool hideCenterBirthInfo,
     bool enableHistorical,
     ZiweiFlowStarDisplayOptions flowStarDisplay,
@@ -527,6 +543,8 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
     Object? sihuaDisplay = null,
     Object? flyingDisplay = null,
     Object? showCenterBazi = null,
+    Object? showBodyPalace = null,
+    Object? showLaiYinPalace = null,
     Object? hideCenterBirthInfo = null,
     Object? enableHistorical = null,
     Object? flowStarDisplay = null,
@@ -614,6 +632,14 @@ class __$$ZiweiOptionsImplCopyWithImpl<$Res>
             ? _value.showCenterBazi
             : showCenterBazi // ignore: cast_nullable_to_non_nullable
                   as bool,
+        showBodyPalace: null == showBodyPalace
+            ? _value.showBodyPalace
+            : showBodyPalace // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        showLaiYinPalace: null == showLaiYinPalace
+            ? _value.showLaiYinPalace
+            : showLaiYinPalace // ignore: cast_nullable_to_non_nullable
+                  as bool,
         hideCenterBirthInfo: null == hideCenterBirthInfo
             ? _value.hideCenterBirthInfo
             : hideCenterBirthInfo // ignore: cast_nullable_to_non_nullable
@@ -655,12 +681,20 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     this.activeBrightnessProfileId = '',
     this.starsMode = ZiweiStarsMode.builtin,
     this.customStarsJson = '',
-    final List<ZiweiCustomProfile> starsProfiles =
-        const <ZiweiCustomProfile>[],
+    final List<ZiweiCustomProfile> starsProfiles = const <ZiweiCustomProfile>[],
     this.activeStarsProfileId = '',
-    this.sihuaDisplay = const ZiweiModeDisplayOptions(showCenterBazi: false),
-    this.flyingDisplay = const ZiweiModeDisplayOptions(),
+    this.sihuaDisplay = const ZiweiModeDisplayOptions(
+      showCenterBazi: false,
+      showBodyPalace: false,
+      showLaiYinPalace: true,
+    ),
+    this.flyingDisplay = const ZiweiModeDisplayOptions(
+      showBodyPalace: false,
+      showLaiYinPalace: true,
+    ),
     this.showCenterBazi = true,
+    this.showBodyPalace = true,
+    this.showLaiYinPalace = false,
     this.hideCenterBirthInfo = false,
     this.enableHistorical = true,
     this.flowStarDisplay = const ZiweiFlowStarDisplayOptions(),
@@ -753,6 +787,12 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
   final bool showCenterBazi;
   @override
   @JsonKey()
+  final bool showBodyPalace;
+  @override
+  @JsonKey()
+  final bool showLaiYinPalace;
+  @override
+  @JsonKey()
   final bool hideCenterBirthInfo;
   @override
   @JsonKey()
@@ -766,7 +806,7 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
 
   @override
   String toString() {
-    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, siHuaMode: $siHuaMode, customSiHuaJson: $customSiHuaJson, siHuaProfiles: $siHuaProfiles, activeSiHuaProfileId: $activeSiHuaProfileId, brightnessMode: $brightnessMode, customBrightnessJson: $customBrightnessJson, brightnessProfiles: $brightnessProfiles, activeBrightnessProfileId: $activeBrightnessProfileId, starsMode: $starsMode, customStarsJson: $customStarsJson, starsProfiles: $starsProfiles, activeStarsProfileId: $activeStarsProfileId, sihuaDisplay: $sihuaDisplay, flyingDisplay: $flyingDisplay, showCenterBazi: $showCenterBazi, hideCenterBirthInfo: $hideCenterBirthInfo, enableHistorical: $enableHistorical, flowStarDisplay: $flowStarDisplay, animation: $animation)';
+    return 'ZiweiOptions(leapRule: $leapRule, wuHuDunBasedOn: $wuHuDunBasedOn, siHuaBasedOn: $siHuaBasedOn, childhoodRule: $childhoodRule, flowLimitBasedOn: $flowLimitBasedOn, siHuaMode: $siHuaMode, customSiHuaJson: $customSiHuaJson, siHuaProfiles: $siHuaProfiles, activeSiHuaProfileId: $activeSiHuaProfileId, brightnessMode: $brightnessMode, customBrightnessJson: $customBrightnessJson, brightnessProfiles: $brightnessProfiles, activeBrightnessProfileId: $activeBrightnessProfileId, starsMode: $starsMode, customStarsJson: $customStarsJson, starsProfiles: $starsProfiles, activeStarsProfileId: $activeStarsProfileId, sihuaDisplay: $sihuaDisplay, flyingDisplay: $flyingDisplay, showCenterBazi: $showCenterBazi, showBodyPalace: $showBodyPalace, showLaiYinPalace: $showLaiYinPalace, hideCenterBirthInfo: $hideCenterBirthInfo, enableHistorical: $enableHistorical, flowStarDisplay: $flowStarDisplay, animation: $animation)';
   }
 
   @override
@@ -823,6 +863,10 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
                 other.flyingDisplay == flyingDisplay) &&
             (identical(other.showCenterBazi, showCenterBazi) ||
                 other.showCenterBazi == showCenterBazi) &&
+            (identical(other.showBodyPalace, showBodyPalace) ||
+                other.showBodyPalace == showBodyPalace) &&
+            (identical(other.showLaiYinPalace, showLaiYinPalace) ||
+                other.showLaiYinPalace == showLaiYinPalace) &&
             (identical(other.hideCenterBirthInfo, hideCenterBirthInfo) ||
                 other.hideCenterBirthInfo == hideCenterBirthInfo) &&
             (identical(other.enableHistorical, enableHistorical) ||
@@ -857,6 +901,8 @@ class _$ZiweiOptionsImpl implements _ZiweiOptions {
     sihuaDisplay,
     flyingDisplay,
     showCenterBazi,
+    showBodyPalace,
+    showLaiYinPalace,
     hideCenterBirthInfo,
     enableHistorical,
     flowStarDisplay,
@@ -899,6 +945,8 @@ abstract class _ZiweiOptions implements ZiweiOptions {
     final ZiweiModeDisplayOptions sihuaDisplay,
     final ZiweiModeDisplayOptions flyingDisplay,
     final bool showCenterBazi,
+    final bool showBodyPalace,
+    final bool showLaiYinPalace,
     final bool hideCenterBirthInfo,
     final bool enableHistorical,
     final ZiweiFlowStarDisplayOptions flowStarDisplay,
@@ -948,6 +996,10 @@ abstract class _ZiweiOptions implements ZiweiOptions {
   ZiweiModeDisplayOptions get flyingDisplay;
   @override
   bool get showCenterBazi;
+  @override
+  bool get showBodyPalace;
+  @override
+  bool get showLaiYinPalace;
   @override
   bool get hideCenterBirthInfo;
   @override

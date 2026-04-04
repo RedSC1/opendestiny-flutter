@@ -60,6 +60,29 @@ class SettingsView extends ConsumerWidget {
               ref.read(inputNotifierProvider.notifier).toggleTrueSolarTime(val),
         ),
 
+        ListTile(
+          title: Text('公元前年份显示'.tr),
+          trailing: DropdownButton<bool>(
+            value: settings.useAstronomicalYear,
+            underline: const SizedBox(),
+            onChanged: (value) {
+              if (value != null) {
+                ref.read(inputNotifierProvider.notifier).updateAstronomicalYearMode(value);
+              }
+            },
+            items: [
+              DropdownMenuItem(
+                value: true,
+                child: Text('天文纪年 (包含0年与负数)'.tr),
+              ),
+              DropdownMenuItem(
+                value: false,
+                child: Text('历史纪年 (如 BC 100)'.tr),
+              ),
+            ],
+          ),
+        ),
+
         const Divider(),
         _buildSectionTitle('子时处理策略 (影响全站)'.tr),
         RadioListTile<RatHourMode>(

@@ -14,7 +14,7 @@ class HiveCaseStorage implements CaseStorage {
   @override
   Future<List<CaseSummary>> listCases() async {
     final summaries = HiveStorage.casesBox.values
-        .map((caseData) => caseData.summary)
+        .map((caseData) => caseData.toSummary())
         .toList(growable: false);
     summaries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return summaries;

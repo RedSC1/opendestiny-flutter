@@ -194,6 +194,17 @@ extension BaziL10n on dynamic {
   };
 }
 
+extension YearL10n on int {
+  String formatYear(bool useAstronomical) {
+    if (useAstronomical || this > 0) return toString();
+    // 历史纪年转换：0 -> 前1, -1 -> 前2, -n -> 前n+1
+    final bcYear = 1 - this;
+    final lang = AppL10nSettings.currentLanguage;
+    if (lang == AppLanguage.en) return '$bcYear BC';
+    return '前$bcYear';
+  }
+}
+
 /// 2. 针对静态 UI 字符串的翻译
 extension StringL10n on String {
   String get tr {
@@ -496,6 +507,11 @@ extension StringL10n on String {
       AppLanguage.zhTW: '身主',
       AppLanguage.zhCN: '身主',
     },
+    '子年斗君': {
+      AppLanguage.en: 'Rat Year DouJun',
+      AppLanguage.zhTW: '子年斗君',
+      AppLanguage.zhCN: '子年斗君',
+    },
     '农': {AppLanguage.zhTW: '農'},
     '年': {AppLanguage.en: 'Year', AppLanguage.zhTW: '年'},
     '时': {AppLanguage.en: 'Hour', AppLanguage.zhTW: '時'},
@@ -511,6 +527,18 @@ extension StringL10n on String {
     '基于地理位置计算平太阳时误差': {
       AppLanguage.en: 'Calculate deviation based on location',
       AppLanguage.zhTW: '基於地理位置計算平太陽時誤差',
+    },
+    '公元前年份显示': {
+      AppLanguage.en: 'BCE Year Display',
+      AppLanguage.zhTW: '公元前年份顯示',
+    },
+    '天文纪年 (包含0年与负数)': {
+      AppLanguage.en: 'Astronomical (with Year 0 & Negatives)',
+      AppLanguage.zhTW: '天文紀年 (包含0年與負數)',
+    },
+    '历史纪年 (如 BC 100)': {
+      AppLanguage.en: 'Historical (e.g., BC 100)',
+      AppLanguage.zhTW: '歷史紀年 (如 BC 100)',
     },
     '子时处理策略 (影响全站)': {
       AppLanguage.en: 'Rat Hour Strategy',
@@ -615,6 +643,7 @@ extension StringL10n on String {
     '胎元': {AppLanguage.en: 'TaiYuan', AppLanguage.zhTW: '胎元'},
     '命宫': {AppLanguage.en: 'MingGong', AppLanguage.zhTW: '命宮'},
     '身宫': {AppLanguage.en: 'ShenGong', AppLanguage.zhTW: '身宮'},
+    '来因': {AppLanguage.en: 'LaiYin', AppLanguage.zhTW: '來因'},
     '身': {AppLanguage.en: 'Body', AppLanguage.zhTW: '身'},
     '胎息': {AppLanguage.en: 'TaiXi', AppLanguage.zhTW: '胎息'},
     '公历': {AppLanguage.en: 'Solar', AppLanguage.zhTW: '公曆'},
@@ -1269,6 +1298,14 @@ extension StringL10n on String {
     '中宫显示八字': {
       AppLanguage.en: 'Show Bazi In Center',
       AppLanguage.zhTW: '中宮顯示八字',
+    },
+    '显示身宫': {
+      AppLanguage.en: 'Show Body Palace',
+      AppLanguage.zhTW: '顯示身宮',
+    },
+    '显示来因宫': {
+      AppLanguage.en: 'Show LaiYin',
+      AppLanguage.zhTW: '顯示來因宮',
     },
     '三合盘设置': {
       AppLanguage.en: 'Sanhe Chart Settings',

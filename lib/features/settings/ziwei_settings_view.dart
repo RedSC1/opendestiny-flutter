@@ -297,6 +297,26 @@ class ZiweiSettingsView extends ConsumerWidget {
             },
           ),
           SwitchListTile(
+            title: Text('显示身宫'.tr),
+            value: options.showBodyPalace,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(showBodyPalace: value),
+              );
+            },
+          ),
+          SwitchListTile(
+            title: Text('显示来因宫'.tr),
+            value: options.showLaiYinPalace,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(showLaiYinPalace: value),
+              );
+            },
+          ),
+          SwitchListTile(
             title: Text('显示流运博士十二神'.tr),
             value: options.flowStarDisplay.showBoshi12,
             onChanged: (value) {
@@ -355,6 +375,34 @@ class ZiweiSettingsView extends ConsumerWidget {
               );
             },
           ),
+          SwitchListTile(
+            title: Text('显示身宫'.tr),
+            value: options.sihuaDisplay.showBodyPalace,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  sihuaDisplay: options.sihuaDisplay.copyWith(
+                    showBodyPalace: value,
+                  ),
+                ),
+              );
+            },
+          ),
+          SwitchListTile(
+            title: Text('显示来因宫'.tr),
+            value: options.sihuaDisplay.showLaiYinPalace,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  sihuaDisplay: options.sihuaDisplay.copyWith(
+                    showLaiYinPalace: value,
+                  ),
+                ),
+              );
+            },
+          ),
 
           const Divider(),
           _buildSectionTitle('飞星盘设置'.tr),
@@ -367,6 +415,34 @@ class ZiweiSettingsView extends ConsumerWidget {
                 options.copyWith(
                   flyingDisplay: options.flyingDisplay.copyWith(
                     showCenterBazi: value,
+                  ),
+                ),
+              );
+            },
+          ),
+          SwitchListTile(
+            title: Text('显示身宫'.tr),
+            value: options.flyingDisplay.showBodyPalace,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  flyingDisplay: options.flyingDisplay.copyWith(
+                    showBodyPalace: value,
+                  ),
+                ),
+              );
+            },
+          ),
+          SwitchListTile(
+            title: Text('显示来因宫'.tr),
+            value: options.flyingDisplay.showLaiYinPalace,
+            onChanged: (value) {
+              _updateOptions(
+                ref,
+                options.copyWith(
+                  flyingDisplay: options.flyingDisplay.copyWith(
+                    showLaiYinPalace: value,
                   ),
                 ),
               );

@@ -68,9 +68,9 @@ OpenDestiny follows the **Detached Logic & UI** principle. All astrological comp
 ### 📦 Core Components
 The application is built upon a suite of modular, open-source libraries published on Pub.dev:
 
-1.  📦 **[`sxwnl_spa_dart`](https://pub.dev/packages/sxwnl_spa_dart)** (v0.16.0): High-precision astronomical calendar and solar term computations.
-2.  📦 **[`bazi_core`](https://pub.dev/packages/bazi_core)** (v0.6.0): The logic engine for Bazi pillars, luck cycles, and interactions.
-3.  📦 **[`ziwei_core`](https://pub.dev/packages/ziwei_core)** (v0.11.0): The rule-engine for plotting Ziwei Doushu star positions and transformations.
+1.  📦 **[`sxwnl_spa_dart`](https://pub.dev/packages/sxwnl_spa_dart)** (v0.17.0): High-precision astronomical calendar and solar term computations.
+2.  📦 **[`bazi_core`](https://pub.dev/packages/bazi_core)** (v0.6.1): The logic engine for Bazi pillars, luck cycles, and interactions.
+3.  📦 **[`ziwei_core`](https://pub.dev/packages/ziwei_core)** (v0.12.1): The rule-engine for plotting Ziwei Doushu star positions and transformations.
 
 ### 📂 Directory Structure
 The project adopts a **Feature-first** organization, facilitating horizontal scaling for new astrological modules:
@@ -86,7 +86,52 @@ lib/
 
 ---
 
-## 🧪 Quality & Development
+## 🚀 Key Features
+
+### 1. Open Custom Profiles
+Unlike typical charting software with hard-coded logic, OpenDestiny provides a highly flexible customization pipeline for various lineages:
+*   **SiHua Rule Customization**: Manually edit the "Lu, Quan, Ke, Ji" mappings for the ten stems via visual tables or standard JSON protocols.
+*   **Star Brightness System**: Customize brightness levels (Miao, Wang, De, Li, Ping, Bu, Xian) for all 12 branches, with fully configurable labels and visual weights.
+*   **Seamless Migration**: Export custom profiles as JSON strings for instant sharing and import across devices.
+
+### 2. Digital Case Management
+A standardized archival solution for destiny data, solving cross-platform fragmentation:
+*   **Full JSON Export/Import**: Export local case libraries (including name, birth data, coordinates) as structured JSON for research or manual sync.
+*   **Multi-channel Sharing**: Leverage Flutter's capabilities to share cases or profiles via files, QR codes, or the system clipboard.
+*   **High-Precision Geodata**: Built-in calibrated city database for automatic timezone matching and True Solar Time correction.
+
+### 3. Experimental: Bazi ShenSha Module
+Exploring the path of transforming traditional symbolic stars into programmable logic:
+*   **ShenSha Matrix**: Initial integration of core algorithms including Noble, Horse, KongWang, and KuiGang.
+*   **Engineering Note**: This module is marked as "experimental" to test algorithmic robustness. Due to the vast discrepancies in rules across lineages, results are for reference only and have not undergone large-scale manual verification.
+
+### 4. Advanced Historical Chronology (Upcoming)
+*   **Dual-mode Year Display**: Toggle between **Astronomical year numbering** (including Year 0 and negatives) and **Historical chronology** (BC/AD format) for precise ancient chart analysis.
+
+---
+
+## 🛠️ Quick Start (Development)
+
+### 1. Open Custom Profiles
+Unlike typical charting software with hard-coded logic, OpenDestiny provides a highly flexible customization pipeline for various lineages:
+*   **SiHua Rule Customization**: Manually edit the "Lu, Quan, Ke, Ji" mappings for the ten stems via visual tables or standard JSON protocols.
+*   **Star Brightness System**: Customize brightness levels (Miao, Wang, De, Li, Ping, Bu, Xian) for all 12 branches, with fully configurable labels and visual weights.
+*   **Seamless Migration**: Export custom profiles as JSON strings for instant sharing and import across devices.
+
+### 2. Digital Case Management
+A standardized archival solution for destiny data, solving cross-platform fragmentation:
+*   **Full JSON Export/Import**: Export local case libraries (including name, birth data, coordinates) as structured JSON for research or manual sync.
+*   **Multi-channel Sharing**: Leverage Flutter's capabilities to share cases or profiles via files, QR codes, or the system clipboard.
+*   **High-Precision Geodata**: Built-in calibrated city database for automatic timezone matching and True Solar Time correction.
+
+### 3. Experimental: Bazi ShenSha Module
+Exploring the path of transforming traditional symbolic stars into programmable logic:
+*   **ShenSha Matrix**: Initial integration of core algorithms including Noble, Horse, KongWang, and KuiGang.
+*   **Engineering Note**: This module is marked as "experimental" to test algorithmic robustness. Due to the vast discrepancies in rules across lineages, results are for reference only and have not undergone large-scale manual verification.
+
+---
+
+## 🛠️ Quick Start (Development)
 
 ### Automated Testing
 Run unit tests to verify the integrity of the underlying logic:

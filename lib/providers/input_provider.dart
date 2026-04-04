@@ -149,13 +149,17 @@ class InputNotifier extends _$InputNotifier {
     );
     _updateProfile();
   }
+void toggleTrueSolarTime(bool value) {
+  _settings = _settings.copyWith(useTrueSolarTime: value);
+  _updateProfile();
+}
 
-  void toggleTrueSolarTime(bool value) {
-    _settings = _settings.copyWith(useTrueSolarTime: value);
-    _updateProfile();
-  }
+void updateAstronomicalYearMode(bool value) {
+  _settings = _settings.copyWith(useAstronomicalYear: value);
+  _updateProfile();
+}
 
-  void updateRatHourMode(RatHourMode mode) {
+void updateRatHourMode(RatHourMode mode) {
     _settings = _settings.copyWith(ratHourMode: mode);
     _updateProfile();
   }

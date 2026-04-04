@@ -410,15 +410,17 @@ class BirthInput {
       ? lunarClockTime
       : solar.toAstroDateTime();
 
-  String get caseSummaryText {
+  String caseSummaryText(bool useAstronomical) {
     if (calendarType == BirthCalendarType.lunar) {
-      return '${'农历'.tr} ${lunar.year}${'年'.tr} ${_formatCaseLunarMonth(lunar)}${'月'.tr} ${_formatLunarDayLabel(lunar.day)} ${_twoDigits(lunar.hour)}:${_twoDigits(lunar.minute)}';
+      final yearStr = lunar.year.formatYear(useAstronomical);
+      return '${'农历'.tr} $yearStr${'年'.tr} ${_formatCaseLunarMonth(lunar)}${'月'.tr} ${_formatLunarDayLabel(lunar.day)} ${_twoDigits(lunar.hour)}:${_twoDigits(lunar.minute)}';
     }
 
+    final yearStr = solar.year.formatYear(useAstronomical);
     if (AppL10nSettings.currentLanguage == AppLanguage.en) {
-      return '${'Solar'.tr} ${solar.year}-${_twoDigits(solar.month)}-${_twoDigits(solar.day)} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}';
+      return '${'Solar'.tr} $yearStr-${_twoDigits(solar.month)}-${_twoDigits(solar.day)} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}';
     }
-    return '${'公历'.tr} ${solar.year}-${_twoDigits(solar.month)}-${_twoDigits(solar.day)} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}';
+    return '${'公历'.tr} $yearStr-${_twoDigits(solar.month)}-${_twoDigits(solar.day)} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}';
   }
 
   TimePack toTimePack({
@@ -570,19 +572,27 @@ class ZiweiAnimationOptions {
 
 class ZiweiModeDisplayOptions {
   final bool showCenterBazi;
+  final bool showBodyPalace;
+  final bool showLaiYinPalace;
   final ZiweiAnimationOptions animation;
 
   const ZiweiModeDisplayOptions({
     this.showCenterBazi = true,
+    this.showBodyPalace = true,
+    this.showLaiYinPalace = false,
     this.animation = const ZiweiAnimationOptions(),
   });
 
   ZiweiModeDisplayOptions copyWith({
     bool? showCenterBazi,
+    bool? showBodyPalace,
+    bool? showLaiYinPalace,
     ZiweiAnimationOptions? animation,
   }) {
     return ZiweiModeDisplayOptions(
       showCenterBazi: showCenterBazi ?? this.showCenterBazi,
+      showBodyPalace: showBodyPalace ?? this.showBodyPalace,
+      showLaiYinPalace: showLaiYinPalace ?? this.showLaiYinPalace,
       animation: animation ?? this.animation,
     );
   }
@@ -590,6 +600,8 @@ class ZiweiModeDisplayOptions {
   factory ZiweiModeDisplayOptions.fromJson(Map<String, dynamic> json) {
     return ZiweiModeDisplayOptions(
       showCenterBazi: json['showCenterBazi'] as bool? ?? true,
+      showBodyPalace: json['showBodyPalace'] as bool? ?? true,
+      showLaiYinPalace: json['showLaiYinPalace'] as bool? ?? false,
       animation: json['animation'] == null
           ? const ZiweiAnimationOptions()
           : ZiweiAnimationOptions.fromJson(
@@ -600,6 +612,8 @@ class ZiweiModeDisplayOptions {
 
   Map<String, dynamic> toJson() => {
     'showCenterBazi': showCenterBazi,
+    'showBodyPalace': showBodyPalace,
+    'showLaiYinPalace': showLaiYinPalace,
     'animation': animation.toJson(),
   };
 
@@ -608,10 +622,13 @@ class ZiweiModeDisplayOptions {
       identical(this, other) ||
       other is ZiweiModeDisplayOptions &&
           other.showCenterBazi == showCenterBazi &&
+          other.showBodyPalace == showBodyPalace &&
+          other.showLaiYinPalace == showLaiYinPalace &&
           other.animation == animation;
 
   @override
-  int get hashCode => Object.hash(showCenterBazi, animation);
+  int get hashCode =>
+      Object.hash(showCenterBazi, showBodyPalace, showLaiYinPalace, animation);
 }
 
 enum ZiweiCustomProfileType { siHua, brightness, stars }
@@ -706,10 +723,20 @@ class ZiweiOptions with _$ZiweiOptions {
     @Default('') String customStarsJson,
     @Default(<ZiweiCustomProfile>[]) List<ZiweiCustomProfile> starsProfiles,
     @Default('') String activeStarsProfileId,
-    @Default(ZiweiModeDisplayOptions(showCenterBazi: false))
+    @Default(ZiweiModeDisplayOptions(
+      showCenterBazi: false,
+      showBodyPalace: false,
+      showLaiYinPalace: true,
+    ))
     ZiweiModeDisplayOptions sihuaDisplay,
-    @Default(ZiweiModeDisplayOptions()) ZiweiModeDisplayOptions flyingDisplay,
+    @Default(ZiweiModeDisplayOptions(
+      showBodyPalace: false,
+      showLaiYinPalace: true,
+    ))
+    ZiweiModeDisplayOptions flyingDisplay,
     @Default(true) bool showCenterBazi,
+    @Default(true) bool showBodyPalace,
+    @Default(false) bool showLaiYinPalace,
     @Default(false) bool hideCenterBirthInfo,
     @Default(true) bool enableHistorical,
     @Default(ZiweiFlowStarDisplayOptions())
@@ -724,6 +751,7 @@ class ZiweiOptions with _$ZiweiOptions {
 class AppSettings {
   final AppLanguage language;
   final bool useTrueSolarTime;
+  final bool useAstronomicalYear;
   final RatHourMode ratHourMode;
   final BaziOptions baziOptions;
   final ZiweiOptions ziweiOptions;
@@ -731,6 +759,7 @@ class AppSettings {
   const AppSettings({
     this.language = AppLanguage.zhCN,
     this.useTrueSolarTime = true,
+    this.useAstronomicalYear = true,
     this.ratHourMode = RatHourMode.noSplit,
     this.baziOptions = const BaziOptions(),
     this.ziweiOptions = const ZiweiOptions(),
@@ -739,6 +768,7 @@ class AppSettings {
   AppSettings copyWith({
     AppLanguage? language,
     bool? useTrueSolarTime,
+    bool? useAstronomicalYear,
     RatHourMode? ratHourMode,
     BaziOptions? baziOptions,
     ZiweiOptions? ziweiOptions,
@@ -746,6 +776,7 @@ class AppSettings {
     return AppSettings(
       language: language ?? this.language,
       useTrueSolarTime: useTrueSolarTime ?? this.useTrueSolarTime,
+      useAstronomicalYear: useAstronomicalYear ?? this.useAstronomicalYear,
       ratHourMode: ratHourMode ?? this.ratHourMode,
       baziOptions: baziOptions ?? this.baziOptions,
       ziweiOptions: ziweiOptions ?? this.ziweiOptions,
@@ -758,6 +789,7 @@ class AppSettings {
           $enumDecodeNullable(_$AppLanguageEnumMap, json['language']) ??
           AppLanguage.zhCN,
       useTrueSolarTime: json['useTrueSolarTime'] as bool? ?? true,
+      useAstronomicalYear: json['useAstronomicalYear'] as bool? ?? true,
       ratHourMode:
           _ratHourModeFromJson(json['ratHourMode']) ?? RatHourMode.noSplit,
       baziOptions: json['baziOptions'] == null
@@ -772,6 +804,7 @@ class AppSettings {
   Map<String, dynamic> toJson() => {
     'language': _$AppLanguageEnumMap[language]!,
     'useTrueSolarTime': useTrueSolarTime,
+    'useAstronomicalYear': useAstronomicalYear,
     'ratHourMode': _ratHourModeToJson(ratHourMode),
     'baziOptions': baziOptions.toJson(),
     'ziweiOptions': ziweiOptions.toJson(),
@@ -876,11 +909,12 @@ class DestinyCase {
     'updatedAt': updatedAt.toIso8601String(),
   };
 
-  CaseSummary get summary => CaseSummary(
+  CaseSummary toSummary() => CaseSummary(
     id: id,
     name: name,
+    birthInput: birthInput,
+    note: note,
     updatedAt: updatedAt,
-    subtitle: note.isNotEmpty ? note : birthInput.caseSummaryText,
   );
 
   factory DestinyCase.fromProfile(
@@ -922,15 +956,22 @@ class DestinyCase {
 class CaseSummary {
   final String id;
   final String name;
-  final String subtitle;
+  final BirthInput birthInput;
+  final String? note;
   final DateTime updatedAt;
 
   const CaseSummary({
     required this.id,
     required this.name,
-    required this.subtitle,
+    required this.birthInput,
+    this.note,
     required this.updatedAt,
   });
+
+  String getSubtitle(bool useAstronomical) {
+    if (note != null && note!.isNotEmpty) return note!;
+    return birthInput.caseSummaryText(useAstronomical);
+  }
 }
 
 class CurrentCaseState {

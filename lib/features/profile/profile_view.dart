@@ -183,7 +183,7 @@ class ProfileView extends ConsumerWidget {
                     : '农历出生时间'.tr,
               ),
               subtitle: Text(
-                _birthInputSummary(birthInput),
+                _birthInputSummary(birthInput, ref.watch(appSettingsProvider).useAstronomicalYear),
                 style: const TextStyle(fontSize: 18, color: Colors.deepPurple),
               ),
               trailing: const Icon(Icons.edit_outlined),
@@ -250,18 +250,20 @@ class ProfileView extends ConsumerWidget {
     );
   }
 
-  String _birthInputSummary(BirthInput birthInput) {
+  String _birthInputSummary(BirthInput birthInput, bool useAstronomical) {
     if (birthInput.calendarType == BirthCalendarType.lunar) {
       final lunar = birthInput.lunar;
       final leapLabel = lunar.isLeap ? '闰'.tr : '';
-      return '${lunar.year}${'年'.tr} $leapLabel${lunar.month}${'月'.tr} ${lunar.day}${'日'.tr} ${_twoDigits(lunar.hour)}:${_twoDigits(lunar.minute)}:${_twoDigits(lunar.second)}';
+      final yearStr = lunar.year.formatYear(useAstronomical);
+      return '$yearStr${'年'.tr} $leapLabel${lunar.month}${'月'.tr} ${lunar.day}${'日'.tr} ${_twoDigits(lunar.hour)}:${_twoDigits(lunar.minute)}:${_twoDigits(lunar.second)}';
     }
 
     final solar = birthInput.solar;
+    final yearStr = solar.year.formatYear(useAstronomical);
     if (AppL10nSettings.currentLanguage == AppLanguage.en) {
-      return '${_englishMonthName(solar.month)} ${_twoDigits(solar.day)}, ${solar.year} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}:${_twoDigits(solar.second)}';
+      return '${_englishMonthName(solar.month)} ${_twoDigits(solar.day)}, $yearStr ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}:${_twoDigits(solar.second)}';
     }
-    return '${solar.year}-${_twoDigits(solar.month)}-${_twoDigits(solar.day)} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}:${_twoDigits(solar.second)}';
+    return '$yearStr-${_twoDigits(solar.month)}-${_twoDigits(solar.day)} ${_twoDigits(solar.hour)}:${_twoDigits(solar.minute)}:${_twoDigits(solar.second)}';
   }
 
   String _englishMonthName(int month) {

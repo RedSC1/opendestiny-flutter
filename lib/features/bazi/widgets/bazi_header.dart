@@ -56,13 +56,13 @@ class BaziHeader extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '${'公历'.tr}：${chart.time.bjClt}',
+                '${'公历'.tr}：${currentCase.birthInput.solar.year.formatYear(appSettings.useAstronomicalYear)}-${currentCase.birthInput.solar.month.toString().padLeft(2, '0')}-${currentCase.birthInput.solar.day.toString().padLeft(2, '0')} ${currentCase.birthInput.solar.hour.toString().padLeft(2, '0')}:${currentCase.birthInput.solar.minute.toString().padLeft(2, '0')}',
                 style: TextStyle(fontSize: s(12.ts)),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                '${'农历'.tr}：${chart.lunarDate}',
+                '${'农历'.tr}：${chart.lunarDate.toString().replaceFirstMapped(RegExp(r"^(-?\d+)"), (m) => int.parse(m[1]!).formatYear(appSettings.useAstronomicalYear))}',
                 style: TextStyle(
                   fontSize: s(12.ts),
                   color: Colors.black54,
@@ -72,7 +72,7 @@ class BaziHeader extends StatelessWidget {
               ),
               if (showTrueSolarTime)
                 Text(
-                  '${'真太阳时'.tr}：${chart.time.solarTime.trueSolarTime}',
+                  '${'真太阳时'.tr}：${chart.time.solarTime.trueSolarTime.year.formatYear(appSettings.useAstronomicalYear)}-${chart.time.solarTime.trueSolarTime.month.toString().padLeft(2, '0')}-${chart.time.solarTime.trueSolarTime.day.toString().padLeft(2, '0')} ${chart.time.solarTime.trueSolarTime.hour.toString().padLeft(2, '0')}:${chart.time.solarTime.trueSolarTime.minute.toString().padLeft(2, '0')}',
                   style: TextStyle(
                     fontSize: s(11.ts),
                     color: Colors.deepPurple,

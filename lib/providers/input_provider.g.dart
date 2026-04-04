@@ -57,7 +57,7 @@ final caseSummariesProvider = AutoDisposeProvider<List<CaseSummary>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CaseSummariesRef = AutoDisposeProviderRef<List<CaseSummary>>;
-String _$inputNotifierHash() => r'13e7b41d79704521b97d3138cd41778708a5197e';
+String _$inputNotifierHash() => r'ebf4770cfb10ee532ee6357ff1961afc9b8a5cf3';
 
 /// See also [InputNotifier].
 @ProviderFor(InputNotifier)

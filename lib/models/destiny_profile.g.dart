@@ -97,16 +97,25 @@ _$ZiweiOptionsImpl _$$ZiweiOptionsImplFromJson(
       const <ZiweiCustomProfile>[],
   activeStarsProfileId: json['activeStarsProfileId'] as String? ?? '',
   sihuaDisplay: json['sihuaDisplay'] == null
-      ? const ZiweiModeDisplayOptions(showCenterBazi: false)
+      ? const ZiweiModeDisplayOptions(
+          showCenterBazi: false,
+          showBodyPalace: false,
+          showLaiYinPalace: true,
+        )
       : ZiweiModeDisplayOptions.fromJson(
           json['sihuaDisplay'] as Map<String, dynamic>,
         ),
   flyingDisplay: json['flyingDisplay'] == null
-      ? const ZiweiModeDisplayOptions()
+      ? const ZiweiModeDisplayOptions(
+          showBodyPalace: false,
+          showLaiYinPalace: true,
+        )
       : ZiweiModeDisplayOptions.fromJson(
           json['flyingDisplay'] as Map<String, dynamic>,
         ),
   showCenterBazi: json['showCenterBazi'] as bool? ?? true,
+  showBodyPalace: json['showBodyPalace'] as bool? ?? true,
+  showLaiYinPalace: json['showLaiYinPalace'] as bool? ?? false,
   hideCenterBirthInfo: json['hideCenterBirthInfo'] as bool? ?? false,
   enableHistorical: json['enableHistorical'] as bool? ?? true,
   flowStarDisplay: json['flowStarDisplay'] == null
@@ -143,6 +152,8 @@ Map<String, dynamic> _$$ZiweiOptionsImplToJson(_$ZiweiOptionsImpl instance) =>
       'sihuaDisplay': instance.sihuaDisplay,
       'flyingDisplay': instance.flyingDisplay,
       'showCenterBazi': instance.showCenterBazi,
+      'showBodyPalace': instance.showBodyPalace,
+      'showLaiYinPalace': instance.showLaiYinPalace,
       'hideCenterBirthInfo': instance.hideCenterBirthInfo,
       'enableHistorical': instance.enableHistorical,
       'flowStarDisplay': instance.flowStarDisplay,
