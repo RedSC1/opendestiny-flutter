@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.6
+
+### 🛠️ Fixes
+- **Flow Month Preview Alignment**: Aligned Ziwei flow-month preview actions with the timeline sequence so cross-year months and leap-month ordering resolve against the same month node the engine uses internally.
+
+### 📦 Dependency Updates
+- `bazi_core`: `^0.6.5`
+- `ziwei_core`: `^0.12.7`
+- `sxwnl_spa_dart`: `^0.18.4`
+
 ## 0.4.5
 
 ### 🛠️ Fixes
