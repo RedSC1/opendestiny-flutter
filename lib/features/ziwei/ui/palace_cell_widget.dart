@@ -583,7 +583,7 @@ class PalaceCellWidget extends ConsumerWidget {
             node.month,
             year.year,
             plate,
-            sequence: node.month,
+            sequence: node.sequence,
             isLeap: node.isLeap,
           );
           return flowMonth.index == palace.index;

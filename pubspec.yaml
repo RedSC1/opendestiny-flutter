@@ -35,9 +35,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  bazi_core: ^0.6.4
-  ziwei_core: ^0.12.6
-  sxwnl_spa_dart: ^0.18.3
+  bazi_core: ^0.6.5
+  ziwei_core: ^0.12.7
+  sxwnl_spa_dart: ^0.18.4
 
   # --- 状态管理 ---
   flutter_riverpod: ^2.5.1
@@ -133,5 +133,5 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+# For details regarding fonts from package dependencies,
+# see https://flutter.dev/to/font-from-package
