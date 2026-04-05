@@ -97,9 +97,9 @@
 ### 📦 核心依赖组件
 OpenDestiny 基于以下独立维护并发布于 Pub.dev 的核心库构建：
 
-1.  📦 **[`sxwnl_spa_dart`](https://pub.dev/packages/sxwnl_spa_dart)** (v0.17.0)：提供高精度历法计算与太阳视运动规律的天文学基础。
-2.  📦 **[`bazi_core`](https://pub.dev/packages/bazi_core)** (v0.6.1)：八字逻辑库，处理农历转换、五行排盘及流运计算。
-3.  📦 **[`ziwei_core`](https://pub.dev/packages/ziwei_core)** (v0.12.1)：紫微斗数规则库，负责星曜排布、星盘状态流变及四化演变。
+1.  📦 **[`sxwnl_spa_dart`](https://pub.dev/packages/sxwnl_spa_dart)** (v0.18.3)：提供高精度历法计算与太阳视运动规律的天文学基础。
+2.  📦 **[`bazi_core`](https://pub.dev/packages/bazi_core)** (v0.6.4)：八字逻辑库，处理农历转换、五行排盘及流运计算。
+3.  📦 **[`ziwei_core`](https://pub.dev/packages/ziwei_core)** (v0.12.6)：紫微斗数规则库，负责星曜排布、星盘状态流变及四化演变。
 
 ### 📂 目录结构规范
 采用 **Feature-first (功能优先)** 的组织方式，便于水平扩展新的术数模块：

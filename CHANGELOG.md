@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.5
+
+### 🛠️ Fixes
+- **BCE Flow-Day Restoration**: Synced the latest BCE lunar-year matching fixes from the calendar engine stack so ancient charts can expand all flow months into flow days again.
+
+### 📦 Dependency Updates
+- `bazi_core`: `^0.6.4`
+- `ziwei_core`: `^0.12.6`
+- `sxwnl_spa_dart`: `^0.18.3`
+
 ## 0.4.4
 
 ### 🎨 UI

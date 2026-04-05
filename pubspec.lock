@@ -61,10 +61,10 @@ packages:
     dependency: "direct main"
     description:
       name: bazi_core
-      sha256: "43da545eb31c1df41657ee619ac52af3579a58e39eedb0dee79eaf8e6fd1cc7e"
+      sha256: "7e3c39d9dc237e9d04b5e4056d66fefe788e8e55572427ae4d1e42eceb1ecbf0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.3"
+    version: "0.6.4"
   boolean_selector:
     dependency: transitive
     description:
@@ -937,10 +937,10 @@ packages:
     dependency: "direct main"
     description:
       name: sxwnl_spa_dart
-      sha256: "71ddb31868691360b3e3b1a0284520d31f794c4867bdd4993d40528ce9048047"
+      sha256: eef8356505a75e6d06febd8e12011129eb09161eb7e3cfaa6943d172267cd36d
       url: "https://pub.dev"
     source: hosted
-    version: "0.18.1"
+    version: "0.18.3"
   term_glyph:
     dependency: transitive
     description:
@@ -1169,10 +1169,10 @@ packages:
     dependency: "direct main"
     description:
       name: ziwei_core
-      sha256: "7831eea9825f2c5c9b15b3be14e89b018a7b150c3dec441c96f165a66b37c3e2"
+      sha256: "24e49ea0f179d10a5eee5ae0dd26f13552658a459d39ef77163645a8793ad44d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.3"
+    version: "0.12.6"
 sdks:
   dart: ">=3.10.8 <4.0.0"
   flutter: ">=3.38.4"
