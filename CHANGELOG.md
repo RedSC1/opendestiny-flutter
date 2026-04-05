@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.7
+
+### 🛠️ Fixes
+- **Ziwei Rechart Stability**: Synced `ziwei_core 0.12.8` so repeated chart recalculation after switching hour/day no longer reuses polluted static-star instances, fixing incorrect self-transform arrow states after stepping forward and back.
+
+### 📦 Dependency Updates
+- `bazi_core`: `^0.6.5`
+- `ziwei_core`: `^0.12.8`
+- `sxwnl_spa_dart`: `^0.18.4`
+
 ## 0.4.6
 
 ### 🛠️ Fixes

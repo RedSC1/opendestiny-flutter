@@ -84,7 +84,7 @@ The application is built upon a suite of modular, open-source libraries publishe
 
 1.  📦 **[`sxwnl_spa_dart`](https://pub.dev/packages/sxwnl_spa_dart)** (v0.18.4): High-precision astronomical calendar and solar term computations.
 2.  📦 **[`bazi_core`](https://pub.dev/packages/bazi_core)** (v0.6.5): The logic engine for Bazi pillars, luck cycles, and interactions.
-3.  📦 **[`ziwei_core`](https://pub.dev/packages/ziwei_core)** (v0.12.7): The rule-engine for plotting Ziwei Doushu star positions and transformations.
+3.  📦 **[`ziwei_core`](https://pub.dev/packages/ziwei_core)** (v0.12.8): The rule-engine for plotting Ziwei Doushu star positions and transformations.
 
 ### 📂 Directory Structure
 The project adopts a **Feature-first** organization, facilitating horizontal scaling for new astrological modules:
