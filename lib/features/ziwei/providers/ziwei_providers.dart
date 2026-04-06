@@ -2,8 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:ziwei_core/ziwei_core.dart';
-import 'package:ziwei_core/src/core/timeline_provider.dart';
-import 'package:ziwei_core/src/models/timeline_node.dart';
 import '../../../models/destiny_profile.dart';
 import '../../../providers/input_provider.dart';
 
@@ -15,9 +13,42 @@ final ziweiDateOffsetProvider = StateProvider<Duration>((ref) => Duration.zero);
 
 enum ZiweiChartMode { sanhe, sihua, flying }
 
+CalendarOptions buildZiweiCalendarOptions({
+  required AppSettings settings,
+  required CalendarOptions baseOptions,
+}) {
+  return CalendarOptions(
+    ratHourMode: settings.ratHourMode,
+    leapRule: baseOptions.leapRule,
+    wuHuDunBasedOn: baseOptions.wuHuDunBasedOn,
+    siHuaBasedOn: baseOptions.siHuaBasedOn,
+    childhoodRule: baseOptions.childhoodRule,
+    flowLimitBasedOn: baseOptions.flowLimitBasedOn,
+    enableHistorical: baseOptions.enableHistorical,
+  );
+}
+
 final ziweiChartModeProvider = StateProvider<ZiweiChartMode>(
   (ref) => ZiweiChartMode.sanhe,
 );
+
+FlowHour buildFlowHourFromNode(
+  HourNode node,
+  FlowDay day,
+  ZiWeiPlate plate,
+) {
+  final normalizedHourIndex = node.isLateRat ? 0 : node.hourIndex;
+  final targetIndex = ZiweiConsts.fixIndex(day.index + normalizedHourIndex);
+  final role = plate.getRole(ZiweiScope.origin, targetIndex);
+  return FlowHour(
+    GanZhi(
+      TianGan.fromName(node.stem),
+      DiZhi.fromName(node.branch),
+    ),
+    node.hourIndex,
+    role,
+  );
+}
 
 String _resolveActiveSiHuaJson(ZiweiOptions options) {
   if (options.siHuaProfiles.isNotEmpty) {
@@ -63,6 +94,7 @@ String _resolveActiveStarsJson(ZiweiOptions options) {
 @riverpod
 ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
   final profile = ref.watch(inputNotifierProvider);
+  final settings = ref.watch(appSettingsProvider);
   final options = profile.ziweiOptions;
   final defaultRuleset = ConfigLoader.getDefault();
   final activeSiHuaJson = _resolveActiveSiHuaJson(options);
@@ -108,13 +140,16 @@ ZiweiRuleset ziweiRuleset(ZiweiRulesetRef ref) {
     siHuaRules: mergedRuleset.siHuaRules,
     mingZhuRule: mergedRuleset.mingZhuRule,
     shenZhuRule: mergedRuleset.shenZhuRule,
-    calendarOptions: CalendarOptions(
-      leapRule: options.leapRule,
-      wuHuDunBasedOn: options.wuHuDunBasedOn,
-      siHuaBasedOn: options.siHuaBasedOn,
-      childhoodRule: options.childhoodRule,
-      flowLimitBasedOn: options.flowLimitBasedOn,
-      enableHistorical: options.enableHistorical,
+    calendarOptions: buildZiweiCalendarOptions(
+      settings: settings,
+      baseOptions: CalendarOptions(
+        leapRule: options.leapRule,
+        wuHuDunBasedOn: options.wuHuDunBasedOn,
+        siHuaBasedOn: options.siHuaBasedOn,
+        childhoodRule: options.childhoodRule,
+        flowLimitBasedOn: options.flowLimitBasedOn,
+        enableHistorical: options.enableHistorical,
+      ),
     ),
   );
 }
@@ -126,14 +161,9 @@ ZiweiDate originDate(OriginDateRef ref) {
   final settings = ref.watch(appSettingsProvider);
   final rulesetOptions = ref.watch(ziweiRulesetProvider).calendarOptions;
   final birthInput = profile.birthInput;
-  final calendarOptions = CalendarOptions(
-    ratHourMode: settings.ratHourMode,
-    leapRule: rulesetOptions.leapRule,
-    wuHuDunBasedOn: rulesetOptions.wuHuDunBasedOn,
-    siHuaBasedOn: rulesetOptions.siHuaBasedOn,
-    childhoodRule: rulesetOptions.childhoodRule,
-    flowLimitBasedOn: rulesetOptions.flowLimitBasedOn,
-    enableHistorical: rulesetOptions.enableHistorical,
+  final calendarOptions = buildZiweiCalendarOptions(
+    settings: settings,
+    baseOptions: rulesetOptions,
   );
 
   final offset = ref.watch(ziweiDateOffsetProvider);
@@ -390,8 +420,8 @@ class ZiweiUIManager extends _$ZiweiUIManager {
       return;
     }
 
-    final fh = FlowHour.create(
-      node.hourIndex,
+    final fh = buildFlowHourFromNode(
+      node,
       state.currentDay!,
       _cachedOriginPlate!,
     );
@@ -456,16 +486,17 @@ class ZiweiUIManager extends _$ZiweiUIManager {
 
     // 确定当前最细层级的 Scope
     ZiweiScope targetScope = ZiweiScope.origin;
-    if (hour != null)
+    if (hour != null) {
       targetScope = ZiweiScope.hour;
-    else if (day != null)
+    } else if (day != null) {
       targetScope = ZiweiScope.day;
-    else if (month != null)
+    } else if (month != null) {
       targetScope = ZiweiScope.month;
-    else if (year != null)
+    } else if (year != null) {
       targetScope = ZiweiScope.year;
-    else if (decade != null)
+    } else if (decade != null) {
       targetScope = ZiweiScope.decade;
+    }
 
     final lifeIndex = _findLifePalaceIndex(dynamicPlate, targetScope);
 

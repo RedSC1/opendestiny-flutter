@@ -99,6 +99,30 @@ extension ZiweiIntL10n on int {
   }
 }
 
+String formatHourLabel({
+  required int hourIndex,
+  bool splitRatHour = false,
+  bool isEarlyRat = false,
+  bool isLateRat = false,
+}) {
+  final lang = AppL10nSettings.currentLanguage;
+  if (isEarlyRat || (splitRatHour && hourIndex == 0)) {
+    return switch (lang) {
+      AppLanguage.en => 'Early Zi Hour',
+      AppLanguage.zhTW => '早子時',
+      _ => '早子时',
+    };
+  }
+  if (isLateRat || hourIndex == 12) {
+    return switch (lang) {
+      AppLanguage.en => 'Late Zi Hour',
+      AppLanguage.zhTW => '晚子時',
+      _ => '晚子时',
+    };
+  }
+  return hourIndex.hourName;
+}
+
 /// --- 核心星曜与属性翻译映射 ---
 
 extension StarL10n on Star {

@@ -36,7 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   bazi_core: ^0.6.5
-  ziwei_core: ^0.12.8
+  ziwei_core:
+    path: ../ziwei_core
   sxwnl_spa_dart: ^0.18.4
 
   # --- 状态管理 ---

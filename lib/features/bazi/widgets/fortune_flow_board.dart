@@ -1,3 +1,5 @@
+import 'dart:ui' show PointerDeviceKind;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bazi_core/bazi_core.dart';
@@ -330,22 +332,31 @@ class _FortuneHList extends StatelessWidget {
         Container(
           height: s(118.hs),
           padding: EdgeInsets.only(bottom: s(2.hs)),
-          child: Scrollbar(
-            controller: controller,
-            thumbVisibility: true,
-            interactive: true,
-            thickness: s(6.ws),
-            radius: Radius.circular(s(10.ws)),
-            child: ListView.builder(
-              key: ValueKey('${label}_list'),
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              dragDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.mouse,
+                PointerDeviceKind.stylus,
+              },
+            ),
+            child: Scrollbar(
               controller: controller,
-              scrollDirection: Axis.horizontal,
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
+              thumbVisibility: true,
+              interactive: true,
+              thickness: s(6.ws),
+              radius: Radius.circular(s(10.ws)),
+              child: ListView.builder(
+                key: ValueKey('${label}_list'),
+                controller: controller,
+                scrollDirection: Axis.horizontal,
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: s(16.ws)),
+                itemCount: itemCount,
+                itemBuilder: itemBuilder,
               ),
-              padding: EdgeInsets.symmetric(horizontal: s(16.ws)),
-              itemCount: itemCount,
-              itemBuilder: itemBuilder,
             ),
           ),
         ),

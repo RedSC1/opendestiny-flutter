@@ -24,7 +24,9 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
 
     final state = ref.watch(ziweiUIManagerProvider);
     final manager = ref.read(ziweiUIManagerProvider.notifier);
-    final useAstronomical = ref.watch(appSettingsProvider).useAstronomicalYear;
+    final appSettings = ref.watch(appSettingsProvider);
+    final useAstronomical = appSettings.useAstronomicalYear;
+    final splitRatHour = appSettings.ratHourMode != RatHourMode.noSplit;
 
     // 从响应式状态中读取快照
     final manifest = state.manifest;
@@ -126,7 +128,12 @@ class ZiweiTimeFlowTable extends ConsumerWidget {
               selectedItem: null,
               adaptiveScale: adaptiveScale,
               activeColor: ZiweiClassicTheme.getScopeColor(ZiweiScope.hour),
-              itemLabelBuilder: (h) => h.hourIndex.hourName,
+              itemLabelBuilder: (h) => formatHourLabel(
+                hourIndex: h.hourIndex,
+                splitRatHour: splitRatHour,
+                isEarlyRat: h.isEarlyRat,
+                isLateRat: h.isLateRat,
+              ),
               itemSubLabelBuilder: (h) => '${h.stem.ganDisplay}${h.branch.zhiDisplay}',
               isSelectedBuilder: (item, _) => 
                   state.currentHour?.hourIndex == item.hourIndex,

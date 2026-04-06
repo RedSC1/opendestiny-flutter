@@ -80,6 +80,8 @@ class PalaceCellWidget extends ConsumerWidget {
     final enablePalaceHighlightEffect =
         ziweiOptions.animation.enablePalaceHighlightEffect;
     final useAstronomical = ref.watch(appSettingsProvider).useAstronomicalYear;
+    final splitRatHour =
+        ref.watch(appSettingsProvider).ratHourMode != RatHourMode.noSplit;
     final flowStars = isCompactMode ? const <FlowStar>[] : _collectOverlayFlowStars();
 
     // 分类星曜
@@ -196,7 +198,8 @@ class PalaceCellWidget extends ConsumerWidget {
                 ),
               ),
             // 1. 底层：动态水印 (跟随流运层级切换内容)
-            if (decade != null) _buildDynamicWatermark(decade, useAstronomical),
+            if (decade != null)
+              _buildDynamicWatermark(decade, useAstronomical, splitRatHour),
 
             // 1.1 身宫暗纹大水印 (不占位置，低优先级背景)
             // if (plate.bodyPalaceIndex == palace.index) _buildBodyWatermark(),
@@ -629,12 +632,16 @@ class PalaceCellWidget extends ConsumerWidget {
 
     return hours
         .where((node) {
-          final flowHour = FlowHour.create(node.hourIndex, day, plate);
+          final flowHour = buildFlowHourFromNode(node, day, plate);
           return flowHour.index == palace.index;
         })
         .map(
           (node) => _FlowPreviewEntry(
-            primaryLabel: node.hourIndex.hourName,
+            primaryLabel: formatHourLabel(
+              hourIndex: node.hourIndex,
+              isEarlyRat: node.isEarlyRat,
+              isLateRat: node.isLateRat,
+            ),
             secondaryLabel: '${node.stem.ganDisplay}${node.branch.zhiDisplay}',
           ),
         )
@@ -1784,8 +1791,16 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 构建动态水印组件 (纯净版数字)
-  Widget _buildDynamicWatermark(Decade fallbackDecade, bool useAstronomical) {
-    final info = _getWatermarkInfo(fallbackDecade, useAstronomical);
+  Widget _buildDynamicWatermark(
+    Decade fallbackDecade,
+    bool useAstronomical,
+    bool splitRatHour,
+  ) {
+    final info = _getWatermarkInfo(
+      fallbackDecade,
+      useAstronomical,
+      splitRatHour,
+    );
 
     return Align(
       alignment: const Alignment(0, 0.32), // 稍微上提，避开底部宫职区
@@ -1814,12 +1829,19 @@ class PalaceCellWidget extends ConsumerWidget {
   }
 
   /// 获取当前宫位应该显示的水印信息
-  _WatermarkInfo _getWatermarkInfo(Decade fallbackDecade, bool useAstronomical) {
+  _WatermarkInfo _getWatermarkInfo(
+    Decade fallbackDecade,
+    bool useAstronomical,
+    bool splitRatHour,
+  ) {
     // 1. 流时 (紫色)
     if (state.currentHour != null &&
         plate.getRole(ZiweiScope.hour, palace.index) == PalaceRole.life) {
       return _WatermarkInfo(
-        text: state.currentHour!.hourIndex.hourName,
+        text: formatHourLabel(
+          hourIndex: state.currentHour!.hourIndex,
+          splitRatHour: splitRatHour,
+        ),
         prefix: '时',
         color: ZiweiClassicTheme.getScopeColor(ZiweiScope.hour),
         isActive: true,
