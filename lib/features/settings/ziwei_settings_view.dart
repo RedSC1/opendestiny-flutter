@@ -466,8 +466,23 @@ class ZiweiSettingsView extends ConsumerWidget {
               );
             },
           ),
+          _buildFlowStarVisibilityPanel(
+            context: context,
+            ref: ref,
+            options: options,
+            ruleset: ruleset,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Text(
+              '以下开关仅控制限流十二神是否覆盖原局对应位置，不影响流曜排盘结果。'.tr,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.black54,
+              ),
+            ),
+          ),
           SwitchListTile(
-            title: Text('显示流运博士十二神'.tr),
+            title: Text('限流博士十二神覆盖原局显示'.tr),
             value: options.flowStarDisplay.showBoshi12,
             onChanged: (value) {
               _updateOptions(
@@ -481,7 +496,7 @@ class ZiweiSettingsView extends ConsumerWidget {
             },
           ),
           SwitchListTile(
-            title: Text('显示流运岁建十二神'.tr),
+            title: Text('限流岁建十二神覆盖原局显示'.tr),
             value: options.flowStarDisplay.showSuijian12,
             onChanged: (value) {
               _updateOptions(
@@ -495,7 +510,7 @@ class ZiweiSettingsView extends ConsumerWidget {
             },
           ),
           SwitchListTile(
-            title: Text('显示流运将前十二神'.tr),
+            title: Text('限流将前十二神覆盖原局显示'.tr),
             value: options.flowStarDisplay.showJiangqian12,
             onChanged: (value) {
               _updateOptions(
@@ -660,8 +675,8 @@ class ZiweiSettingsView extends ConsumerWidget {
           _buildSectionTitle('实验性功能 (谨慎修改)'.tr),
 
           SwitchListTile(
-            title: Text('历史历法保护'.tr),
-            subtitle: Text('历史红区时熔断流月及以下层级'.tr),
+            title: Text('启用历史历法修正'.tr),
+            subtitle: Text('关闭后不使用朔月修正表'.tr),
             value: options.enableHistorical,
             onChanged: (value) {
               _updateOptions(
@@ -890,6 +905,135 @@ class ZiweiSettingsView extends ConsumerWidget {
     });
   }
 
+  Widget _buildFlowStarVisibilityPanel({
+    required BuildContext context,
+    required WidgetRef ref,
+    required ZiweiOptions options,
+    required ZiweiRuleset ruleset,
+  }) {
+    final groupedDefinitions = <String, List<FlowDefinition>>{};
+    for (final definition in ruleset.flowDefinitions) {
+      final groupKey = _flowVisibilityGroupKey(definition.key);
+      groupedDefinitions.putIfAbsent(groupKey, () => <FlowDefinition>[]).add(
+        definition,
+      );
+    }
+
+    const orderedGroupKeys = <String>[
+      'main',
+      'boshi12',
+      'suijian12',
+      'jiangqian12',
+    ];
+
+    void saveVisibilityMap(Map<String, bool> visibleStars) {
+      _updateOptions(
+        ref,
+        options.copyWith(
+          flowStarDisplay: options.flowStarDisplay.copyWith(
+            visibleStars: visibleStars,
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+          childrenPadding: const EdgeInsets.only(bottom: 8),
+          title: Text('流曜单独显隐'.tr),
+          subtitle: Text('按单颗流曜控制是否显示，不改变排盘结果。'.tr),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {
+                      saveVisibilityMap({
+                        for (final definition in ruleset.flowDefinitions)
+                          normalizeFlowStarDisplayKey(definition.key): true,
+                      });
+                    },
+                    child: Text('全部显示'.tr),
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      saveVisibilityMap({
+                        for (final definition in ruleset.flowDefinitions)
+                          normalizeFlowStarDisplayKey(definition.key): false,
+                      });
+                    },
+                    child: Text('全部隐藏'.tr),
+                  ),
+                  TextButton(
+                    onPressed: () => saveVisibilityMap(const <String, bool>{}),
+                    child: Text('恢复默认'.tr),
+                  ),
+                ],
+              ),
+            ),
+            for (final groupKey in orderedGroupKeys)
+              if ((groupedDefinitions[groupKey] ?? const <FlowDefinition>[])
+                  .isNotEmpty) ...[
+                _buildSubsectionTitle(_flowVisibilityGroupTitle(groupKey)),
+                for (final definition in groupedDefinitions[groupKey]!)
+                  SwitchListTile(
+                    dense: true,
+                    visualDensity: VisualDensity.compact,
+                    contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    title: Text(_flowVisibilityLabel(definition.key)),
+                    value: options.flowStarDisplay.isStarVisible(definition.key),
+                    onChanged: (value) {
+                      _updateOptions(
+                        ref,
+                        options.copyWith(
+                          flowStarDisplay: options.flowStarDisplay
+                              .withStarVisibility(definition.key, value),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _flowVisibilityGroupKey(String key) {
+    final normalizedKey = normalizeFlowStarDisplayKey(key);
+    if (normalizedKey.endsWith('_boshi12')) return 'boshi12';
+    if (normalizedKey.endsWith('_suijian12')) return 'suijian12';
+    if (normalizedKey.endsWith('_jiangqian12')) return 'jiangqian12';
+    return 'main';
+  }
+
+  String _flowVisibilityGroupTitle(String groupKey) {
+    switch (groupKey) {
+      case 'boshi12':
+        return '流运博士十二神'.tr;
+      case 'suijian12':
+        return '流运岁建十二神'.tr;
+      case 'jiangqian12':
+        return '流运将前十二神'.tr;
+      case 'main':
+      default:
+        return '基础流曜'.tr;
+    }
+  }
+
+  String _flowVisibilityLabel(String key) {
+    return formatFlowShortName(
+      normalizeFlowStarDisplayKey(key).replaceFirst('flow_', ''),
+    );
+  }
+
   Widget _buildVisibilityModeGroup({
     required BuildContext context,
     required WidgetRef ref,
@@ -1039,14 +1183,16 @@ class ZiweiSettingsView extends ConsumerWidget {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: Colors.deepPurple,
+    return Builder(
+      builder: (context) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
     );
@@ -1494,10 +1640,14 @@ class _ZiweiProfileTile extends StatelessWidget {
         onTap: onTap,
         child: Ink(
           decoration: BoxDecoration(
-            color: selected ? Colors.deepPurple.withValues(alpha: 0.08) : Colors.white,
+            color: selected
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
+                : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? Colors.deepPurple : Colors.grey.shade300,
+              color: selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey.shade300,
               width: selected ? 2 : 1,
             ),
           ),
@@ -1509,7 +1659,9 @@ class _ZiweiProfileTile extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.folder_open_outlined,
-                      color: selected ? Colors.deepPurple : Colors.grey,
+                      color: selected
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.grey,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1521,7 +1673,9 @@ class _ZiweiProfileTile extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: selected ? Colors.deepPurple : Colors.black87,
+                              color: selected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.black87,
                             ),
                           ),
                           const SizedBox(height: 4),

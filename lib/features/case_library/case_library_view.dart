@@ -57,7 +57,10 @@ class CaseLibraryView extends ConsumerWidget {
               child: Ink(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.deepPurple.shade400, Colors.deepPurple.shade600],
+                    colors: [
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.78),
+                      Theme.of(context).colorScheme.primary,
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -342,10 +345,14 @@ class _CaseListTile extends StatelessWidget {
         onTap: onTap,
         child: Ink(
           decoration: BoxDecoration(
-            color: selected ? Colors.deepPurple.withOpacity(0.08) : Colors.white,
+            color: selected
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
+                : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? Colors.deepPurple : Colors.grey.shade300,
+              color: selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey.shade300,
               width: selected ? 2 : 1,
             ),
           ),
@@ -355,7 +362,9 @@ class _CaseListTile extends StatelessWidget {
               children: [
                 Icon(
                   Icons.folder_open_outlined,
-                  color: selected ? Colors.deepPurple : Colors.grey,
+                  color: selected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.grey,
                   size: 28,
                 ),
                 const SizedBox(width: 16),
@@ -368,7 +377,9 @@ class _CaseListTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: selected ? Colors.deepPurple : Colors.black87,
+                          color: selected
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -385,7 +396,9 @@ class _CaseListTile extends StatelessWidget {
                 PopupMenuButton<_CaseMenuAction>(
                   icon: Icon(
                     Icons.more_vert,
-                    color: selected ? Colors.deepPurple : Colors.grey.shade700,
+                    color: selected
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.grey.shade700,
                   ),
                   onSelected: (action) {
                     switch (action) {
@@ -418,7 +431,9 @@ class _CaseListTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: selected ? Colors.deepPurple : Colors.grey,
+                  color: selected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.grey,
                   size: 16,
                 ),
               ],

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.2
+
+### 🛠️ Fixes
+- **Flow-Star Visibility Controls**: Added per-flow-star visibility toggles in Ziwei settings, split them cleanly from the existing “override original slots” switches, and made hidden flow stars stop participating in overlay and bottom-slot replacement rendering.
+- **Flow Twelve-God Palette Fix**: Fixed the bottom `博士 / 岁建 / 将前` twelve-god rows so fallback original-star colors now respect the custom Ziwei palette instead of always using the generic minor-star color.
+- **Historical Calendar Setting Wording**: Renamed the historical-calendar toggle to reflect its real behavior: turning it off now means not using the new-moon correction table.
+- **Global Theme Color Presets**: Added app-wide theme color presets, removed the hardcoded purple seed theme, and wired key list/summary/selection UI states to follow the selected global accent color.
+- **Third-Party License Notice**: Added AreaCity-JsSpider-StatsGov city coordinate data attribution to the in-app About/license list.
+
 ## 0.5.1
 
 ### 🛠️ Fixes

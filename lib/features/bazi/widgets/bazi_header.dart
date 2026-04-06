@@ -76,7 +76,7 @@ class BaziHeader extends StatelessWidget {
                   '${'真太阳时'.tr}：${chart.time.solarTime.trueSolarTime.year.formatYear(appSettings.useAstronomicalYear)}-${chart.time.solarTime.trueSolarTime.month.toString().padLeft(2, '0')}-${chart.time.solarTime.trueSolarTime.day.toString().padLeft(2, '0')} ${chart.time.solarTime.trueSolarTime.hour.toString().padLeft(2, '0')}:${chart.time.solarTime.trueSolarTime.minute.toString().padLeft(2, '0')}',
                   style: TextStyle(
                     fontSize: s(12.ts),
-                    color: Colors.deepPurple,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

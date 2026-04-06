@@ -89,7 +89,9 @@ class PalaceCellWidget extends ConsumerWidget {
       chartMode,
       appSettings.ziweiStarVisibilitySettings,
     );
-    final flowStars = isCompactMode ? const <FlowStar>[] : _collectOverlayFlowStars();
+    final flowStars = isCompactMode
+        ? const <FlowStar>[]
+        : _collectOverlayFlowStars(flowStarDisplay);
 
     // 分类星曜
     final majorStars = _filterBlockedStaticStars(
@@ -1637,10 +1639,13 @@ class PalaceCellWidget extends ConsumerWidget {
     return null;
   }
 
-  List<FlowStar> _collectOverlayFlowStars() {
+  List<FlowStar> _collectOverlayFlowStars(
+    ZiweiFlowStarDisplayOptions flowStarDisplay,
+  ) {
     final stars = palace.stars[StarType.flow] ?? const [];
     return stars
         .whereType<FlowStar>()
+        .where((star) => flowStarDisplay.isStarVisible(star.key))
         .where((star) => !_isExcludedOverlayFlowStar(star))
         .toList()
       ..sort((a, b) {
@@ -1670,16 +1675,19 @@ class PalaceCellWidget extends ConsumerWidget {
         originStars: boshiStars,
         flowEnabled: flowStarDisplay.showBoshi12,
         groupSuffix: '_boshi12',
+        flowStarDisplay: flowStarDisplay,
       ),
       _resolveBottomShenshaLine(
         originStars: suijianStars,
         flowEnabled: flowStarDisplay.showSuijian12,
         groupSuffix: '_suijian12',
+        flowStarDisplay: flowStarDisplay,
       ),
       _resolveBottomShenshaLine(
         originStars: jiangqianStars,
         flowEnabled: flowStarDisplay.showJiangqian12,
         groupSuffix: '_jiangqian12',
+        flowStarDisplay: flowStarDisplay,
       ),
     ];
   }
@@ -1688,9 +1696,13 @@ class PalaceCellWidget extends ConsumerWidget {
     required List<Star> originStars,
     required bool flowEnabled,
     required String groupSuffix,
+    required ZiweiFlowStarDisplayOptions flowStarDisplay,
   }) {
     if (flowEnabled) {
-      final flowStar = _findActiveBottomShenshaFlowStar(groupSuffix);
+      final flowStar = _findActiveBottomShenshaFlowStar(
+        groupSuffix,
+        flowStarDisplay,
+      );
       if (flowStar != null) {
         return _BottomShenshaLine(
           name: _flowBottomShenshaName(flowStar),
@@ -1703,19 +1715,28 @@ class PalaceCellWidget extends ConsumerWidget {
     final originName = originStars.isNotEmpty
         ? getStarDisplayName(originStars.first)
         : '';
+    final originColor = originStars.isNotEmpty
+        ? ZiweiClassicTheme.getStarColor(originStars.first)
+        : ZiweiClassicTheme.minorStarColor;
     return _BottomShenshaLine(
       name: originName,
-      color: ZiweiClassicTheme.minorStarColor,
+      color: originColor,
       isFlow: false,
     );
   }
 
-  FlowStar? _findActiveBottomShenshaFlowStar(String groupSuffix) {
+  FlowStar? _findActiveBottomShenshaFlowStar(
+    String groupSuffix,
+    ZiweiFlowStarDisplayOptions flowStarDisplay,
+  ) {
     final flowStars = palace.stars[StarType.flow] ?? const [];
     final activeScopes = _bottomShenshaScopePriority();
 
     for (final scope in activeScopes) {
       for (final star in flowStars.whereType<FlowStar>()) {
+        if (!flowStarDisplay.isStarVisible(star.key)) {
+          continue;
+        }
         if (star.scope == scope && star.key.endsWith(groupSuffix)) {
           return star;
         }

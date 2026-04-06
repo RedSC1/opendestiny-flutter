@@ -166,6 +166,11 @@ void updateAstronomicalYearMode(bool value) {
   _updateProfile();
 }
 
+void updateGlobalThemeSeedColor(int color) {
+  _settings = _settings.copyWith(globalThemeSeedColor: color);
+  _updateProfile();
+}
+
 void updateRatHourMode(RatHourMode mode) {
     _settings = _settings.copyWith(ratHourMode: mode);
     _updateProfile();

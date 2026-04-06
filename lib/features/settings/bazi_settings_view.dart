@@ -88,14 +88,16 @@ class BaziSettingsView extends ConsumerWidget {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: Colors.deepPurple,
+    return Builder(
+      builder: (context) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
     );

@@ -232,6 +232,19 @@ extension StringL10n on String {
     '连线图': {AppLanguage.en: 'Diagram', AppLanguage.zhTW: '連線圖'},
     '设置': {AppLanguage.en: 'Settings', AppLanguage.zhTW: '設置'},
     '关于': {AppLanguage.en: 'About', AppLanguage.zhTW: '關於'},
+    '全局主题色': {AppLanguage.en: 'Global Theme Color', AppLanguage.zhTW: '全局主題色'},
+    '控制按钮、开关与选中态的全局强调色': {
+      AppLanguage.en:
+          'Control the global accent color for buttons, switches and selected states',
+      AppLanguage.zhTW: '控制按鈕、開關與選中態的全局強調色',
+    },
+    '经典紫': {AppLanguage.en: 'Classic Purple', AppLanguage.zhTW: '經典紫'},
+    '蓝灰': {AppLanguage.en: 'Blue Grey', AppLanguage.zhTW: '藍灰'},
+    '青绿': {AppLanguage.en: 'Teal Green', AppLanguage.zhTW: '青綠'},
+    '靛蓝': {AppLanguage.en: 'Indigo', AppLanguage.zhTW: '靛藍'},
+    '松石': {AppLanguage.en: 'Turquoise', AppLanguage.zhTW: '松石'},
+    '墨棕': {AppLanguage.en: 'Ink Brown', AppLanguage.zhTW: '墨棕'},
+    '深红': {AppLanguage.en: 'Deep Red', AppLanguage.zhTW: '深紅'},
     '禄': {AppLanguage.en: 'Lu', AppLanguage.zhTW: '祿'},
     '权': {AppLanguage.en: 'Quan', AppLanguage.zhTW: '權'},
     '科': {AppLanguage.en: 'Ke', AppLanguage.zhTW: '科'},
@@ -1450,17 +1463,47 @@ extension StringL10n on String {
     },
     '童限排法': {AppLanguage.en: 'Childhood Luck Rule', AppLanguage.zhTW: '童限排法'},
     '流曜显示': {AppLanguage.en: 'Flow Star Display', AppLanguage.zhTW: '流曜顯示'},
-    '显示流运博士十二神': {
-      AppLanguage.en: 'Show Flow BoShi 12',
-      AppLanguage.zhTW: '顯示流運博士十二神',
+    '流曜单独显隐': {
+      AppLanguage.en: 'Per-Flow-Star Visibility',
+      AppLanguage.zhTW: '流曜單獨顯隱',
     },
-    '显示流运岁建十二神': {
-      AppLanguage.en: 'Show Flow SuiJian 12',
-      AppLanguage.zhTW: '顯示流運歲建十二神',
+    '按单颗流曜控制是否显示，不改变排盘结果。': {
+      AppLanguage.en:
+          'Control visibility per flow star without changing calculation results.',
+      AppLanguage.zhTW: '按單顆流曜控制是否顯示，不改變排盤結果。',
     },
-    '显示流运将前十二神': {
-      AppLanguage.en: 'Show Flow JiangQian 12',
-      AppLanguage.zhTW: '顯示流運將前十二神',
+    '基础流曜': {AppLanguage.en: 'Primary Flow Stars', AppLanguage.zhTW: '基礎流曜'},
+    '流运博士十二神': {
+      AppLanguage.en: 'Flow BoShi 12',
+      AppLanguage.zhTW: '流運博士十二神',
+    },
+    '流运岁建十二神': {
+      AppLanguage.en: 'Flow SuiJian 12',
+      AppLanguage.zhTW: '流運歲建十二神',
+    },
+    '流运将前十二神': {
+      AppLanguage.en: 'Flow JiangQian 12',
+      AppLanguage.zhTW: '流運將前十二神',
+    },
+    '全部显示': {AppLanguage.en: 'Show All', AppLanguage.zhTW: '全部顯示'},
+    '全部隐藏': {AppLanguage.en: 'Hide All', AppLanguage.zhTW: '全部隱藏'},
+    '恢复默认': {AppLanguage.en: 'Restore Defaults', AppLanguage.zhTW: '恢復默認'},
+    '以下开关仅控制限流十二神是否覆盖原局对应位置，不影响流曜排盘结果。': {
+      AppLanguage.en:
+          'These switches only control whether flowing 12-star groups override the original chart positions and do not affect flow-star calculation.',
+      AppLanguage.zhTW: '以下開關僅控制限流十二神是否覆蓋原局對應位置，不影響流曜排盤結果。',
+    },
+    '限流博士十二神覆盖原局显示': {
+      AppLanguage.en: 'Flow BoShi 12 Override Original Slots',
+      AppLanguage.zhTW: '限流博士十二神覆蓋原局顯示',
+    },
+    '限流岁建十二神覆盖原局显示': {
+      AppLanguage.en: 'Flow SuiJian 12 Override Original Slots',
+      AppLanguage.zhTW: '限流歲建十二神覆蓋原局顯示',
+    },
+    '限流将前十二神覆盖原局显示': {
+      AppLanguage.en: 'Flow JiangQian 12 Override Original Slots',
+      AppLanguage.zhTW: '限流將前十二神覆蓋原局顯示',
     },
     '动效': {AppLanguage.en: 'Animation', AppLanguage.zhTW: '動效'},
     '启用飞星四化框': {
@@ -1519,13 +1562,13 @@ extension StringL10n on String {
       AppLanguage.en: 'Hide solar, true solar time and lunar lines',
       AppLanguage.zhTW: '隱藏公曆、真太陽時、農曆',
     },
-    '历史历法保护': {
-      AppLanguage.en: 'Historical Calendar Protection',
-      AppLanguage.zhTW: '歷史曆法保護',
+    '启用历史历法修正': {
+      AppLanguage.en: 'Enable Historical Calendar Correction',
+      AppLanguage.zhTW: '啟用歷史曆法修正',
     },
-    '历史红区时熔断流月及以下层级': {
-      AppLanguage.en: 'Disable month/day/hour flow in historical red zones',
-      AppLanguage.zhTW: '歷史紅區時熔斷流月及以下層級',
+    '关闭后不使用朔月修正表': {
+      AppLanguage.en: 'Disable the new moon correction table when turned off',
+      AppLanguage.zhTW: '關閉後不使用朔月修正表',
     },
     '一岁一宫顺行': {
       AppLanguage.en: 'One palace per year (Forward)',

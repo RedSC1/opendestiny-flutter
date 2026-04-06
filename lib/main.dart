@@ -5,6 +5,7 @@ import 'features/case_library/case_library_view.dart';
 import 'package:flutter/foundation.dart';
 import 'core/app_update_service.dart';
 import 'core/hive_storage.dart';
+import 'providers/input_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,19 +38,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.''',
       ),
+      const LicenseEntryWithLineBreaks(
+        ['AreaCity-JsSpider-StatsGov city coordinate data'],
+        '''
+This product includes reused city coordinate / administrative division data
+derived from the following upstream open-source project:
+
+AreaCity-JsSpider-StatsGov
+Source: https://github.com/xiangyuecn/AreaCity-JsSpider-StatsGov
+Repository owner: xiangyuecn
+License: MIT
+
+The upstream repository is marked as MIT licensed on GitHub. Please refer to
+the upstream repository for the latest original source files and license
+details.''',
+      ),
     ]);
   });
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends ConsumerState<MyApp> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool _startupUpdateChecked = false;
 
@@ -74,13 +90,16 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = ref.watch(appSettingsProvider);
+    final seedColor = Color(appSettings.globalThemeSeedColor);
+
     return MaterialApp(
       navigatorKey: _navigatorKey,
       title: 'OpenDestiny',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Microsoft YaHei',
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
         useMaterial3: true,
       ),
       home: const CaseLibraryView(),

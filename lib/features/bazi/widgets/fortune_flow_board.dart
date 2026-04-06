@@ -105,7 +105,7 @@ class _FortuneFlowBoardState extends ConsumerState<FortuneFlowBoard> {
                         : '${d.startAge}${'虚岁'.tr}',
                   isSel: selD == i,
                   isCur: isCurrentDecade,
-                  activeCol: Colors.deepPurple,
+                  activeCol: Theme.of(context).colorScheme.primary,
                   isXiaoYunBlock: isXiaoYun,
                   adaptiveScale: effectiveScale,
                   onTap: () {

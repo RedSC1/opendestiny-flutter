@@ -14,6 +14,23 @@ import '../../core/web_update_bridge_stub.dart'
         as web_update;
 import 'package:url_launcher/url_launcher.dart';
 
+class _ThemeSeedPreset {
+  final String labelKey;
+  final int colorValue;
+
+  const _ThemeSeedPreset(this.labelKey, this.colorValue);
+}
+
+const List<_ThemeSeedPreset> _themeSeedPresets = [
+  _ThemeSeedPreset('经典紫', 0xFF673AB7),
+  _ThemeSeedPreset('蓝灰', 0xFF546E7A),
+  _ThemeSeedPreset('青绿', 0xFF0F766E),
+  _ThemeSeedPreset('靛蓝', 0xFF3949AB),
+  _ThemeSeedPreset('松石', 0xFF00897B),
+  _ThemeSeedPreset('墨棕', 0xFF6D4C41),
+  _ThemeSeedPreset('深红', 0xFFB23A48),
+];
+
 class SettingsView extends ConsumerWidget {
   const SettingsView({super.key});
 
@@ -25,7 +42,7 @@ class SettingsView extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        _buildSectionTitle('界面显示 (Language)'.tr),
+        _buildSectionTitle(context, '界面显示 (Language)'.tr),
         RadioListTile<AppLanguage>(
           title: const Text('简体中文'),
           value: AppLanguage.zhCN,
@@ -55,7 +72,45 @@ class SettingsView extends ConsumerWidget {
         ),
 
         const Divider(),
-        _buildSectionTitle('全局历法配置'.tr),
+        _buildSectionTitle(context, '全局主题色'.tr),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '控制按钮、开关与选中态的全局强调色'.tr,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.black54,
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final preset in _themeSeedPresets)
+                ChoiceChip(
+                  label: Text(preset.labelKey.tr),
+                  selected: settings.globalThemeSeedColor == preset.colorValue,
+                  avatar: CircleAvatar(
+                    radius: 10,
+                    backgroundColor: Color(preset.colorValue),
+                  ),
+                  onSelected: (_) {
+                    ref
+                        .read(inputNotifierProvider.notifier)
+                        .updateGlobalThemeSeedColor(preset.colorValue);
+                  },
+                ),
+            ],
+          ),
+        ),
+
+        const Divider(),
+        _buildSectionTitle(context, '全局历法配置'.tr),
 
         SwitchListTile(
           title: Text('真太阳时修正'.tr),
@@ -89,7 +144,7 @@ class SettingsView extends ConsumerWidget {
         ),
 
         const Divider(),
-        _buildSectionTitle('子时处理策略 (影响全站)'.tr),
+        _buildSectionTitle(context, '子时处理策略 (影响全站)'.tr),
         RadioListTile<RatHourMode>(
           title: Text('不分早晚子 (传统派)'.tr),
           subtitle: Text('23:00 准时换日'.tr),
@@ -253,15 +308,15 @@ class SettingsView extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: Colors.deepPurple,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

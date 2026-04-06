@@ -128,7 +128,7 @@ class ProfileView extends ConsumerWidget {
                   fontSize: 16,
                   color: currentCase.name.isEmpty
                       ? Colors.grey
-                      : Colors.deepPurple,
+                      : Theme.of(context).colorScheme.primary,
                 ),
               ),
               trailing: const Icon(Icons.edit_outlined),
@@ -184,7 +184,10 @@ class ProfileView extends ConsumerWidget {
               ),
               subtitle: Text(
                 _birthInputSummary(birthInput, ref.watch(appSettingsProvider).useAstronomicalYear),
-                style: const TextStyle(fontSize: 18, color: Colors.deepPurple),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
               trailing: const Icon(Icons.edit_outlined),
               onTap: () => _showBirthInputDialog(context, ref, birthInput),

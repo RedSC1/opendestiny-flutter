@@ -468,30 +468,47 @@ class ZiweiFlowStarDisplayOptions {
   final bool showBoshi12;
   final bool showSuijian12;
   final bool showJiangqian12;
+  final Map<String, bool> visibleStars;
 
   const ZiweiFlowStarDisplayOptions({
     this.showBoshi12 = false,
     this.showSuijian12 = true,
     this.showJiangqian12 = true,
+    this.visibleStars = const <String, bool>{},
   });
 
   ZiweiFlowStarDisplayOptions copyWith({
     bool? showBoshi12,
     bool? showSuijian12,
     bool? showJiangqian12,
+    Map<String, bool>? visibleStars,
   }) {
     return ZiweiFlowStarDisplayOptions(
       showBoshi12: showBoshi12 ?? this.showBoshi12,
       showSuijian12: showSuijian12 ?? this.showSuijian12,
       showJiangqian12: showJiangqian12 ?? this.showJiangqian12,
+      visibleStars: visibleStars ?? this.visibleStars,
     );
   }
 
   factory ZiweiFlowStarDisplayOptions.fromJson(Map<String, dynamic> json) {
+    final rawVisibleStars = json['visibleStars'];
+    final visibleStars = <String, bool>{};
+    if (rawVisibleStars is Map) {
+      for (final entry in rawVisibleStars.entries) {
+        final key = normalizeFlowStarDisplayKey(entry.key.toString().trim());
+        if (key.isEmpty) continue;
+        final value = entry.value;
+        if (value is bool) {
+          visibleStars[key] = value;
+        }
+      }
+    }
     return ZiweiFlowStarDisplayOptions(
       showBoshi12: json['showBoshi12'] as bool? ?? false,
       showSuijian12: json['showSuijian12'] as bool? ?? true,
       showJiangqian12: json['showJiangqian12'] as bool? ?? true,
+      visibleStars: visibleStars,
     );
   }
 
@@ -499,7 +516,20 @@ class ZiweiFlowStarDisplayOptions {
     'showBoshi12': showBoshi12,
     'showSuijian12': showSuijian12,
     'showJiangqian12': showJiangqian12,
+    'visibleStars': visibleStars,
   };
+
+  bool isStarVisible(String key) {
+    final normalizedKey = normalizeFlowStarDisplayKey(key);
+    return visibleStars[normalizedKey] ?? _defaultFlowStarVisible(normalizedKey);
+  }
+
+  ZiweiFlowStarDisplayOptions withStarVisibility(String key, bool visible) {
+    final normalizedKey = normalizeFlowStarDisplayKey(key);
+    final nextVisibleStars = Map<String, bool>.from(visibleStars);
+    nextVisibleStars[normalizedKey] = visible;
+    return copyWith(visibleStars: nextVisibleStars);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -507,10 +537,54 @@ class ZiweiFlowStarDisplayOptions {
       other is ZiweiFlowStarDisplayOptions &&
           other.showBoshi12 == showBoshi12 &&
           other.showSuijian12 == showSuijian12 &&
-          other.showJiangqian12 == showJiangqian12;
+          other.showJiangqian12 == showJiangqian12 &&
+          _mapEquals(other.visibleStars, visibleStars);
 
   @override
-  int get hashCode => Object.hash(showBoshi12, showSuijian12, showJiangqian12);
+  int get hashCode {
+    final keys = visibleStars.keys.toList()..sort();
+    return Object.hash(
+      showBoshi12,
+      showSuijian12,
+      showJiangqian12,
+      Object.hashAll(
+        keys.map((key) => Object.hash(key, visibleStars[key])),
+      ),
+    );
+  }
+}
+
+const Set<String> _hiddenFlowStarsByDefault = <String>{
+  'flow_huoxing',
+  'flow_lingxing',
+};
+
+String normalizeFlowStarDisplayKey(String key) {
+  final trimmed = key.trim();
+  if (!trimmed.startsWith('flow_')) {
+    return trimmed;
+  }
+
+  for (final scope in ZiweiScope.values) {
+    final prefix = 'flow_${scope.name}_';
+    if (trimmed.startsWith(prefix)) {
+      return 'flow_${trimmed.substring(prefix.length)}';
+    }
+  }
+
+  return trimmed;
+}
+
+bool _defaultFlowStarVisible(String key) {
+  return !_hiddenFlowStarsByDefault.contains(normalizeFlowStarDisplayKey(key));
+}
+
+bool _mapEquals(Map<String, bool> a, Map<String, bool> b) {
+  if (a.length != b.length) return false;
+  for (final entry in a.entries) {
+    if (b[entry.key] != entry.value) return false;
+  }
+  return true;
 }
 
 class ZiweiAnimationOptions {
@@ -757,6 +831,7 @@ class ZiweiOptions with _$ZiweiOptions {
 }
 
 class AppSettings {
+  final int globalThemeSeedColor;
   final AppLanguage language;
   final bool useTrueSolarTime;
   final bool useAstronomicalYear;
@@ -768,6 +843,7 @@ class AppSettings {
   final ZiweiOptions ziweiOptions;
 
   const AppSettings({
+    this.globalThemeSeedColor = 0xFF546E7A,
     this.language = AppLanguage.zhCN,
     this.useTrueSolarTime = true,
     this.useAstronomicalYear = true,
@@ -780,6 +856,7 @@ class AppSettings {
   });
 
   AppSettings copyWith({
+    int? globalThemeSeedColor,
     AppLanguage? language,
     bool? useTrueSolarTime,
     bool? useAstronomicalYear,
@@ -791,6 +868,7 @@ class AppSettings {
     ZiweiOptions? ziweiOptions,
   }) {
     return AppSettings(
+      globalThemeSeedColor: globalThemeSeedColor ?? this.globalThemeSeedColor,
       language: language ?? this.language,
       useTrueSolarTime: useTrueSolarTime ?? this.useTrueSolarTime,
       useAstronomicalYear: useAstronomicalYear ?? this.useAstronomicalYear,
@@ -806,6 +884,7 @@ class AppSettings {
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     return AppSettings(
+      globalThemeSeedColor: json['globalThemeSeedColor'] as int? ?? 0xFF546E7A,
       language:
           $enumDecodeNullable(_$AppLanguageEnumMap, json['language']) ??
           AppLanguage.zhCN,
@@ -839,6 +918,7 @@ class AppSettings {
   }
 
   Map<String, dynamic> toJson() => {
+    'globalThemeSeedColor': globalThemeSeedColor,
     'language': _$AppLanguageEnumMap[language]!,
     'useTrueSolarTime': useTrueSolarTime,
     'useAstronomicalYear': useAstronomicalYear,
@@ -854,6 +934,7 @@ class AppSettings {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is AppSettings &&
+          other.globalThemeSeedColor == globalThemeSeedColor &&
           other.language == language &&
           other.useTrueSolarTime == useTrueSolarTime &&
           other.useAstronomicalYear == useAstronomicalYear &&
@@ -866,6 +947,7 @@ class AppSettings {
 
   @override
   int get hashCode => Object.hash(
+    globalThemeSeedColor,
     language,
     useTrueSolarTime,
     useAstronomicalYear,

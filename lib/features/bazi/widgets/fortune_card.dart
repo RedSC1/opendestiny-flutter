@@ -28,7 +28,7 @@ class FortuneCard extends StatelessWidget {
     required this.isSel,
     this.isCur = false,
     required this.onTap,
-    this.activeCol = Colors.deepPurple,
+    this.activeCol = const Color(0xFF546E7A),
     this.width = 62,
     this.isXiaoYunBlock = false,
     this.adaptiveScale = 1.0,
