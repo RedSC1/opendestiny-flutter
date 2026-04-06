@@ -30,6 +30,10 @@
   <a href="README_EN.md"><strong>English Version</strong></a>
 </p>
 
+<p align="center">
+  <strong>Notice:</strong> Ziwei/Dou Shu English localization is still under active development and may contain incomplete translations or display issues.
+</p>
+
 ---
 
 ## 🌟 项目简介

@@ -28,6 +28,10 @@
   <a href="https://opendestiny.redsc1.com/app/"><strong>Launch Web Demo</strong></a>
 </p>
 
+<p align="center">
+  <strong>Notice:</strong> Ziwei/Dou Shu English localization is still under active development and may contain incomplete translations or display issues.
+</p>
+
 ---
 
 ## 🌟 Introduction

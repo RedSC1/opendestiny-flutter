@@ -232,6 +232,10 @@ extension StringL10n on String {
     '连线图': {AppLanguage.en: 'Diagram', AppLanguage.zhTW: '連線圖'},
     '设置': {AppLanguage.en: 'Settings', AppLanguage.zhTW: '設置'},
     '关于': {AppLanguage.en: 'About', AppLanguage.zhTW: '關於'},
+    '禄': {AppLanguage.en: 'Lu', AppLanguage.zhTW: '祿'},
+    '权': {AppLanguage.en: 'Quan', AppLanguage.zhTW: '權'},
+    '科': {AppLanguage.en: 'Ke', AppLanguage.zhTW: '科'},
+    '忌': {AppLanguage.en: 'Ji', AppLanguage.zhTW: '忌'},
     '乾造': {AppLanguage.en: 'Male', AppLanguage.zhTW: '乾造'},
     '坤造': {AppLanguage.en: 'Female', AppLanguage.zhTW: '坤造'},
     '注：神煞功能暂未进行精确人工校对，结果仅供参考。': {
@@ -256,6 +260,75 @@ extension StringL10n on String {
       AppLanguage.en: 'Copy AI chart JSON',
       AppLanguage.zhTW: '複製 AI 命盤 JSON',
       AppLanguage.zhCN: '复制 AI 命盘 JSON',
+    },
+    '星曜显示预设': {
+      AppLanguage.en: 'Star Visibility Presets',
+      AppLanguage.zhTW: '星曜顯示預設',
+    },
+    '三合盘星曜显示': {
+      AppLanguage.en: 'Sanhe Star Visibility',
+      AppLanguage.zhTW: '三合盤星曜顯示',
+    },
+    '默认全量显示，适合总览本命结构': {
+      AppLanguage.en: 'Defaults to full display for overview reading.',
+      AppLanguage.zhTW: '默認全量顯示，適合總覽本命結構',
+    },
+    '四化盘星曜显示': {
+      AppLanguage.en: 'Sihua Star Visibility',
+      AppLanguage.zhTW: '四化盤星曜顯示',
+    },
+    '默认精简显示，减少四化信息干扰': {
+      AppLanguage.en: 'Defaults to compact display to reduce Sihua clutter.',
+      AppLanguage.zhTW: '默認精簡顯示，減少四化資訊干擾',
+    },
+    '飞星盘星曜显示': {
+      AppLanguage.en: 'Flying Star Visibility',
+      AppLanguage.zhTW: '飛星盤星曜顯示',
+    },
+    '默认精简显示，突出飞化与动态箭头': {
+      AppLanguage.en: 'Defaults to compact display to emphasize flying arrows.',
+      AppLanguage.zhTW: '默認精簡顯示，突出飛化與動態箭頭',
+    },
+    '全量显示': {
+      AppLanguage.en: 'Full Display',
+      AppLanguage.zhTW: '全量顯示',
+    },
+    '不屏蔽任何静态星曜': {
+      AppLanguage.en: 'Do not hide any static stars.',
+      AppLanguage.zhTW: '不屏蔽任何靜態星曜',
+    },
+    '精简显示': {
+      AppLanguage.en: 'Compact Display',
+      AppLanguage.zhTW: '精簡顯示',
+    },
+    '默认隐藏杂曜与十二神类静态星曜': {
+      AppLanguage.en: 'Hide minor stars and static twelve-spirit groups by default.',
+      AppLanguage.zhTW: '默認隱藏雜曜與十二神類靜態星曜',
+    },
+    '自定义 JSON': {
+      AppLanguage.en: 'Custom JSON',
+      AppLanguage.zhTW: '自定義 JSON',
+    },
+    '手动维护 blockedStars 屏蔽名单': {
+      AppLanguage.en: 'Maintain the blockedStars list manually.',
+      AppLanguage.zhTW: '手動維護 blockedStars 屏蔽名單',
+    },
+    '编辑自定义星曜显示名单': {
+      AppLanguage.en: 'Edit Custom Star Visibility List',
+      AppLanguage.zhTW: '編輯自定義星曜顯示名單',
+    },
+    '通过 blockedStars 数组屏蔽当前盘型的静态星曜': {
+      AppLanguage.en: 'Hide static stars for this chart mode via blockedStars.',
+      AppLanguage.zhTW: '通過 blockedStars 陣列屏蔽當前盤型的靜態星曜',
+    },
+    '仅支持通过 blockedStars 数组填写当前盘型要屏蔽的静态星曜 key。': {
+      AppLanguage.en:
+          'Only blockedStars is supported here, using static star keys for the current chart mode.',
+      AppLanguage.zhTW: '僅支援通過 blockedStars 陣列填寫當前盤型要屏蔽的靜態星曜 key。',
+    },
+    '星曜显示 JSON 格式无效': {
+      AppLanguage.en: 'Invalid star visibility JSON format',
+      AppLanguage.zhTW: '星曜顯示 JSON 格式無效',
     },
     '已复制 AI 命盘 JSON 到剪贴板': {
       AppLanguage.en: 'AI chart JSON copied to clipboard',

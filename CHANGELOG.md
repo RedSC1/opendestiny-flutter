@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.1
+
+### 🛠️ Fixes
+- **README Notice Update**: Added a clear notice to both Chinese and English READMEs that Ziwei/Dou Shu English localization is still in progress.
+- **Ziwei I18n Fill-ins**: Added missing localization entries for the new Ziwei center legend and static star visibility preset texts.
+
+### 📦 Dependency Updates
+- `bazi_core`: `^0.6.5`
+- `ziwei_core`: `^0.12.9`
+- `sxwnl_spa_dart`: `^0.18.4`
+
 ## 0.5.0
 
 ### 🛠️ Fixes
