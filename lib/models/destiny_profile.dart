@@ -3,6 +3,7 @@ import 'package:bazi_core/bazi_core.dart';
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../core/l10n.dart'; // ✅ 补上翻译层引用
 import 'package:ziwei_core/ziwei_core.dart';
+import 'ziwei_color_palette.dart';
 
 part 'destiny_profile.freezed.dart';
 part 'destiny_profile.g.dart';
@@ -759,6 +760,8 @@ class AppSettings {
   final bool useTrueSolarTime;
   final bool useAstronomicalYear;
   final RatHourMode ratHourMode;
+  final ZiweiColorMode ziweiColorMode;
+  final ZiweiColorPalette ziweiColorPalette;
   final BaziOptions baziOptions;
   final ZiweiOptions ziweiOptions;
 
@@ -767,6 +770,8 @@ class AppSettings {
     this.useTrueSolarTime = true,
     this.useAstronomicalYear = true,
     this.ratHourMode = RatHourMode.noSplit,
+    this.ziweiColorMode = ZiweiColorMode.classic,
+    this.ziweiColorPalette = const ZiweiColorPalette(),
     this.baziOptions = const BaziOptions(),
     this.ziweiOptions = const ZiweiOptions(),
   });
@@ -776,6 +781,8 @@ class AppSettings {
     bool? useTrueSolarTime,
     bool? useAstronomicalYear,
     RatHourMode? ratHourMode,
+    ZiweiColorMode? ziweiColorMode,
+    ZiweiColorPalette? ziweiColorPalette,
     BaziOptions? baziOptions,
     ZiweiOptions? ziweiOptions,
   }) {
@@ -784,6 +791,8 @@ class AppSettings {
       useTrueSolarTime: useTrueSolarTime ?? this.useTrueSolarTime,
       useAstronomicalYear: useAstronomicalYear ?? this.useAstronomicalYear,
       ratHourMode: ratHourMode ?? this.ratHourMode,
+      ziweiColorMode: ziweiColorMode ?? this.ziweiColorMode,
+      ziweiColorPalette: ziweiColorPalette ?? this.ziweiColorPalette,
       baziOptions: baziOptions ?? this.baziOptions,
       ziweiOptions: ziweiOptions ?? this.ziweiOptions,
     );
@@ -798,6 +807,15 @@ class AppSettings {
       useAstronomicalYear: json['useAstronomicalYear'] as bool? ?? true,
       ratHourMode:
           _ratHourModeFromJson(json['ratHourMode']) ?? RatHourMode.noSplit,
+      ziweiColorMode:
+          json['ziweiColorMode'] == 'custom'
+          ? ZiweiColorMode.custom
+          : ZiweiColorMode.classic,
+      ziweiColorPalette: json['ziweiColorPalette'] is Map
+          ? ZiweiColorPalette.fromJson(
+              Map<String, dynamic>.from(json['ziweiColorPalette'] as Map),
+            )
+          : const ZiweiColorPalette(),
       baziOptions: json['baziOptions'] == null
           ? const BaziOptions()
           : BaziOptions.fromJson(json['baziOptions'] as Map<String, dynamic>),
@@ -812,6 +830,8 @@ class AppSettings {
     'useTrueSolarTime': useTrueSolarTime,
     'useAstronomicalYear': useAstronomicalYear,
     'ratHourMode': _ratHourModeToJson(ratHourMode),
+    'ziweiColorMode': ziweiColorMode.name,
+    'ziweiColorPalette': ziweiColorPalette.toJson(),
     'baziOptions': baziOptions.toJson(),
     'ziweiOptions': ziweiOptions.toJson(),
   };
@@ -822,7 +842,10 @@ class AppSettings {
       other is AppSettings &&
           other.language == language &&
           other.useTrueSolarTime == useTrueSolarTime &&
+          other.useAstronomicalYear == useAstronomicalYear &&
           other.ratHourMode == ratHourMode &&
+          other.ziweiColorMode == ziweiColorMode &&
+          other.ziweiColorPalette == ziweiColorPalette &&
           other.baziOptions == baziOptions &&
           other.ziweiOptions == ziweiOptions;
 
@@ -830,7 +853,10 @@ class AppSettings {
   int get hashCode => Object.hash(
     language,
     useTrueSolarTime,
+    useAstronomicalYear,
     ratHourMode,
+    ziweiColorMode,
+    ziweiColorPalette,
     baziOptions,
     ziweiOptions,
   );

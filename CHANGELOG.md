@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.8
+
+### 🛠️ Fixes
+- **Split Rat Hour Consistency**: Synced the updated `ziwei_core 0.12.9` rat-hour logic so Ziwei charting now handles early/late Zi hour transitions consistently, including correct stem resolution, timeline labels, and rechart behavior when split rat hour is enabled.
+- **Split Rat Hour Blank Screen Fix**: Fixed a Ziwei chart rendering failure where enabling early/late Zi hour handling could leave the Ziwei chart page blank under certain recalculation paths.
+- **Dynamic Brightness Palette**: Reworked Ziwei custom color settings so brightness colors now follow the active brightness ruleset dynamically instead of being hardcoded to seven classic levels. Custom brightness profiles with arbitrary level counts now render and persist correctly.
+
+### 📦 Dependency Updates
+- `bazi_core`: `^0.6.5`
+- `ziwei_core`: `^0.12.9`
+- `sxwnl_spa_dart`: `^0.18.4`
+
 ## 0.4.7
 
 ### 🛠️ Fixes

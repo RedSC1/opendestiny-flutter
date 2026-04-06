@@ -973,6 +973,7 @@ class PalaceCellWidget extends ConsumerWidget {
       palace.branch,
       plate.ruleset.brightnessLabels,
     );
+    final brightnessIndex = _getBrightnessIndex(star);
     final brightnessFontSize = _starBrightnessFontSize(fontSize: fontSize);
     final color = ZiweiClassicTheme.getStarColor(star);
 
@@ -1105,15 +1106,13 @@ class PalaceCellWidget extends ConsumerWidget {
         if (!isCompactMode && brightness.isNotEmpty)
           FittedBox(
             child: Text(
-              brightness,
-              style: TextStyle(
-                fontSize: brightnessFontSize,
-                color: ZiweiClassicTheme.getBrightnessColor(
-                  _getBrightnessKey(star),
+                brightness,
+                style: TextStyle(
+                  fontSize: brightnessFontSize,
+                  color: ZiweiClassicTheme.getBrightnessColor(brightnessIndex),
+                  height: 1.1,
                 ),
-                height: 1.1,
               ),
-            ),
           ),
         // 四化角标 (实心高亮圆扣)
         if (sihuaBadges.isNotEmpty)
@@ -1778,16 +1777,14 @@ class PalaceCellWidget extends ConsumerWidget {
     );
   }
 
-  String _getBrightnessKey(Star star) {
+  int _getBrightnessIndex(Star star) {
     if (star is StaticStar) {
-      final bIndex = star.getBrightness(palace.branch);
-      return plate.ruleset.brightnessLabels[bIndex] ?? 'level_none';
+      return star.getBrightness(palace.branch);
     }
     if (star is FlowStar) {
-      final bIndex = star.getBrightness(palace.branch);
-      return plate.ruleset.brightnessLabels[bIndex] ?? 'level_none';
+      return star.getBrightness(palace.branch);
     }
-    return 'level_none';
+    return -1;
   }
 
   /// 构建动态水印组件 (纯净版数字)

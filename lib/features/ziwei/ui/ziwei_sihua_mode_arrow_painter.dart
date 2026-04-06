@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:ziwei_core/ziwei_core.dart';
+import 'ziwei_classic_theme.dart';
 
 enum _RouteStyle { top, bottom, left, right }
 
@@ -402,16 +403,7 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
   }
 
   Color _labelColor(SiHuaType type) {
-    switch (type) {
-      case SiHuaType.lu:
-        return const Color(0xFF2E7D32);
-      case SiHuaType.quan:
-        return const Color(0xFFEF6C00);
-      case SiHuaType.ke:
-        return const Color(0xFF1565C0);
-      case SiHuaType.ji:
-        return const Color(0xFFC62828);
-    }
+    return ZiweiClassicTheme.getSihuaColor(type);
   }
 
   double _getShiftAmount(int index, double baseStep) {

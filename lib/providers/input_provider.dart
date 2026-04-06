@@ -1,11 +1,13 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/destiny_profile.dart';
+import '../models/ziwei_color_palette.dart';
 import 'package:bazi_core/bazi_core.dart';
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../core/app_settings_storage.dart';
 import '../core/case_repository.dart';
 import '../core/case_storage.dart';
 import '../core/l10n.dart'; 
+import '../core/ziwei_theme_runtime.dart';
 
 part 'input_provider.g.dart';
 
@@ -51,6 +53,10 @@ class InputNotifier extends _$InputNotifier {
   @override
   DestinyProfile build() {
     _settings = const AppSettings();
+    ZiweiThemeRuntime.update(
+      mode: _settings.ziweiColorMode,
+      palette: _settings.ziweiColorPalette,
+    );
     _currentCase = DestinyCase.initial();
     final initial = _composeProfile();
     AppL10nSettings.currentLanguage = _settings.language;
@@ -161,6 +167,16 @@ void updateAstronomicalYearMode(bool value) {
 
 void updateRatHourMode(RatHourMode mode) {
     _settings = _settings.copyWith(ratHourMode: mode);
+    _updateProfile();
+  }
+
+  void updateZiweiColorMode(ZiweiColorMode mode) {
+    _settings = _settings.copyWith(ziweiColorMode: mode);
+    _updateProfile();
+  }
+
+  void updateZiweiColorPalette(ZiweiColorPalette palette) {
+    _settings = _settings.copyWith(ziweiColorPalette: palette);
     _updateProfile();
   }
 
@@ -427,6 +443,10 @@ void updateRatHourMode(RatHourMode mode) {
   void _updateProfile() {
     _mutationVersion++;
     final persistVersion = _mutationVersion;
+    ZiweiThemeRuntime.update(
+      mode: _settings.ziweiColorMode,
+      palette: _settings.ziweiColorPalette,
+    );
     state = _composeProfile();
     AppL10nSettings.currentLanguage = _settings.language;
     _persist(
@@ -452,6 +472,10 @@ void updateRatHourMode(RatHourMode mode) {
 
       if (startVersion == _mutationVersion) {
         _settings = _normalizeZiweiProfiles(nextSettings);
+        ZiweiThemeRuntime.update(
+          mode: _settings.ziweiColorMode,
+          palette: _settings.ziweiColorPalette,
+        );
         _currentCase = nextCase;
         await _refreshCaseSummaries();
         state = _composeProfile();

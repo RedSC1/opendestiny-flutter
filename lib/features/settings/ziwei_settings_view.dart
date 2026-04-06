@@ -6,8 +6,11 @@ import 'package:ziwei_core/ziwei_core.dart';
 import '../../core/json_text_transfer.dart';
 import '../../providers/input_provider.dart';
 import '../../models/destiny_profile.dart';
+import '../../models/ziwei_color_palette.dart';
 import '../../core/l10n.dart';
 import '../../core/ziwei_l10n.dart';
+import '../ziwei/providers/ziwei_providers.dart';
+import 'ziwei_color_palette_editor.dart';
 
 final JsonTextTransfer _jsonTextTransfer = JsonTextTransfer();
 
@@ -18,6 +21,8 @@ class ZiweiSettingsView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(inputNotifierProvider);
     final options = profile.ziweiOptions;
+    final settings = ref.watch(appSettingsProvider);
+    final brightnessLabels = ref.watch(ziweiRulesetProvider).brightnessLabels;
 
     return Scaffold(
       appBar: AppBar(title: Text('紫微排盘流派设置'.tr)),
@@ -312,6 +317,59 @@ class ZiweiSettingsView extends ConsumerWidget {
                           type: ZiweiCustomProfileType.stars,
                           title: '自定义星曜流派'.tr,
                           createDefaultJson: _defaultCustomStarsJson,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+          const Divider(),
+          _buildSectionTitle('盘面配色'.tr),
+          RadioListTile<ZiweiColorMode>(
+            title: Text('经典配色'.tr),
+            subtitle: Text('使用内置紫微经典配色方案'.tr),
+            value: ZiweiColorMode.classic,
+            groupValue: settings.ziweiColorMode,
+            onChanged: (val) {
+              if (val != null) {
+                ref.read(inputNotifierProvider.notifier).updateZiweiColorMode(val);
+              }
+            },
+          ),
+          RadioListTile<ZiweiColorMode>(
+            title: Text('自定义配色'.tr),
+            subtitle: Text('分别调整四化、流运与静态星曜颜色'.tr),
+            value: ZiweiColorMode.custom,
+            groupValue: settings.ziweiColorMode,
+            onChanged: (val) {
+              if (val != null) {
+                ref.read(inputNotifierProvider.notifier).updateZiweiColorMode(val);
+              }
+            },
+          ),
+          if (settings.ziweiColorMode == ZiweiColorMode.custom)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: ListTile(
+                  leading: const Icon(Icons.palette_outlined),
+                  title: Text('编辑自定义配色'.tr),
+                  subtitle: Text('分别调整四化、亮度、流运和静态星曜分类颜色'.tr),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ZiweiColorPaletteEditorPage(
+                          initialPalette: settings.ziweiColorPalette,
+                          brightnessLabels: brightnessLabels,
+                          onChanged: (palette) {
+                            ref
+                                .read(inputNotifierProvider.notifier)
+                                .updateZiweiColorPalette(palette);
+                          },
                         ),
                       ),
                     );
