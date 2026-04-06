@@ -260,6 +260,11 @@ class CenterInfoWidget extends ConsumerWidget {
                           ),
                         );
                       }),
+                      SizedBox(height: s(2)),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: _buildSihuaLegend(s),
+                      ),
                     ],
                   ),
 
@@ -304,6 +309,43 @@ class CenterInfoWidget extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSihuaLegend(double Function(num value) s) {
+    TextSpan item(String label, Color color) {
+      return TextSpan(
+        text: label.tr,
+        style: TextStyle(
+          fontSize: s(10.2.ts),
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      );
+    }
+
+    TextSpan gap() => TextSpan(
+      text: '   ',
+      style: TextStyle(
+        fontSize: s(10.2.ts),
+        fontWeight: FontWeight.w700,
+        color: ZiweiClassicTheme.decadeAgeColor,
+      ),
+    );
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          item('禄', ZiweiClassicTheme.sihuaLu),
+          gap(),
+          item('权', ZiweiClassicTheme.sihuaQuan),
+          gap(),
+          item('科', ZiweiClassicTheme.sihuaKe),
+          gap(),
+          item('忌', ZiweiClassicTheme.sihuaJi),
+        ],
+      ),
+      textAlign: TextAlign.center,
     );
   }
 
@@ -459,14 +501,18 @@ class CenterInfoWidget extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 1.1),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  d.startTime.year.formatYear(useAstronomical),
-                  softWrap: false,
-                  style: TextStyle(fontSize: 8.8.ts, color: Colors.black38),
-                ),
-              ),
+               FittedBox(
+                 fit: BoxFit.scaleDown,
+                 child: Text(
+                   d.startTime.year.formatYear(useAstronomical),
+                   softWrap: false,
+                   style: TextStyle(
+                     fontSize: 8.8.ts,
+                     fontWeight: FontWeight.w500,
+                     color: ZiweiClassicTheme.subLabelColor,
+                   ),
+                 ),
+               ),
             ],
           ),
         );

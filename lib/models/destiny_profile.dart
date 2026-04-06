@@ -4,6 +4,7 @@ import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../core/l10n.dart'; // ✅ 补上翻译层引用
 import 'package:ziwei_core/ziwei_core.dart';
 import 'ziwei_color_palette.dart';
+import 'ziwei_star_visibility.dart';
 
 part 'destiny_profile.freezed.dart';
 part 'destiny_profile.g.dart';
@@ -762,6 +763,7 @@ class AppSettings {
   final RatHourMode ratHourMode;
   final ZiweiColorMode ziweiColorMode;
   final ZiweiColorPalette ziweiColorPalette;
+  final ZiweiStarVisibilitySettings ziweiStarVisibilitySettings;
   final BaziOptions baziOptions;
   final ZiweiOptions ziweiOptions;
 
@@ -772,6 +774,7 @@ class AppSettings {
     this.ratHourMode = RatHourMode.noSplit,
     this.ziweiColorMode = ZiweiColorMode.classic,
     this.ziweiColorPalette = const ZiweiColorPalette(),
+    this.ziweiStarVisibilitySettings = const ZiweiStarVisibilitySettings(),
     this.baziOptions = const BaziOptions(),
     this.ziweiOptions = const ZiweiOptions(),
   });
@@ -783,6 +786,7 @@ class AppSettings {
     RatHourMode? ratHourMode,
     ZiweiColorMode? ziweiColorMode,
     ZiweiColorPalette? ziweiColorPalette,
+    ZiweiStarVisibilitySettings? ziweiStarVisibilitySettings,
     BaziOptions? baziOptions,
     ZiweiOptions? ziweiOptions,
   }) {
@@ -793,6 +797,8 @@ class AppSettings {
       ratHourMode: ratHourMode ?? this.ratHourMode,
       ziweiColorMode: ziweiColorMode ?? this.ziweiColorMode,
       ziweiColorPalette: ziweiColorPalette ?? this.ziweiColorPalette,
+      ziweiStarVisibilitySettings:
+          ziweiStarVisibilitySettings ?? this.ziweiStarVisibilitySettings,
       baziOptions: baziOptions ?? this.baziOptions,
       ziweiOptions: ziweiOptions ?? this.ziweiOptions,
     );
@@ -816,6 +822,13 @@ class AppSettings {
               Map<String, dynamic>.from(json['ziweiColorPalette'] as Map),
             )
           : const ZiweiColorPalette(),
+      ziweiStarVisibilitySettings: json['ziweiStarVisibilitySettings'] is Map
+          ? ZiweiStarVisibilitySettings.fromJson(
+              Map<String, dynamic>.from(
+                json['ziweiStarVisibilitySettings'] as Map,
+              ),
+            )
+          : const ZiweiStarVisibilitySettings(),
       baziOptions: json['baziOptions'] == null
           ? const BaziOptions()
           : BaziOptions.fromJson(json['baziOptions'] as Map<String, dynamic>),
@@ -832,6 +845,7 @@ class AppSettings {
     'ratHourMode': _ratHourModeToJson(ratHourMode),
     'ziweiColorMode': ziweiColorMode.name,
     'ziweiColorPalette': ziweiColorPalette.toJson(),
+    'ziweiStarVisibilitySettings': ziweiStarVisibilitySettings.toJson(),
     'baziOptions': baziOptions.toJson(),
     'ziweiOptions': ziweiOptions.toJson(),
   };
@@ -846,6 +860,7 @@ class AppSettings {
           other.ratHourMode == ratHourMode &&
           other.ziweiColorMode == ziweiColorMode &&
           other.ziweiColorPalette == ziweiColorPalette &&
+          other.ziweiStarVisibilitySettings == ziweiStarVisibilitySettings &&
           other.baziOptions == baziOptions &&
           other.ziweiOptions == ziweiOptions;
 
@@ -857,6 +872,7 @@ class AppSettings {
     ratHourMode,
     ziweiColorMode,
     ziweiColorPalette,
+    ziweiStarVisibilitySettings,
     baziOptions,
     ziweiOptions,
   );

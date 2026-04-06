@@ -7,6 +7,7 @@ import '../../core/json_text_transfer.dart';
 import '../../providers/input_provider.dart';
 import '../../models/destiny_profile.dart';
 import '../../models/ziwei_color_palette.dart';
+import '../../models/ziwei_star_visibility.dart';
 import '../../core/l10n.dart';
 import '../../core/ziwei_l10n.dart';
 import '../ziwei/providers/ziwei_providers.dart';
@@ -22,7 +23,9 @@ class ZiweiSettingsView extends ConsumerWidget {
     final profile = ref.watch(inputNotifierProvider);
     final options = profile.ziweiOptions;
     final settings = ref.watch(appSettingsProvider);
-    final brightnessLabels = ref.watch(ziweiRulesetProvider).brightnessLabels;
+    final ruleset = ref.watch(ziweiRulesetProvider);
+    final brightnessLabels = ruleset.brightnessLabels;
+    final visibilitySettings = settings.ziweiStarVisibilitySettings;
 
     return Scaffold(
       appBar: AppBar(title: Text('紫微排盘流派设置'.tr)),
@@ -324,6 +327,36 @@ class ZiweiSettingsView extends ConsumerWidget {
                 ),
               ),
             ),
+
+          const Divider(),
+          _buildSectionTitle('星曜显示预设'.tr),
+          _buildVisibilityModeGroup(
+            context: context,
+            ref: ref,
+            title: '三合盘星曜显示'.tr,
+            subtitle: '默认全量显示，适合总览本命结构'.tr,
+            target: ZiweiStarVisibilityTarget.sanhe,
+            settings: visibilitySettings,
+            compactJson: _defaultCompactVisibilityJson(ruleset),
+          ),
+          _buildVisibilityModeGroup(
+            context: context,
+            ref: ref,
+            title: '四化盘星曜显示'.tr,
+            subtitle: '默认精简显示，减少四化信息干扰'.tr,
+            target: ZiweiStarVisibilityTarget.sihua,
+            settings: visibilitySettings,
+            compactJson: _defaultCompactVisibilityJson(ruleset),
+          ),
+          _buildVisibilityModeGroup(
+            context: context,
+            ref: ref,
+            title: '飞星盘星曜显示'.tr,
+            subtitle: '默认精简显示，突出飞化与动态箭头'.tr,
+            target: ZiweiStarVisibilityTarget.flying,
+            settings: visibilitySettings,
+            compactJson: _defaultCompactVisibilityJson(ruleset),
+          ),
 
           const Divider(),
           _buildSectionTitle('盘面配色'.tr),
@@ -821,6 +854,188 @@ class ZiweiSettingsView extends ConsumerWidget {
 
   void _updateOptions(WidgetRef ref, ZiweiOptions newOptions) {
     ref.read(inputNotifierProvider.notifier).updateZiweiOptions(newOptions);
+  }
+
+  void _updateVisibilitySettings(
+    WidgetRef ref,
+    ZiweiStarVisibilitySettings settings,
+  ) {
+    ref
+        .read(inputNotifierProvider.notifier)
+        .updateZiweiStarVisibilitySettings(settings);
+  }
+
+  String _defaultFullVisibilityJson() {
+    return const JsonEncoder.withIndent('  ').convert(const {
+      'blockedStars': <String>[],
+    });
+  }
+
+  String _defaultCompactVisibilityJson(ZiweiRuleset ruleset) {
+    final blocked = ruleset.stars
+        .where(
+          (star) =>
+              star.type == StarType.minor ||
+              star.type == StarType.changsheng12 ||
+              star.type == StarType.boshi12 ||
+              star.type == StarType.suijian12 ||
+              star.type == StarType.jiangqian12,
+        )
+        .map((star) => star.key)
+        .toSet()
+        .toList()
+      ..sort();
+    return const JsonEncoder.withIndent('  ').convert({
+      'blockedStars': blocked,
+    });
+  }
+
+  Widget _buildVisibilityModeGroup({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String title,
+    required String subtitle,
+    required ZiweiStarVisibilityTarget target,
+    required ZiweiStarVisibilitySettings settings,
+    required String compactJson,
+  }) {
+    final mode = settings.modeFor(target);
+    final currentCustomJson = settings.customJsonFor(target);
+
+    ZiweiStarVisibilitySettings updateMode(ZiweiStarVisibilityMode nextMode) {
+      final seedJson = switch (mode) {
+        ZiweiStarVisibilityMode.full => _defaultFullVisibilityJson(),
+        ZiweiStarVisibilityMode.compact => compactJson,
+        ZiweiStarVisibilityMode.custom =>
+          currentCustomJson.isEmpty ? compactJson : currentCustomJson,
+      };
+
+      switch (target) {
+        case ZiweiStarVisibilityTarget.sanhe:
+          return settings.copyWith(
+            sanheMode: nextMode,
+            customSanheJson:
+                currentCustomJson.isEmpty && nextMode == ZiweiStarVisibilityMode.custom
+                ? seedJson
+                : null,
+          );
+        case ZiweiStarVisibilityTarget.sihua:
+          return settings.copyWith(
+            sihuaMode: nextMode,
+            customSihuaJson:
+                currentCustomJson.isEmpty && nextMode == ZiweiStarVisibilityMode.custom
+                ? seedJson
+                : null,
+          );
+        case ZiweiStarVisibilityTarget.flying:
+          return settings.copyWith(
+            flyingMode: nextMode,
+            customFlyingJson:
+                currentCustomJson.isEmpty && nextMode == ZiweiStarVisibilityMode.custom
+                ? seedJson
+                : null,
+          );
+      }
+    }
+
+    void saveCustomJson(String jsonText) {
+      final normalized = ZiweiStarVisibilityConfig.normalizeJson(jsonText);
+      switch (target) {
+        case ZiweiStarVisibilityTarget.sanhe:
+          _updateVisibilitySettings(
+            ref,
+            settings.copyWith(customSanheJson: normalized),
+          );
+          break;
+        case ZiweiStarVisibilityTarget.sihua:
+          _updateVisibilitySettings(
+            ref,
+            settings.copyWith(customSihuaJson: normalized),
+          );
+          break;
+        case ZiweiStarVisibilityTarget.flying:
+          _updateVisibilitySettings(
+            ref,
+            settings.copyWith(customFlyingJson: normalized),
+          );
+          break;
+      }
+    }
+
+    return Column(
+      children: [
+        _buildSubsectionTitle(title),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              subtitle,
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ),
+        ),
+        RadioListTile<ZiweiStarVisibilityMode>(
+          title: Text('全量显示'.tr),
+          subtitle: Text('不屏蔽任何静态星曜'.tr),
+          value: ZiweiStarVisibilityMode.full,
+          groupValue: mode,
+          onChanged: (value) {
+            if (value != null) {
+              _updateVisibilitySettings(ref, updateMode(value));
+            }
+          },
+        ),
+        RadioListTile<ZiweiStarVisibilityMode>(
+          title: Text('精简显示'.tr),
+          subtitle: Text('默认隐藏杂曜与十二神类静态星曜'.tr),
+          value: ZiweiStarVisibilityMode.compact,
+          groupValue: mode,
+          onChanged: (value) {
+            if (value != null) {
+              _updateVisibilitySettings(ref, updateMode(value));
+            }
+          },
+        ),
+        RadioListTile<ZiweiStarVisibilityMode>(
+          title: Text('自定义 JSON'.tr),
+          subtitle: Text('手动维护 blockedStars 屏蔽名单'.tr),
+          value: ZiweiStarVisibilityMode.custom,
+          groupValue: mode,
+          onChanged: (value) {
+            if (value != null) {
+              _updateVisibilitySettings(ref, updateMode(value));
+            }
+          },
+        ),
+        if (mode == ZiweiStarVisibilityMode.custom)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: Card(
+              margin: EdgeInsets.zero,
+              child: ListTile(
+                leading: const Icon(Icons.code_outlined),
+                title: Text('编辑自定义星曜显示名单'.tr),
+                subtitle: Text('通过 blockedStars 数组屏蔽当前盘型的静态星曜'.tr),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  final initialJson =
+                      currentCustomJson.isEmpty ? compactJson : currentCustomJson;
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => _ZiweiStarVisibilityEditorPage(
+                        title: title,
+                        initialJson: initialJson,
+                        onChanged: saveCustomJson,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   Widget _buildSectionTitle(String title) {
@@ -1346,6 +1561,91 @@ class _ZiweiProfileTile extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ZiweiStarVisibilityEditorPage extends StatefulWidget {
+  const _ZiweiStarVisibilityEditorPage({
+    required this.title,
+    required this.initialJson,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String initialJson;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_ZiweiStarVisibilityEditorPage> createState() =>
+      _ZiweiStarVisibilityEditorPageState();
+}
+
+class _ZiweiStarVisibilityEditorPageState
+    extends State<_ZiweiStarVisibilityEditorPage> {
+  late final TextEditingController _controller;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialJson);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleChanged(String value) {
+    try {
+      final normalized = ZiweiStarVisibilityConfig.normalizeJson(value);
+      setState(() {
+        _error = null;
+      });
+      widget.onChanged(normalized);
+    } catch (_) {
+      setState(() {
+        _error = '星曜显示 JSON 格式无效'.tr;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '仅支持通过 blockedStars 数组填写当前盘型要屏蔽的静态星曜 key。'.tr,
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                minLines: null,
+                maxLines: null,
+                expands: true,
+                onChanged: _handleChanged,
+                decoration: InputDecoration(
+                  hintText:
+                      '{\n  "blockedStars": [\n    "tianyao",\n    "jiesha"\n  ]\n}',
+                  border: const OutlineInputBorder(),
+                  errorText: _error,
+                  alignLabelWithHint: true,
+                ),
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+              ),
+            ),
+          ],
         ),
       ),
     );

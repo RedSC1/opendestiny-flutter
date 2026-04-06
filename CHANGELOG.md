@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0
+
+### 🛠️ Fixes
+- **Center Legend & Readability**: Added a lightweight `禄 权 科 忌` color legend in the Ziwei center panel and darkened the fortune-year labels under the center Bazi block for better readability.
+- **Static Star Visibility Presets**: Added per-mode static star visibility presets for `三合 / 四化 / 飞星`, with defaults set to `full / compact / compact`.
+- **Custom Star Visibility JSON**: Added raw JSON editing for static star visibility so each chart mode can maintain its own `blockedStars` list without affecting flow-star rendering.
+
+### 📦 Dependency Updates
+- `bazi_core`: `^0.6.5`
+- `ziwei_core`: `^0.12.9`
+- `sxwnl_spa_dart`: `^0.18.4`
+
 ## 0.4.8
 
 ### 🛠️ Fixes

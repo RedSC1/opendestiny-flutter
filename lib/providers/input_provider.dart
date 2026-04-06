@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/destiny_profile.dart';
 import '../models/ziwei_color_palette.dart';
+import '../models/ziwei_star_visibility.dart';
 import 'package:bazi_core/bazi_core.dart';
 import 'package:sxwnl_spa_dart/sxwnl_spa_dart.dart';
 import '../core/app_settings_storage.dart';
@@ -167,6 +168,13 @@ void updateAstronomicalYearMode(bool value) {
 
 void updateRatHourMode(RatHourMode mode) {
     _settings = _settings.copyWith(ratHourMode: mode);
+    _updateProfile();
+  }
+
+  void updateZiweiStarVisibilitySettings(
+    ZiweiStarVisibilitySettings settings,
+  ) {
+    _settings = _settings.copyWith(ziweiStarVisibilitySettings: settings);
     _updateProfile();
   }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // 新增导入
 import 'package:ziwei_core/ziwei_core.dart';
@@ -7,6 +9,7 @@ import 'ziwei_classic_theme.dart';
 import '../../../core/l10n.dart';
 import '../../../core/ziwei_l10n.dart';
 import '../../../models/destiny_profile.dart';
+import '../../../models/ziwei_star_visibility.dart';
 import '../../../providers/input_provider.dart';
 
 /// 经典风格的单宫位渲染组件
@@ -79,17 +82,36 @@ class PalaceCellWidget extends ConsumerWidget {
     final enableFlyingStarArrow = ziweiOptions.animation.enableFlyingStarArrow;
     final enablePalaceHighlightEffect =
         ziweiOptions.animation.enablePalaceHighlightEffect;
-    final useAstronomical = ref.watch(appSettingsProvider).useAstronomicalYear;
-    final splitRatHour =
-        ref.watch(appSettingsProvider).ratHourMode != RatHourMode.noSplit;
+    final appSettings = ref.watch(appSettingsProvider);
+    final useAstronomical = appSettings.useAstronomicalYear;
+    final splitRatHour = appSettings.ratHourMode != RatHourMode.noSplit;
+    final blockedStarKeys = _resolveBlockedStarKeys(
+      chartMode,
+      appSettings.ziweiStarVisibilitySettings,
+    );
     final flowStars = isCompactMode ? const <FlowStar>[] : _collectOverlayFlowStars();
 
     // 分类星曜
-    final majorStars = palace.stars[StarType.major] ?? [];
-    final luckyStars = palace.stars[StarType.lucky] ?? [];
-    final badStars = palace.stars[StarType.bad] ?? [];
-    final minorStars = palace.stars[StarType.minor] ?? [];
-    final changshengStars = palace.stars[StarType.changsheng12] ?? [];
+    final majorStars = _filterBlockedStaticStars(
+      palace.stars[StarType.major] ?? [],
+      blockedStarKeys,
+    );
+    final luckyStars = _filterBlockedStaticStars(
+      palace.stars[StarType.lucky] ?? [],
+      blockedStarKeys,
+    );
+    final badStars = _filterBlockedStaticStars(
+      palace.stars[StarType.bad] ?? [],
+      blockedStarKeys,
+    );
+    final minorStars = _filterBlockedStaticStars(
+      palace.stars[StarType.minor] ?? [],
+      blockedStarKeys,
+    );
+    final changshengStars = _filterBlockedStaticStars(
+      palace.stars[StarType.changsheng12] ?? [],
+      blockedStarKeys,
+    );
     // 所有顶部可展示星曜（主星 + 吉星 + 煞星 + 乙级）
     final topStars = isCompactMode
         ? _buildFlyingTopStars(
@@ -101,9 +123,18 @@ class PalaceCellWidget extends ConsumerWidget {
         : [...majorStars, ...luckyStars, ...badStars, ...minorStars];
 
     // 三组十二神（放在底部左下角）
-    final boshiStars = palace.stars[StarType.boshi12] ?? [];
-    final suijianStars = palace.stars[StarType.suijian12] ?? [];
-    final jiangqianStars = palace.stars[StarType.jiangqian12] ?? [];
+    final boshiStars = _filterBlockedStaticStars(
+      palace.stars[StarType.boshi12] ?? [],
+      blockedStarKeys,
+    );
+    final suijianStars = _filterBlockedStaticStars(
+      palace.stars[StarType.suijian12] ?? [],
+      blockedStarKeys,
+    );
+    final jiangqianStars = _filterBlockedStaticStars(
+      palace.stars[StarType.jiangqian12] ?? [],
+      blockedStarKeys,
+    );
     final shenshaLines = isCompactMode
         ? const <_BottomShenshaLine>[]
         : _buildBottomShenshaLines(
@@ -1775,6 +1806,54 @@ class PalaceCellWidget extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: text.characters.map((c) => Text(c, style: style)).toList(),
     );
+  }
+
+  List<Star> _filterBlockedStaticStars(List<Star> stars, Set<String> blockedKeys) {
+    if (blockedKeys.isEmpty) {
+      return stars;
+    }
+    return stars.where((star) => !blockedKeys.contains(star.key)).toList();
+  }
+
+  Set<String> _resolveBlockedStarKeys(
+    ZiweiChartMode chartMode,
+    ZiweiStarVisibilitySettings settings,
+  ) {
+    final target = chartMode == ZiweiChartMode.sanhe
+        ? ZiweiStarVisibilityTarget.sanhe
+        : chartMode == ZiweiChartMode.sihua
+        ? ZiweiStarVisibilityTarget.sihua
+        : ZiweiStarVisibilityTarget.flying;
+    final mode = settings.modeFor(target);
+    if (mode == ZiweiStarVisibilityMode.full) {
+      return const <String>{};
+    }
+    if (mode == ZiweiStarVisibilityMode.compact) {
+      return plate.ruleset.stars
+          .where(
+            (star) =>
+                star.type == StarType.minor ||
+                star.type == StarType.changsheng12 ||
+                star.type == StarType.boshi12 ||
+                star.type == StarType.suijian12 ||
+                star.type == StarType.jiangqian12,
+          )
+          .map((star) => star.key)
+          .toSet();
+    }
+
+    final jsonText = settings.customJsonFor(target);
+    if (jsonText.trim().isEmpty) {
+      return const <String>{};
+    }
+
+    try {
+      return ZiweiStarVisibilityConfig.fromJson(
+        Map<String, dynamic>.from(jsonDecode(jsonText) as Map),
+      ).blockedStarSet;
+    } catch (_) {
+      return const <String>{};
+    }
   }
 
   int _getBrightnessIndex(Star star) {
