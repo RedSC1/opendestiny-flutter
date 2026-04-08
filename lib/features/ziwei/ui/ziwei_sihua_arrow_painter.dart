@@ -30,10 +30,12 @@ class _PalaceBoundary {
 class ZiweiSihuaArrowPainter extends CustomPainter {
   final ZiWeiPlate plate;
   final double edgeMargin;
+  final double scale;
 
   const ZiweiSihuaArrowPainter({
     required this.plate,
     required this.edgeMargin,
+    this.scale = 1.0,
   });
 
   @override
@@ -122,10 +124,10 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
     required _ArrowTask task,
     required int offsetIndex,
   }) {
-    const arrowLength = 10.0;
-    const strokeWidth = 1.5;
-    const arrowHeadLength = 4.5;
-    final shiftAmount = _getShiftAmount(offsetIndex, 8.0);
+    final arrowLength = 10.0 * scale;
+    final strokeWidth = 1.5 * scale;
+    final arrowHeadLength = 4.5 * scale;
+    final shiftAmount = _getShiftAmount(offsetIndex, 8.0 * scale);
 
     late final Offset start;
     late final Offset end;
@@ -143,7 +145,7 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
 
     final paint = Paint()
       ..color = ZiweiClassicTheme.getSihuaColor(task.sihuaType)
-      ..strokeWidth = strokeWidth
+      ..strokeWidth = strokeWidth.clamp(1.0, 4.0)
       ..style = PaintingStyle.stroke;
 
     canvas.drawLine(start, end, paint);
@@ -292,6 +294,8 @@ class ZiweiSihuaArrowPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ZiweiSihuaArrowPainter oldDelegate) {
-    return oldDelegate.plate != plate || oldDelegate.edgeMargin != edgeMargin;
+    return oldDelegate.plate != plate ||
+        oldDelegate.edgeMargin != edgeMargin ||
+        oldDelegate.scale != scale;
   }
 }

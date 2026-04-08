@@ -52,12 +52,14 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
   final double edgeMargin;
   final Map<String, Rect> starRects;
   final Map<String, Rect> badgeRects;
+  final double scale;
 
   const ZiweiSihuaModeArrowPainter({
     required this.plate,
     required this.edgeMargin,
     required this.starRects,
     required this.badgeRects,
+    this.scale = 1.0,
   });
 
   @override
@@ -173,11 +175,11 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
     final direction = _normalize(endAnchor - startAnchor);
     if (direction.distance == 0) return;
 
-    final start = startAnchor + (direction * 3.0);
-    final end = endAnchor - (direction * 3.0);
+    final start = startAnchor + (direction * 3.0 * scale);
+    final end = endAnchor - (direction * 3.0 * scale);
     final paint = Paint()
       ..color = _lineColor
-      ..strokeWidth = 1.6
+      ..strokeWidth = (1.6 * scale).clamp(1.0, 4.0)
       ..style = PaintingStyle.stroke;
 
     canvas.drawLine(start, end, paint);
@@ -185,8 +187,9 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
     final aToB = bucket.aToB.toList()..sort((x, y) => x.index.compareTo(y.index));
     final bToA = bucket.bToA.toList()..sort((x, y) => x.index.compareTo(y.index));
 
+    final arrowHeadLength = 5.0 * scale;
     if (aToB.isNotEmpty) {
-      _drawArrowHead(canvas, start, end, paint, 5.0);
+      _drawArrowHead(canvas, start, end, paint, arrowHeadLength);
       _drawLabelList(
         canvas,
         endPoint: end,
@@ -196,7 +199,7 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
     }
 
     if (bToA.isNotEmpty) {
-      _drawArrowHead(canvas, end, start, paint, 5.0);
+      _drawArrowHead(canvas, end, start, paint, arrowHeadLength);
       _drawLabelList(
         canvas,
         endPoint: start,
@@ -216,9 +219,10 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
     final anchor = _resolveOutwardAnchor(task, cellRect, boundary);
     final paint = Paint()
       ..color = _lineColor
-      ..strokeWidth = 1.6
+      ..strokeWidth = (1.6 * scale).clamp(1.0, 4.0)
       ..style = PaintingStyle.stroke;
 
+    final arrowHeadLength = 5.0 * scale;
     if (boundary.routeStyle == _RouteStyle.top ||
         boundary.routeStyle == _RouteStyle.bottom) {
       final end = boundary.routeStyle == _RouteStyle.top
@@ -226,7 +230,7 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
           : Offset(anchor.dx, outerGuideRect.bottom);
       canvas.drawLine(anchor, end, paint);
       final direction = _normalize(end - anchor);
-      _drawArrowHead(canvas, anchor, end, paint, 5.0);
+      _drawArrowHead(canvas, anchor, end, paint, arrowHeadLength);
       _drawLabelList(
         canvas,
         endPoint: end,
@@ -237,7 +241,10 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
     }
 
     final safeBottom = _palaceObstacleBottom(task.palace.index, cellRect);
-    final bendY = math.max(anchor.dy + 10.0, safeBottom + 6.0 + task.laneIndex * 12.0);
+    final bendY = math.max(
+      anchor.dy + 10.0 * scale,
+      safeBottom + 6.0 * scale + task.laneIndex * 12.0 * scale,
+    );
     final endX =
         boundary.routeStyle == _RouteStyle.left ? outerGuideRect.left : outerGuideRect.right;
     final firstBend = Offset(anchor.dx, bendY);
@@ -250,7 +257,7 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     final direction = _normalize(end - firstBend);
-    _drawArrowHead(canvas, firstBend, end, paint, 5.0);
+    _drawArrowHead(canvas, firstBend, end, paint, arrowHeadLength);
     _drawLabelList(
       canvas,
       endPoint: end,
@@ -313,21 +320,23 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
 
     final dir = _normalize(direction);
     final normal = Offset(-dir.dy, dir.dx);
-    final alongOffset = 3.0 + laneIndex * 1.2;
-    final sideBase = 7.0;
+    final alongOffset = (3.0 + laneIndex * 1.2) * scale;
+    final sideBase = 7.0 * scale;
     final anchor = endPoint - (dir * alongOffset) + (normal * sideBase);
+    final fontSize = (12.0 * scale).clamp(10.0, 20.0);
+    final shadowBlur = (2.0 * scale).clamp(1.0, 4.0);
     final painters = types
         .map(
           (type) => TextPainter(
             text: TextSpan(
               text: _labelFor(type),
               style: TextStyle(
-                fontSize: 12,
+                fontSize: fontSize,
                 fontWeight: FontWeight.w900,
                 color: _labelColor(type),
                 height: 1.0,
-                shadows: const [
-                  Shadow(color: Colors.white, blurRadius: 2),
+                shadows: [
+                  Shadow(color: Colors.white, blurRadius: shadowBlur),
                 ],
               ),
             ),
@@ -335,7 +344,7 @@ class ZiweiSihuaModeArrowPainter extends CustomPainter {
           )..layout(),
         )
         .toList(growable: false);
-    const spacing = 2.0;
+    final spacing = 2.0 * scale;
     final totalWidth = painters.fold<double>(
           0,
           (sum, painter) => sum + painter.width,

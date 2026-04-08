@@ -85,7 +85,9 @@ class CenterInfoWidget extends ConsumerWidget {
         ? caseName
         : '匿名'.tr;
     final appSettings = ref.watch(appSettingsProvider);
-    final useTrueSolar = appSettings.useTrueSolarTime;
+    final useTrueSolar = currentCase.birthInput.resolveUseTrueSolarTime(
+      appSettings.useTrueSolarTime,
+    );
     final ziweiOptions = appSettings.ziweiOptions;
     final hideCenterBirthInfo = ziweiOptions.hideCenterBirthInfo;
     final showCenterBazi = switch (chartMode) {

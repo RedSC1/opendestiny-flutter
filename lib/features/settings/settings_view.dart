@@ -110,14 +110,16 @@ class SettingsView extends ConsumerWidget {
         ),
 
         const Divider(),
-        _buildSectionTitle(context, '全局历法配置'.tr),
+        _buildSectionTitle(context, '新建案例默认历法配置'.tr),
 
         SwitchListTile(
-          title: Text('真太阳时修正'.tr),
-          subtitle: Text('基于地理位置计算平太阳时误差'.tr),
+          title: Text('默认启用真太阳时修正'.tr),
+          subtitle: Text('仅作为新建案例的默认值'.tr),
           value: settings.useTrueSolarTime,
           onChanged: (val) =>
-              ref.read(inputNotifierProvider.notifier).toggleTrueSolarTime(val),
+              ref
+                  .read(inputNotifierProvider.notifier)
+                  .updateDefaultTrueSolarTime(val),
         ),
 
         ListTile(

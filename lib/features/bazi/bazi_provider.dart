@@ -10,6 +10,9 @@ BaziChart baziChart(BaziChartRef ref) {
   final profile = ref.watch(inputNotifierProvider);
   final settings = ref.watch(appSettingsProvider);
   final birthInput = profile.birthInput;
+  final useTrueSolarTime = birthInput.resolveUseTrueSolarTime(
+    settings.useTrueSolarTime,
+  );
 
   if (birthInput.calendarType == BirthCalendarType.lunar) {
     final lunar = birthInput.lunar;
@@ -23,7 +26,7 @@ BaziChart baziChart(BaziChartRef ref) {
       isleap: lunar.isLeap,
       location: birthInput.location,
       timeZone: birthInput.timeZone,
-      useTrueSolarTime: settings.useTrueSolarTime,
+      useTrueSolarTime: useTrueSolarTime,
       ratHourMode: settings.ratHourMode,
       gender: profile.gender,
       siLingVersion: profile.baziOptions.siLingVersion,
@@ -34,7 +37,7 @@ BaziChart baziChart(BaziChartRef ref) {
     clockTime: birthInput.solar.toAstroDateTime(),
     location: birthInput.location,
     timeZone: birthInput.timeZone,
-    useTrueSolarTime: settings.useTrueSolarTime,
+    useTrueSolarTime: useTrueSolarTime,
     ratHourMode: settings.ratHourMode,
     gender: profile.gender,
     siLingVersion: profile.baziOptions.siLingVersion,

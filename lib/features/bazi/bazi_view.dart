@@ -44,6 +44,9 @@ class BaziView extends ConsumerWidget {
     final showInteractions = ref.watch(showInteractionProvider);
     final appSettings = ref.watch(appSettingsProvider);
     final currentCase = ref.watch(currentCaseProvider);
+    final useTrueSolarTime = currentCase.birthInput.resolveUseTrueSolarTime(
+      appSettings.useTrueSolarTime,
+    );
 
     final fortuneSection = FortuneFlowBoard(
       table: fortuneTable,
@@ -60,6 +63,7 @@ class BaziView extends ConsumerWidget {
             fortuneTable,
             appSettings,
             currentCase,
+            useTrueSolarTime,
             showInteractions,
             adaptiveScale,
           ),
@@ -82,6 +86,7 @@ class BaziView extends ConsumerWidget {
               fortuneTable,
               appSettings,
               currentCase,
+              useTrueSolarTime,
               showInteractions,
               adaptiveScale,
             ),
@@ -104,6 +109,7 @@ class BaziView extends ConsumerWidget {
               fortuneTable,
               appSettings,
               currentCase,
+              useTrueSolarTime,
               showInteractions,
               adaptiveScale,
             ),
@@ -126,6 +132,7 @@ class BaziView extends ConsumerWidget {
               fortuneTable,
               appSettings,
               currentCase,
+              useTrueSolarTime,
               showInteractions,
               adaptiveScale,
             ),
@@ -257,6 +264,7 @@ class BaziView extends ConsumerWidget {
     FortuneTable fortuneTable,
     AppSettings appSettings,
     DestinyCase currentCase,
+    bool useTrueSolarTime,
     bool showInteractions,
     double adaptiveScale,
   ) {
@@ -273,7 +281,7 @@ class BaziView extends ConsumerWidget {
             child: BaziHeader(
               chart: baziChart,
               fortuneTable: fortuneTable,
-              showTrueSolarTime: appSettings.useTrueSolarTime,
+              showTrueSolarTime: useTrueSolarTime,
               currentCase: currentCase,
               appSettings: appSettings,
               adaptiveScale: headerScale,

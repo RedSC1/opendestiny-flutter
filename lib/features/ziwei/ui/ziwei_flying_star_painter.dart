@@ -18,10 +18,12 @@ class FlyingStarArrowTarget {
 class ZiweiFlyingStarPainter extends CustomPainter {
   final Rect sourceRect;
   final List<FlyingStarArrowTarget> targets;
+  final double scale;
 
   const ZiweiFlyingStarPainter({
     required this.sourceRect,
     required this.targets,
+    this.scale = 1.0,
   });
 
   @override
@@ -41,14 +43,15 @@ class ZiweiFlyingStarPainter extends CustomPainter {
       final startAnchor = sourceCenter + unit * hiddenDistance;
       final endAnchor = _edgeAnchor(target.rect, -direction);
 
+      final strokeWidth = (1.6 * scale).clamp(1.0, 4.0);
       final paint = Paint()
         ..color = ZiweiClassicTheme.getSihuaColor(target.sihuaType)
-        ..strokeWidth = 1.6
+        ..strokeWidth = strokeWidth
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
 
       canvas.drawLine(startAnchor, endAnchor, paint);
-      _drawArrowHead(canvas, startAnchor, endAnchor, paint);
+      _drawArrowHead(canvas, startAnchor, endAnchor, paint, scale);
     }
   }
 
@@ -79,9 +82,10 @@ class ZiweiFlyingStarPainter extends CustomPainter {
     Offset start,
     Offset end,
     Paint paint,
+    double scale,
   ) {
-    const headLength = 7.0;
-    const headAngle = math.pi / 7;
+    final headLength = (7.0 * scale).clamp(5.0, 12.0);
+    final headAngle = math.pi / 7;
     final angle = math.atan2(end.dy - start.dy, end.dx - start.dx);
 
     final left = Offset(
@@ -100,6 +104,7 @@ class ZiweiFlyingStarPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant ZiweiFlyingStarPainter oldDelegate) {
     if (oldDelegate.sourceRect != sourceRect) return true;
+    if (oldDelegate.scale != scale) return true;
     if (oldDelegate.targets.length != targets.length) return true;
 
     for (int i = 0; i < targets.length; i++) {

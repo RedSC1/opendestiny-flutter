@@ -308,6 +308,7 @@ class BirthInput {
   final SolarBirthInput solar;
   final LunarBirthInput lunar;
   final TimePackConfig timeConfig;
+  final bool? useTrueSolarTime;
 
   const BirthInput({
     this.calendarType = BirthCalendarType.solar,
@@ -319,10 +320,14 @@ class BirthInput {
       hour: 12,
     ),
     this.timeConfig = const TimePackConfig(),
+    this.useTrueSolarTime,
   });
 
-  factory BirthInput.now() {
-    return BirthInput(solar: SolarBirthInput.now());
+  factory BirthInput.now({bool? useTrueSolarTime}) {
+    return BirthInput(
+      solar: SolarBirthInput.now(),
+      useTrueSolarTime: useTrueSolarTime,
+    );
   }
 
   BirthInput copyWith({
@@ -330,6 +335,7 @@ class BirthInput {
     SolarBirthInput? solar,
     LunarBirthInput? lunar,
     TimePackConfig? timeConfig,
+    bool? useTrueSolarTime,
     double? longitude,
     double? latitude,
     String? locationName,
@@ -345,6 +351,7 @@ class BirthInput {
         locationName: locationName,
         timeZone: timeZone,
       ),
+      useTrueSolarTime: useTrueSolarTime ?? this.useTrueSolarTime,
     );
   }
 
@@ -369,6 +376,7 @@ class BirthInput {
       timeConfig: json['timeConfig'] == null
           ? legacyTimeConfig
           : TimePackConfig.fromJson(json['timeConfig'] as Map<String, dynamic>),
+      useTrueSolarTime: json['useTrueSolarTime'] as bool?,
     );
   }
 
@@ -377,6 +385,7 @@ class BirthInput {
     'solar': solar.toJson(),
     'lunar': lunar.toJson(),
     'timeConfig': timeConfig.toJson(),
+    'useTrueSolarTime': useTrueSolarTime,
   };
 
   double get longitude => timeConfig.longitude;
@@ -412,6 +421,9 @@ class BirthInput {
       ? lunarClockTime
       : solar.toAstroDateTime();
 
+  bool resolveUseTrueSolarTime(bool fallbackValue) =>
+      useTrueSolarTime ?? fallbackValue;
+
   String caseSummaryText(bool useAstronomical) {
     if (calendarType == BirthCalendarType.lunar) {
       final yearStr = lunar.year.formatYear(useAstronomical);
@@ -445,10 +457,17 @@ class BirthInput {
           other.calendarType == calendarType &&
           other.solar == solar &&
           other.lunar == lunar &&
-          other.timeConfig == timeConfig;
+          other.timeConfig == timeConfig &&
+          other.useTrueSolarTime == useTrueSolarTime;
 
   @override
-  int get hashCode => Object.hash(calendarType, solar, lunar, timeConfig);
+  int get hashCode => Object.hash(
+    calendarType,
+    solar,
+    lunar,
+    timeConfig,
+    useTrueSolarTime,
+  );
 }
 
 @freezed
@@ -833,6 +852,7 @@ class ZiweiOptions with _$ZiweiOptions {
 class AppSettings {
   final int globalThemeSeedColor;
   final AppLanguage language;
+  // Legacy/global default. Case-level BirthInput.useTrueSolarTime now takes precedence.
   final bool useTrueSolarTime;
   final bool useAstronomicalYear;
   final RatHourMode ratHourMode;
@@ -980,12 +1000,16 @@ class DestinyCase {
   }) : createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? createdAt ?? DateTime.now();
 
-  factory DestinyCase.initial({String id = 'default', String name = '默认案例'}) {
+  factory DestinyCase.initial({
+    String id = 'default',
+    String name = '默认案例',
+    BirthInput? birthInput,
+  }) {
     final now = DateTime.now();
     return DestinyCase(
       id: id,
       name: name,
-      birthInput: BirthInput.now(),
+      birthInput: birthInput ?? BirthInput.now(),
       createdAt: now,
       updatedAt: now,
     );

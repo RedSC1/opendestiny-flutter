@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.5.4
+
+### 🚀 Features
+- **BaZi Reverse Lookup**: Added a comprehensive "八字反查" (reverse lookup) feature to the birth-time input screen, allowing users to search for dates/times by entering the four pillars (年柱, 月柱, 日柱, 时柱).
+  - Validates Yin-Yang pairing (阳干配阳支, 阴干配阴支) with inline error display using red borders and text.
+  - Shows an orange prompt message when no results are found, suggesting to expand the year search range.
+  - Automatically disables true solar time correction when applying a search result.
+  - Follows the app's current true solar time setting during search.
+
+### 🎨 UI
+- **Ziwei Arrow Scaling**: All arrow types (向心, 离心, 自化) in Sanhe, Sihua, and Flying Star modes now scale proportionally with the chart size.
+- **ABCD Label Scaling**: The SiHua type labels (A/B/C/D for 禄/权/科/忌) now scale with the chart for better visibility on larger displays.
+
+## 0.5.3
+
+### 📦 Dependency Updates
+- `bazi_core`: `^0.6.6`
+- `ziwei_core`: `^0.12.10`
+- `sxwnl_spa_dart`: `^0.18.4`
+
+### 🛠️ Sync
+- **Bazi Reverse Lookup Readiness**: Synced the app to the latest `bazi_core` release so upper-layer integration can consume the new reverse-lookup APIs for date, time, and full Bazi matching.
+- **Core Version Alignment**: Synced the app to `ziwei_core 0.12.10` and bumped the app version metadata so packaged builds, update checks, and dependency declarations stay consistent.
+
 ## 0.5.2
 
 ### 🛠️ Fixes

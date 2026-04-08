@@ -58,7 +58,7 @@ class InputNotifier extends _$InputNotifier {
       mode: _settings.ziweiColorMode,
       palette: _settings.ziweiColorPalette,
     );
-    _currentCase = DestinyCase.initial();
+    _currentCase = _buildDraftCase();
     final initial = _composeProfile();
     AppL10nSettings.currentLanguage = _settings.language;
     _hydrate();
@@ -156,22 +156,31 @@ class InputNotifier extends _$InputNotifier {
     );
     _updateProfile();
   }
-void toggleTrueSolarTime(bool value) {
-  _settings = _settings.copyWith(useTrueSolarTime: value);
-  _updateProfile();
-}
 
-void updateAstronomicalYearMode(bool value) {
-  _settings = _settings.copyWith(useAstronomicalYear: value);
-  _updateProfile();
-}
+  void updateBirthUseTrueSolarTime(bool value) {
+    _currentCase = _currentCase.copyWith(
+      birthInput: state.birthInput.copyWith(useTrueSolarTime: value),
+      touchUpdatedAt: true,
+    );
+    _updateProfile();
+  }
 
-void updateGlobalThemeSeedColor(int color) {
-  _settings = _settings.copyWith(globalThemeSeedColor: color);
-  _updateProfile();
-}
+  void updateDefaultTrueSolarTime(bool value) {
+    _settings = _settings.copyWith(useTrueSolarTime: value);
+    _updateProfile();
+  }
 
-void updateRatHourMode(RatHourMode mode) {
+  void updateAstronomicalYearMode(bool value) {
+    _settings = _settings.copyWith(useAstronomicalYear: value);
+    _updateProfile();
+  }
+
+  void updateGlobalThemeSeedColor(int color) {
+    _settings = _settings.copyWith(globalThemeSeedColor: color);
+    _updateProfile();
+  }
+
+  void updateRatHourMode(RatHourMode mode) {
     _settings = _settings.copyWith(ratHourMode: mode);
     _updateProfile();
   }
@@ -352,7 +361,7 @@ void updateRatHourMode(RatHourMode mode) {
     _currentCase = DestinyCase(
       id: _buildCaseId(now),
       name: _buildCaseName(now),
-      birthInput: BirthInput.now(),
+      birthInput: BirthInput.now(useTrueSolarTime: _settings.useTrueSolarTime),
       gender: state.gender,
       createdAt: now,
       updatedAt: now,
@@ -365,7 +374,7 @@ void updateRatHourMode(RatHourMode mode) {
 
   Future<void> selectCase(String? id) async {
     if (id == null || id.isEmpty || id == draftCaseId) {
-      _currentCase = DestinyCase.initial(id: draftCaseId, name: '当前时间');
+      _currentCase = _buildDraftCase();
       _updateProfile();
       return;
     }
@@ -386,7 +395,7 @@ void updateRatHourMode(RatHourMode mode) {
     await _caseRepository.deleteCase(id);
     await _refreshCaseSummaries();
     if (_currentCase.id == id) {
-      _currentCase = DestinyCase.initial(id: draftCaseId, name: '当前时间');
+      _currentCase = _buildDraftCase();
       _updateProfile();
     } else {
       _notifyDerivedDataChanged();
@@ -450,6 +459,14 @@ void updateRatHourMode(RatHourMode mode) {
       language: _settings.language,
       baziOptions: _settings.baziOptions,
       ziweiOptions: _settings.ziweiOptions,
+    );
+  }
+
+  DestinyCase _buildDraftCase() {
+    return DestinyCase.initial(
+      id: draftCaseId,
+      name: '当前时间',
+      birthInput: BirthInput.now(useTrueSolarTime: _settings.useTrueSolarTime),
     );
   }
 

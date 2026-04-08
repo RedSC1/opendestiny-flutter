@@ -232,11 +232,27 @@ extension StringL10n on String {
     '连线图': {AppLanguage.en: 'Diagram', AppLanguage.zhTW: '連線圖'},
     '设置': {AppLanguage.en: 'Settings', AppLanguage.zhTW: '設置'},
     '关于': {AppLanguage.en: 'About', AppLanguage.zhTW: '關於'},
+    '新建案例默认历法配置': {
+      AppLanguage.en: 'Default Calendar Settings for New Cases',
+      AppLanguage.zhTW: '新建案例默認曆法配置',
+    },
     '全局主题色': {AppLanguage.en: 'Global Theme Color', AppLanguage.zhTW: '全局主題色'},
     '控制按钮、开关与选中态的全局强调色': {
       AppLanguage.en:
           'Control the global accent color for buttons, switches and selected states',
       AppLanguage.zhTW: '控制按鈕、開關與選中態的全局強調色',
+    },
+    '默认启用真太阳时修正': {
+      AppLanguage.en: 'Enable True Solar Time by Default',
+      AppLanguage.zhTW: '默認啟用真太陽時修正',
+    },
+    '仅作为新建案例的默认值': {
+      AppLanguage.en: 'Used only as the default for new cases',
+      AppLanguage.zhTW: '僅作為新建案例的默認值',
+    },
+    '仅影响当前案例的排盘与反查': {
+      AppLanguage.en: 'Only affects charting and reverse lookup for this case',
+      AppLanguage.zhTW: '僅影響當前案例的排盤與反查',
     },
     '经典紫': {AppLanguage.en: 'Classic Purple', AppLanguage.zhTW: '經典紫'},
     '蓝灰': {AppLanguage.en: 'Blue Grey', AppLanguage.zhTW: '藍灰'},
@@ -1628,6 +1644,61 @@ extension StringL10n on String {
     '金四局': {AppLanguage.en: 'Metal 4', AppLanguage.zhTW: '金四局'},
     '水二局': {AppLanguage.en: 'Water 2', AppLanguage.zhTW: '水二局'},
     '匿名': {AppLanguage.en: 'Anonymous', AppLanguage.zhTW: '匿名'},
+
+    // 八字反查功能
+    '八字反查': {
+      AppLanguage.en: 'BaZi Reverse Lookup',
+      AppLanguage.zhTW: '八字反查',
+    },
+    '天干': {AppLanguage.en: 'Stem', AppLanguage.zhTW: '天干'},
+    '地支': {AppLanguage.en: 'Branch', AppLanguage.zhTW: '地支'},
+    '起始年份': {AppLanguage.en: 'Start Year', AppLanguage.zhTW: '起始年份'},
+    '结束年份': {AppLanguage.en: 'End Year', AppLanguage.zhTW: '結束年份'},
+    '搜索范围': {AppLanguage.en: 'Search Range', AppLanguage.zhTW: '搜索範圍'},
+    '搜索': {AppLanguage.en: 'Search', AppLanguage.zhTW: '搜索'},
+    '请选择四柱': {
+      AppLanguage.en: 'Please select four pillars',
+      AppLanguage.zhTW: '請選擇四柱',
+    },
+    '搜索结果': {AppLanguage.en: 'Search Results', AppLanguage.zhTW: '搜索結果'},
+    '未找到结果': {
+      AppLanguage.en: 'No results found',
+      AppLanguage.zhTW: '未找到結果',
+    },
+    '未找到匹配结果，请尝试扩大年份搜索范围': {
+      AppLanguage.en: 'No matching results found, please try expanding the year search range',
+      AppLanguage.zhTW: '未找到匹配結果，請嘗試擴大年份搜索範圍',
+    },
+    '反查': {AppLanguage.en: 'Lookup', AppLanguage.zhTW: '反查'},
+    '可选': {AppLanguage.en: 'Optional', AppLanguage.zhTW: '可選'},
+    '无时柱': {AppLanguage.en: 'No Hour', AppLanguage.zhTW: '無時柱'},
+    '应用该时间': {
+      AppLanguage.en: 'Apply This Time',
+      AppLanguage.zhTW: '應用該時間',
+    },
+    '请选择年柱': {AppLanguage.en: 'Please select year pillar', AppLanguage.zhTW: '請選擇年柱'},
+    '请选择月柱': {AppLanguage.en: 'Please select month pillar', AppLanguage.zhTW: '請選擇月柱'},
+    '请选择日柱': {AppLanguage.en: 'Please select day pillar', AppLanguage.zhTW: '請選擇日柱'},
+    '请选择时柱': {AppLanguage.en: 'Please select hour pillar', AppLanguage.zhTW: '請選擇時柱'},
+    '请输入有效的年份': {AppLanguage.en: 'Please enter valid year', AppLanguage.zhTW: '請輸入有效的年份'},
+    '起始年份不能大于结束年份': {
+      AppLanguage.en: 'Start year cannot be greater than end year',
+      AppLanguage.zhTW: '起始年份不能大於結束年份',
+    },
+    '搜索失败：': {AppLanguage.en: 'Search failed: ', AppLanguage.zhTW: '搜索失敗：'},
+    '年柱与月柱不匹配（五虎遁）': {
+      AppLanguage.en: 'Month pillar does not match year pillar (WuHuDun)',
+      AppLanguage.zhTW: '年柱與月柱不匹配（五虎遁）',
+    },
+    '起始日期必须早于或等于结束日期': {
+      AppLanguage.en: 'Start date must be earlier than or equal to end date',
+      AppLanguage.zhTW: '起始日期必須早於或等於結束日期',
+    },
+    '天干地支阴阳不匹配': {
+      AppLanguage.en: 'Stem and branch yin-yang mismatch',
+      AppLanguage.zhTW: '天干地支陰陽不匹配',
+    },
+    '搜索出错': {AppLanguage.en: 'Search error', AppLanguage.zhTW: '搜索出錯'},
   };
 }
 

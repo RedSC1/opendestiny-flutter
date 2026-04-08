@@ -130,6 +130,7 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
                       painter: ZiweiSihuaArrowPainter(
                         plate: state.plate,
                         edgeMargin: edgeMargin,
+                        scale: safeCellScale,
                       ),
                     ),
                   ),
@@ -143,6 +144,7 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
                         edgeMargin: edgeMargin,
                         starRects: _sihuaStarRects,
                         badgeRects: _sihuaBadgeRects,
+                        scale: safeCellScale,
                       ),
                     ),
                   ),
@@ -159,6 +161,7 @@ class _ZiweiChartWidgetState extends ConsumerState<ZiweiChartWidget> {
                       painter: ZiweiFlyingStarPainter(
                         sourceRect: sourceRect,
                         targets: arrowTargets,
+                        scale: safeCellScale,
                       ),
                     ),
                   ),

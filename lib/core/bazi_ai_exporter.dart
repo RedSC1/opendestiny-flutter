@@ -11,6 +11,9 @@ class BaziAiExporter {
     required FortuneTable fortuneTable,
   }) {
     final birthInput = destinyCase.birthInput;
+    final useTrueSolarTime = birthInput.resolveUseTrueSolarTime(
+      settings.useTrueSolarTime,
+    );
 
     final result = <String, dynamic>{
       'schema_version': 'bazi_ai_v2',
@@ -26,7 +29,7 @@ class BaziAiExporter {
         'gender': _gender(chart.gender),
       },
       'calc_settings': {
-        'use_true_solar_time': settings.useTrueSolarTime,
+        'use_true_solar_time': useTrueSolarTime,
         'rat_hour_mode': settings.ratHourMode.name,
         'si_ling_version': settings.baziOptions.siLingVersion.name,
         'da_yun_algorithm': settings.baziOptions.daYunAlgorithm.name,

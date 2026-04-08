@@ -161,6 +161,9 @@ ZiweiDate originDate(OriginDateRef ref) {
   final settings = ref.watch(appSettingsProvider);
   final rulesetOptions = ref.watch(ziweiRulesetProvider).calendarOptions;
   final birthInput = profile.birthInput;
+  final useTrueSolarTime = birthInput.resolveUseTrueSolarTime(
+    settings.useTrueSolarTime,
+  );
   final calendarOptions = buildZiweiCalendarOptions(
     settings: settings,
     baseOptions: rulesetOptions,
@@ -182,7 +185,7 @@ ZiweiDate originDate(OriginDateRef ref) {
     options: calendarOptions,
     location: birthInput.location,
     timeZone: birthInput.timeZone,
-    useTrueSolarTime: settings.useTrueSolarTime,
+    useTrueSolarTime: useTrueSolarTime,
   );
 }
 
