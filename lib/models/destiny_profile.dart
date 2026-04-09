@@ -57,7 +57,7 @@ String _ratHourModeToJson(RatHourMode value) {
 
 String _twoDigits(int value) => value.toString().padLeft(2, '0');
 
-String _formatLunarDayLabel(int day) {
+String formatLunarDayLabel(int day) {
   if (AppL10nSettings.currentLanguage == AppLanguage.en) {
     return 'Day $day';
   }
@@ -427,7 +427,7 @@ class BirthInput {
   String caseSummaryText(bool useAstronomical) {
     if (calendarType == BirthCalendarType.lunar) {
       final yearStr = lunar.year.formatYear(useAstronomical);
-      return '${'农历'.tr} $yearStr${'年'.tr} ${_formatCaseLunarMonth(lunar)}${'月'.tr} ${_formatLunarDayLabel(lunar.day)} ${_twoDigits(lunar.hour)}:${_twoDigits(lunar.minute)}';
+      return '${'农历'.tr} $yearStr${'年'.tr} ${_formatCaseLunarMonth(lunar)}${'月'.tr} ${formatLunarDayLabel(lunar.day)} ${_twoDigits(lunar.hour)}:${_twoDigits(lunar.minute)}';
     }
 
     final yearStr = solar.year.formatYear(useAstronomical);

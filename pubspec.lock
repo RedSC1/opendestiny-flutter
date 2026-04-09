@@ -1169,10 +1169,10 @@ packages:
     dependency: "direct main"
     description:
       name: ziwei_core
-      sha256: "5770a0c8982b763eae5af8c1ab98a83913e09cb68197f7b7f99758318fe61e70"
+      sha256: dee16a99dc424b5f3456c526343a4d14c265c182e739cb6c587dbf51cef9166a
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.11"
+    version: "0.13.0"
 sdks:
   dart: ">=3.10.8 <4.0.0"
   flutter: ">=3.38.4"

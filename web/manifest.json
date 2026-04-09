@@ -1,11 +1,11 @@
 {
-    "name": "opendestiny",
-    "short_name": "opendestiny",
+    "name": "OpenDestiny",
+    "short_name": "OpenDestiny",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#050A15",
+    "theme_color": "#050A15",
+    "description": "一个用 Flutter 构建的现代化、专业级中国传统术数（紫微斗数与八字）全平台排盘应用",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

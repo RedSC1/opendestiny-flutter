@@ -1699,6 +1699,21 @@ extension StringL10n on String {
       AppLanguage.zhTW: '天干地支陰陽不匹配',
     },
     '搜索出错': {AppLanguage.en: 'Search error', AppLanguage.zhTW: '搜索出錯'},
+
+    // 紫微反查功能
+    '紫微反查': {AppLanguage.en: 'Ziwei Lookup', AppLanguage.zhTW: '紫微反查'},
+    '请选择禄存所在宫位': {AppLanguage.en: 'Select Lucun palace', AppLanguage.zhTW: '請選擇祿存所在宮位'},
+    '请选择红鸾所在宫位': {AppLanguage.en: 'Select Hongluan palace', AppLanguage.zhTW: '請選擇紅鸞所在宮位'},
+    '请选择左辅所在宫位': {AppLanguage.en: 'Select Zuofu palace', AppLanguage.zhTW: '請選擇左輔所在宮位'},
+    '请选择文昌所在宫位': {AppLanguage.en: 'Select Wenchang palace', AppLanguage.zhTW: '請選擇文昌所在宮位'},
+    '请选择三台所在宫位': {AppLanguage.en: 'Select Santai palace', AppLanguage.zhTW: '請選擇三台所在宮位'},
+    '请选择紫微星所在宫位（可选）': {AppLanguage.en: 'Select Ziwei palace (optional)', AppLanguage.zhTW: '請選擇紫微星所在宮位（可選）'},
+    '宫位': {AppLanguage.en: 'Palace', AppLanguage.zhTW: '宮位'},
+    '禄存': {AppLanguage.en: 'Lucun', AppLanguage.zhTW: '祿存'},
+    '左辅': {AppLanguage.en: 'Zuofu', AppLanguage.zhTW: '左輔'},
+    '文昌': {AppLanguage.en: 'Wenchang', AppLanguage.zhTW: '文昌'},
+    '三台': {AppLanguage.en: 'Santai', AppLanguage.zhTW: '三台'},
+    '紫微星': {AppLanguage.en: 'Ziwei', AppLanguage.zhTW: '紫微星'},
   };
 }
 

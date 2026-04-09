@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bazi_core/bazi_core.dart';
+import 'package:ziwei_core/ziwei_core.dart';
 
 import '../../core/ui_scale.dart';
 import '../../core/l10n.dart';
@@ -8,6 +9,7 @@ import '../../models/destiny_profile.dart';
 import '../../providers/input_provider.dart';
 import '../bazi/responsive_bazi_view.dart';
 import '../ziwei/ui/ziwei_view.dart';
+import '../ziwei/providers/ziwei_providers.dart';
 import '../settings/settings_view.dart';
 import '../../data/cities.dart';
 
@@ -201,6 +203,16 @@ class ProfileView extends ConsumerWidget {
                     onPressed: () => _showBaziReverseLookupDialog(context, ref),
                     icon: const Icon(Icons.search, size: 20),
                     label: Text('八字反查'.tr),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      minimumSize: const Size(80, 36),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _showZiweiReverseLookupDialog(context, ref),
+                    icon: const Icon(Icons.search, size: 20),
+                    label: Text('紫微反查'.tr),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       minimumSize: const Size(80, 36),
@@ -1360,22 +1372,42 @@ class ProfileView extends ConsumerWidget {
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    title: Text(
-                      '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} '
-                      '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      '${chart.bazi.year.display} ${chart.bazi.month.display} '
-                      '${chart.bazi.day.display} ${chart.bazi.time.display}',
-                    ),
-                    trailing: TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _applyBaziSearchResult(ref, dateTime);
-                      },
-                      child: Text('应用'.tr),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _applyBaziSearchResult(ref, dateTime);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} '
+                                  '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${chart.bazi.year.display} ${chart.bazi.month.display} '
+                                  '${chart.bazi.day.display} ${chart.bazi.time.display}',
+                                ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _applyBaziSearchResult(ref, dateTime);
+                            },
+                            child: Text('应用'.tr),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -1408,6 +1440,436 @@ class ProfileView extends ConsumerWidget {
       ..updateSolarInput(solarInput)
       ..updateCalendarType(BirthCalendarType.solar)
       ..updateBirthUseTrueSolarTime(false); // 八字反查结果默认关闭真太阳时
+  }
+
+  Future<void> _showZiweiReverseLookupDialog(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    int? lucunIndex;
+    int? hongluanIndex;
+    int? zuofuIndex;
+    int? wenchangIndex;
+    int? santaiIndex;
+    int? ziweiIndex;
+
+    final currentYear = DateTime.now().year;
+    final startYearController = TextEditingController(text: (currentYear - 50).toString());
+    final endYearController = TextEditingController(text: (currentYear + 50).toString());
+
+    String? lucunError, hongluanError, zuofuError, wenchangError, santaiError, rangeError, searchError;
+    String? noResultsMessage;
+    var isSearching = false;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void validateAndSearch() {
+              lucunError = null;
+              hongluanError = null;
+              zuofuError = null;
+              wenchangError = null;
+              santaiError = null;
+              rangeError = null;
+              searchError = null;
+              noResultsMessage = null;
+
+              if (lucunIndex == null) lucunError = '请选择禄存所在宫位'.tr;
+              if (hongluanIndex == null) hongluanError = '请选择红鸾所在宫位'.tr;
+              if (zuofuIndex == null) zuofuError = '请选择左辅所在宫位'.tr;
+              if (wenchangIndex == null) wenchangError = '请选择文昌所在宫位'.tr;
+              if (santaiIndex == null) santaiError = '请选择三台所在宫位'.tr;
+
+              final startYear = int.tryParse(startYearController.text);
+              final endYear = int.tryParse(endYearController.text);
+
+              if (startYear == null || endYear == null) {
+                rangeError = '请输入有效的年份'.tr;
+              } else if (startYear > endYear) {
+                rangeError = '起始年份不能大于结束年份'.tr;
+              }
+
+              if (lucunError != null || hongluanError != null || zuofuError != null ||
+                  wenchangError != null || santaiError != null || rangeError != null) {
+                setState(() {});
+                return;
+              }
+
+              setState(() => isSearching = true);
+
+              try {
+                final settings = ref.read(appSettingsProvider);
+                final profile = ref.read(inputNotifierProvider);
+                final birthInput = profile.birthInput;
+                final useTrueSolarTime = birthInput.resolveUseTrueSolarTime(settings.useTrueSolarTime);
+                final ruleset = ref.read(ziweiRulesetProvider);
+
+                final results = ZiweiReverseLookup.searchTier1(
+                  ZiweiTier1Query(
+                    lucunIndex: lucunIndex,
+                    hongluanIndex: hongluanIndex,
+                    zuofuIndex: zuofuIndex,
+                    wenchangIndex: wenchangIndex,
+                    santaiIndex: santaiIndex,
+                    ziweiIndex: ziweiIndex,
+                    startDate: AstroDateTime(startYear!, 1, 1),
+                    endDate: AstroDateTime(endYear!, 12, 31),
+                    ruleset: ruleset,
+                    gender: profile.gender,
+                    location: birthInput.location,
+                    timeZone: birthInput.timeZone,
+                    useTrueSolarTime: useTrueSolarTime,
+                  ),
+                );
+
+                setState(() => isSearching = false);
+
+                if (results.isEmpty) {
+                  noResultsMessage = '未找到匹配结果，请尝试扩大年份搜索范围'.tr;
+                  setState(() {});
+                  return;
+                }
+
+                Navigator.of(context).pop();
+                _showZiweiSearchResultsDialog(context, ref, results);
+              } catch (e) {
+                setState(() {
+                  isSearching = false;
+                  searchError = '搜索出错'.tr + ': ' + e.toString();
+                });
+              }
+            }
+
+            return AlertDialog(
+              title: Text('紫微反查'.tr),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildStarPalaceRow(
+                      label: '禄存'.tr,
+                      value: lucunIndex,
+                      errorText: lucunError,
+                      hint: '请选择禄存所在宫位'.tr,
+                      onChanged: (value) {
+                        setState(() {
+                          lucunIndex = value;
+                          lucunError = null;
+                          searchError = null;
+                          noResultsMessage = null;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStarPalaceRow(
+                      label: '红鸾'.tr,
+                      value: hongluanIndex,
+                      errorText: hongluanError,
+                      hint: '请选择红鸾所在宫位'.tr,
+                      onChanged: (value) {
+                        setState(() {
+                          hongluanIndex = value;
+                          hongluanError = null;
+                          searchError = null;
+                          noResultsMessage = null;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStarPalaceRow(
+                      label: '左辅'.tr,
+                      value: zuofuIndex,
+                      errorText: zuofuError,
+                      hint: '请选择左辅所在宫位'.tr,
+                      onChanged: (value) {
+                        setState(() {
+                          zuofuIndex = value;
+                          zuofuError = null;
+                          searchError = null;
+                          noResultsMessage = null;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStarPalaceRow(
+                      label: '文昌'.tr,
+                      value: wenchangIndex,
+                      errorText: wenchangError,
+                      hint: '请选择文昌所在宫位'.tr,
+                      onChanged: (value) {
+                        setState(() {
+                          wenchangIndex = value;
+                          wenchangError = null;
+                          searchError = null;
+                          noResultsMessage = null;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStarPalaceRow(
+                      label: '三台'.tr,
+                      value: santaiIndex,
+                      errorText: santaiError,
+                      hint: '请选择三台所在宫位'.tr,
+                      onChanged: (value) {
+                        setState(() {
+                          santaiIndex = value;
+                          santaiError = null;
+                          searchError = null;
+                          noResultsMessage = null;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStarPalaceRow(
+                      label: '紫微星'.tr,
+                      value: ziweiIndex,
+                      hint: '请选择紫微星所在宫位（可选）'.tr,
+                      onChanged: (value) {
+                        setState(() {
+                          ziweiIndex = value;
+                          searchError = null;
+                          noResultsMessage = null;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: startYearController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: '起始年份'.tr,
+                              errorText: rangeError,
+                              isDense: true,
+                            ),
+                            onChanged: (_) {
+                              setState(() {
+                                rangeError = null;
+                                searchError = null;
+                                noResultsMessage = null;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: endYearController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: '结束年份'.tr,
+                              errorText: rangeError,
+                              isDense: true,
+                            ),
+                            onChanged: (_) {
+                              setState(() {
+                                rangeError = null;
+                                searchError = null;
+                                noResultsMessage = null;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (searchError != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        searchError!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                    if (noResultsMessage != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        noResultsMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSearching ? null : () => Navigator.of(context).pop(),
+                  child: Text('取消'.tr),
+                ),
+                ElevatedButton(
+                  onPressed: isSearching ? null : validateAndSearch,
+                  child: isSearching
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text('搜索'.tr),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildStarPalaceRow({
+    required String label,
+    required int? value,
+    required ValueChanged<int?> onChanged,
+    String? errorText,
+    required String hint,
+  }) {
+    final hasError = errorText != null;
+    return Row(
+      children: [
+        SizedBox(width: 56, child: Text(label)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: DropdownButtonFormField<int>(
+            value: value,
+            isExpanded: true,
+            hint: Text(hint),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: hasError ? Colors.red : Colors.grey,
+                  width: hasError ? 2 : 1,
+                ),
+              ),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            ),
+            items: DiZhi.values.map((z) {
+              return DropdownMenuItem(
+                value: z.index,
+                child: Text(z.display),
+              );
+            }).toList(),
+            onChanged: onChanged,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showZiweiSearchResultsDialog(
+    BuildContext context,
+    WidgetRef ref,
+    List<ZiweiReverseCandidate> results,
+  ) async {
+    if (results.isEmpty) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('搜索结果'.tr),
+          content: Text('未找到结果'.tr),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('确定'.tr),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('搜索结果'.tr),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 400,
+            child: ListView.builder(
+              itemCount: results.length,
+              itemBuilder: (context, index) {
+                final result = results[index];
+                final dt = result.solarDate;
+                final hourName = DiZhi.values[result.hourIndex].display;
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _applyZiweiSearchResult(ref, dt);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${dt.year}-${_twoDigits(dt.month)}-${_twoDigits(dt.day)} '
+                                  '${_twoDigits(dt.hour)}:${_twoDigits(dt.minute)}:${_twoDigits(dt.second)}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${result.lunarYear}年 ${result.lunarMonth}月 ${formatLunarDayLabel(result.lunarDay)} $hourName${result.isLeapMonth ? " (闰月)" : ""}',
+                                ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _applyZiweiSearchResult(ref, dt);
+                            },
+                            child: Text('应用'.tr),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('关闭'.tr),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _applyZiweiSearchResult(WidgetRef ref, AstroDateTime dateTime) {
+    final solarInput = SolarBirthInput(
+      year: dateTime.year,
+      month: dateTime.month,
+      day: dateTime.day,
+      hour: dateTime.hour,
+      minute: dateTime.minute,
+      second: dateTime.second,
+    );
+
+    final notifier = ref.read(inputNotifierProvider.notifier);
+    notifier
+      ..updateSolarInput(solarInput)
+      ..updateCalendarType(BirthCalendarType.solar)
+      ..updateBirthUseTrueSolarTime(false);
   }
 }
 
