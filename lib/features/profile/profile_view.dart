@@ -182,48 +182,77 @@ class ProfileView extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Card(
-            child: ListTile(
-              leading: const Icon(Icons.calendar_today),
-              title: Text(
-                birthInput.calendarType == BirthCalendarType.solar
-                    ? '公历出生时间'.tr
-                    : '农历出生时间'.tr,
-              ),
-              subtitle: Text(
-                _birthInputSummary(birthInput, ref.watch(appSettingsProvider).useAstronomicalYear),
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Theme.of(context).colorScheme.primary,
+            child: InkWell(
+              onTap: () => _showBirthInputDialog(context, ref, birthInput),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.calendar_today),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                birthInput.calendarType == BirthCalendarType.solar
+                                    ? '公历出生时间'.tr
+                                    : '农历出生时间'.tr,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _birthInputSummary(birthInput, ref.watch(appSettingsProvider).useAstronomicalYear),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () => _showBaziReverseLookupDialog(context, ref),
+                          icon: const Icon(Icons.search, size: 18),
+                          label: Text('八字反查'.tr),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            minimumSize: const Size(72, 32),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () => _showZiweiReverseLookupDialog(context, ref),
+                          icon: const Icon(Icons.search, size: 18),
+                          label: Text('紫微反查'.tr),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            minimumSize: const Size(72, 32),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        IconButton(
+                          onPressed: () => _showBirthInputDialog(context, ref, birthInput),
+                          icon: const Icon(Icons.edit_outlined, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => _showBaziReverseLookupDialog(context, ref),
-                    icon: const Icon(Icons.search, size: 20),
-                    label: Text('八字反查'.tr),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      minimumSize: const Size(80, 36),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => _showZiweiReverseLookupDialog(context, ref),
-                    icon: const Icon(Icons.search, size: 20),
-                    label: Text('紫微反查'.tr),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      minimumSize: const Size(80, 36),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.edit_outlined),
-                ],
-              ),
-              onTap: () => _showBirthInputDialog(context, ref, birthInput),
             ),
           ),
           const SizedBox(height: 12),
@@ -1379,32 +1408,29 @@ class ProfileView extends ConsumerWidget {
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      child: Row(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} '
-                                  '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${chart.bazi.year.display} ${chart.bazi.month.display} '
-                                  '${chart.bazi.day.display} ${chart.bazi.time.display}',
-                                ),
-                              ],
-                            ),
+                          Text(
+                            '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} '
+                            '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              _applyBaziSearchResult(ref, dateTime);
-                            },
-                            child: Text('应用'.tr),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${chart.bazi.year.display} ${chart.bazi.month.display} '
+                            '${chart.bazi.day.display} ${chart.bazi.time.display}',
+                          ),
+                          const SizedBox(height: 6),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                _applyBaziSearchResult(ref, dateTime);
+                              },
+                              child: Text('应用'.tr),
+                            ),
                           ),
                         ],
                       ),
@@ -1810,31 +1836,28 @@ class ProfileView extends ConsumerWidget {
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      child: Row(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${dt.year}-${_twoDigits(dt.month)}-${_twoDigits(dt.day)} '
-                                  '${_twoDigits(dt.hour)}:${_twoDigits(dt.minute)}:${_twoDigits(dt.second)}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${result.lunarYear}年 ${result.lunarMonth}月 ${formatLunarDayLabel(result.lunarDay)} $hourName${result.isLeapMonth ? " (闰月)" : ""}',
-                                ),
-                              ],
-                            ),
+                          Text(
+                            '${dt.year}-${_twoDigits(dt.month)}-${_twoDigits(dt.day)} '
+                            '${_twoDigits(dt.hour)}:${_twoDigits(dt.minute)}:${_twoDigits(dt.second)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              _applyZiweiSearchResult(ref, dt);
-                            },
-                            child: Text('应用'.tr),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${result.lunarYear}年 ${result.lunarMonth}月 ${formatLunarDayLabel(result.lunarDay)} $hourName${result.isLeapMonth ? " (闰月)" : ""}',
+                          ),
+                          const SizedBox(height: 6),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                _applyZiweiSearchResult(ref, dt);
+                              },
+                              child: Text('应用'.tr),
+                            ),
                           ),
                         ],
                       ),
