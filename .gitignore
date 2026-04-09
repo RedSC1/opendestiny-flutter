@@ -45,3 +45,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Web build info (auto-generated)
+web/version.json
+web/build_info.js
