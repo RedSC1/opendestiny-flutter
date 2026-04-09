@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.5.6
+
+### 🚀 Features
+- **Ziwei Reverse Lookup**: Added "紫微反查" to the birth-time input screen, allowing users to search for birth dates by selecting the palaces of key stars (禄存, 红鸾, 左辅, 文昌, 三台, and an optional 紫微星 filter).
+  - Leverages day-level star palace indices to reverse-derive birth parameters.
+  - Fixes the "missing results" (没搜全) bug caused by incorrect leap-month index math and cross-year wraparound.
+  - Applies forward charting verification to every candidate result.
+
+### 🎨 UI
+- **Narrow-Screen Birth Card Layout**: Fixed the main profile page birth-date card getting squeezed into a vertical line by the reverse-lookup buttons on narrow screens. The buttons now sit below the date text instead of competing for horizontal space.
+- **Reverse Lookup Result Format Alignment**: Both 八字反查 and 紫微反查 result dialogs now:
+  - Display the solar date/time using the same format as the main profile `_birthInputSummary`.
+  - Respect the `useAstronomicalYear` app setting for BC year formatting.
+  - Show the corresponding lunar date line in each result card.
+
+### 🛠️ Fixes
+- **Version Sync**: Bumped the app version metadata to `0.5.6` and synchronized `AppVersion.current`.
+- **Repository Cleanup**: Removed auto-generated `web/version.json` and `web/build_info.js` from version control and added them to `.gitignore` so CI/build scripts can regenerate them cleanly.
+
 ## 0.5.4
 
 ### 🚀 Features

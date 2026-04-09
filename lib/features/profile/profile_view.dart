@@ -1426,6 +1426,10 @@ class ProfileView extends ConsumerWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
+                            '${'农历'.tr}：${chart.lunarDate.toString().replaceFirstMapped(RegExp(r"^(-?\d+)"), (m) => int.parse(m[1]!).formatYear(useAstronomical))}',
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
                             '${chart.bazi.year.display} ${chart.bazi.month.display} '
                             '${chart.bazi.day.display} ${chart.bazi.time.display}',
                           ),
@@ -1851,6 +1855,10 @@ class ProfileView extends ConsumerWidget {
                           Text(
                             _formatSolarDateTime(dt, useAstronomical),
                             style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${'农历'.tr}：${LunarDate.fromSolar(dt).toString().replaceFirstMapped(RegExp(r"^(-?\d+)"), (m) => int.parse(m[1]!).formatYear(useAstronomical))}',
                           ),
                           const SizedBox(height: 2),
                           Text(
