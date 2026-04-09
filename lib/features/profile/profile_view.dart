@@ -366,6 +366,14 @@ class ProfileView extends ConsumerWidget {
 
   String _twoDigits(int value) => value.toString().padLeft(2, '0');
 
+  String _formatSolarDateTime(AstroDateTime dt, bool useAstronomical) {
+    final yearStr = dt.year.formatYear(useAstronomical);
+    if (AppL10nSettings.currentLanguage == AppLanguage.en) {
+      return '${_englishMonthName(dt.month)} ${_twoDigits(dt.day)}, $yearStr ${_twoDigits(dt.hour)}:${_twoDigits(dt.minute)}:${_twoDigits(dt.second)}';
+    }
+    return '$yearStr-${_twoDigits(dt.month)}-${_twoDigits(dt.day)} ${_twoDigits(dt.hour)}:${_twoDigits(dt.minute)}:${_twoDigits(dt.second)}';
+  }
+
   Future<void> _showNameDialog(
     BuildContext context,
     WidgetRef ref,
@@ -1387,6 +1395,7 @@ class ProfileView extends ConsumerWidget {
     await showDialog<void>(
       context: context,
       builder: (context) {
+        final useAstronomical = ref.read(appSettingsProvider).useAstronomicalYear;
         return AlertDialog(
           title: Text('搜索结果'.tr),
           content: SizedBox(
@@ -1412,8 +1421,7 @@ class ProfileView extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} '
-                            '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}',
+                            _formatSolarDateTime(dateTime, useAstronomical),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 2),
@@ -1815,6 +1823,7 @@ class ProfileView extends ConsumerWidget {
     await showDialog<void>(
       context: context,
       builder: (context) {
+        final useAstronomical = ref.read(appSettingsProvider).useAstronomicalYear;
         return AlertDialog(
           title: Text('搜索结果'.tr),
           content: SizedBox(
@@ -1840,13 +1849,13 @@ class ProfileView extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${dt.year}-${_twoDigits(dt.month)}-${_twoDigits(dt.day)} '
-                            '${_twoDigits(dt.hour)}:${_twoDigits(dt.minute)}:${_twoDigits(dt.second)}',
+                            _formatSolarDateTime(dt, useAstronomical),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${result.lunarYear}年 ${result.lunarMonth}月 ${formatLunarDayLabel(result.lunarDay)} $hourName${result.isLeapMonth ? " (闰月)" : ""}',
+                            '${result.plate.date.bazi.year.display} ${result.plate.date.bazi.month.display} '
+                            '${result.plate.date.bazi.day.display} ${result.plate.date.bazi.time.display}',
                           ),
                           const SizedBox(height: 6),
                           Align(
